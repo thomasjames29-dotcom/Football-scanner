@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InPlay Pro Master</title>
+    <title>InPlay Ultimate</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="mobile-web-app-capable" content="yes">
@@ -12,27 +12,38 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚽</text></svg>">
     
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f172a; color: #e2e8f0; padding: 15px; }
-        h2 { text-align: center; color: #38bdf8; margin-bottom: 5px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f172a; color: #e2e8f0; padding: 15px; padding-bottom: 50px; }
+        h2 { text-align: center; color: #38bdf8; margin-bottom: 5px; font-weight: 800; letter-spacing: 1px; }
         
-        /* Button Styles */
-        .btn-scan { background: #8b5cf6; color: white; border: none; padding: 14px; border-radius: 12px; width: 100%; font-size: 1.1em; font-weight: bold; cursor: pointer; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        /* Controls Container */
+        .controls { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 20px; }
+        
+        /* Select Dropdown */
+        select { background: #1e293b; color: #fff; padding: 12px; border: 1px solid #475569; border-radius: 8px; font-size: 1em; width: 100%; font-weight: bold; appearance: none; }
+        
+        /* Buttons */
+        .btn-scan { background: #8b5cf6; color: white; border: none; padding: 14px; border-radius: 12px; width: 100%; font-size: 1.1em; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
         .btn-scan:active { transform: scale(0.98); background: #7c3aed; }
 
-        .btn-nav { background: #334155; color: #cbd5e1; border: 1px solid #475569; padding: 10px; border-radius: 8px; width: 100%; margin-bottom: 10px; cursor: pointer; font-weight:bold; }
-        
-        .btn-schedule { background: #0f766e; color: #ccfbf1; border: 1px solid #115e59; padding: 10px; border-radius: 8px; width: 100%; margin-bottom: 20px; cursor: pointer; font-weight:bold; }
+        .btn-nav { background: #334155; color: #cbd5e1; border: 1px solid #475569; padding: 10px; border-radius: 8px; width: 100%; font-weight:bold; cursor: pointer; }
+        .btn-schedule { background: #0f766e; color: #ccfbf1; border: 1px solid #115e59; padding: 10px; border-radius: 8px; width: 100%; font-weight:bold; cursor: pointer; }
+
+        /* Bet365 Button */
+        .btn-bet { background: #047857; color: white; border: none; padding: 8px; border-radius: 6px; width: 100%; margin-top: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.85em; }
 
         /* Card Styles */
         .card { background-color: #1e293b; padding: 15px; margin-bottom: 15px; border-radius: 12px; border-left: 6px solid #64748b; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2); position: relative; }
-        
         .card.likelihood-High { border-left-color: #ef4444; } 
         .card.likelihood-Medium { border-left-color: #f59e0b; } 
 
+        /* Match Header & Logos */
         .match-header { display: flex; justify-content: space-between; color: #94a3b8; font-size: 0.85em; margin-bottom: 8px; }
-        .scoreline { font-size: 1.4em; font-weight: 800; text-align: center; margin: 12px 0; color: #fff; }
-        
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: #0f172a; padding: 10px; border-radius: 8px; font-size: 0.85em; margin-bottom: 12px; }
+        .team-row { display: flex; align-items: center; justify-content: space-between; margin: 5px 0; font-size: 1.1em; font-weight: bold; }
+        .team-info { display: flex; align-items: center; gap: 10px; }
+        .team-logo { width: 28px; height: 28px; object-fit: contain; }
+        .score { font-size: 1.3em; color: #fff; }
+
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: #0f172a; padding: 10px; border-radius: 8px; font-size: 0.85em; margin-bottom: 12px; margin-top: 10px; }
         .stat-item { display: flex; justify-content: space-between; }
         .stat-label { color: #64748b; }
         .highlight-stat { color: #fbbf24; font-weight: bold; }
@@ -42,52 +53,61 @@
         .momentum-box.danger { background: #450a0a; border: 1px solid #ef4444; color: #fca5a5; }
 
         /* Badges */
-        .badge-container { display: flex; gap: 5px; justify-content: center; margin-bottom: 10px; flex-wrap: wrap; }
+        .badge-container { display: flex; gap: 5px; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
         .badge { font-size: 0.75em; padding: 2px 8px; border-radius: 4px; font-weight: bold; text-transform: uppercase; }
         .badge-red { background: #ef4444; color: white; }
         .badge-yellow { background: #f59e0b; color: black; }
 
-        #logs { font-size: 0.8em; color: #64748b; text-align: center; margin-top: 20px; font-style: italic; }
         .error-msg { color: #fca5a5; background: #450a0a; padding: 10px; border-radius: 8px; text-align: center; margin-bottom: 15px; display: none; }
     </style>
 </head>
 <body>
 
-    <h2>🤖 InPlay Pro Master</h2>
-    <p style="text-align:center; font-size:0.8em; color:#64748b; margin-bottom: 15px;">Live Scanner • xG • Pressure Index</p>
+    <h2>🤖 InPlay Ultimate</h2>
     
     <div id="error-display" class="error-msg"></div>
 
-    <a href="help.html" style="text-decoration:none;">
-        <button class="btn-nav">📖 View Strategy Legend</button>
-    </a>
+    <div class="controls">
+        <a href="help.html" style="text-decoration:none;">
+            <button class="btn-nav">📖 Strategy Guide</button>
+        </a>
 
-    <button class="btn-schedule" onclick="checkSchedule()">📅 Check Scan Times (70th Min)</button>
+        <button class="btn-schedule" onclick="checkSchedule()">📅 Check 70th Min Times</button>
+        
+        <select id="league-filter">
+            <option value="major">⭐ Major Leagues (API Saver)</option>
+            <option value="goals">⚽ Goal Machines (Dutch/Aus/Swiss)</option>
+            <option value="all">🌍 Scan World (High Data Usage)</option>
+        </select>
 
-    <button class="btn-scan" onclick="startScan()">🔍 Run Smart Scan</button>
+        <button class="btn-scan" onclick="startScan()">🔍 RUN SCAN</button>
+    </div>
     
     <div id="results"></div>
-    <div id="logs"></div>
 
     <script>
         // ==========================================
-        // CONFIGURATION
         const RAW_KEY = "0f29a2f96e9dd4231cee515cc5ec52b0"; 
         const API_KEY = RAW_KEY.trim(); 
         // ==========================================
 
         const resultsDiv = document.getElementById('results');
-        const logsDiv = document.getElementById('logs');
         const errorDiv = document.getElementById('error-display');
+
+        // League Definitions
+        const LEAGUES = {
+            major: [2, 3, 39, 140, 78, 135, 61, 4, 144, 848, 40, 307], // Big 5 + Europe + Saudi + Championship
+            goals: [88, 103, 203, 188, 373, 206, 179, 180] // Dutch, Norway, Turkey, Aus, Singapore, Swiss, Scots
+        };
 
         function showError(msg) {
             errorDiv.style.display = 'block';
             errorDiv.innerHTML = `⚠️ ${msg}`;
         }
 
-        // --- SCHEDULE FUNCTION WITH CALENDAR ---
+        // --- SCHEDULE FUNCTION ---
         async function checkSchedule() {
-            resultsDiv.innerHTML = '<p style="text-align:center;">Calculating scan times...</p>';
+            resultsDiv.innerHTML = '<p style="text-align:center;">Checking today\'s schedule...</p>';
             errorDiv.style.display = 'none';
             try {
                 const today = new Date().toISOString().split('T')[0];
@@ -97,40 +117,32 @@
                 });
                 
                 const data = await response.json();
-
-                if (data.errors && Object.keys(data.errors).length > 0) {
-                    showError("Daily API Limit Reached. Try again tomorrow.");
-                    resultsDiv.innerHTML = "";
-                    return;
-                }
+                if (data.errors && Object.keys(data.errors).length > 0) { showError("Daily Limit Reached."); return; }
 
                 const matches = data.response;
-                
-                // LEAGUES: Big 5 + Europe + Saudi + Scots + Dutch + Turkey + Norway + Aus + Swiss + Singapore
-                const majorLeagues = [2, 3, 39, 140, 78, 135, 61, 4, 144, 848, 40, 179, 180, 307, 88, 103, 203, 188, 89, 373, 206];
+                // Combine lists for schedule check
+                const scheduleLeagues = [...LEAGUES.major, ...LEAGUES.goals];
                 
                 const upcomingMatches = matches.filter(m => {
-                    const isMajor = majorLeagues.includes(m.league.id) || m.league.type === 'Cup';
+                    const isMajor = scheduleLeagues.includes(m.league.id) || m.league.type === 'Cup';
                     const status = m.fixture.status.short;
                     return isMajor && (status === 'NS' || status === '1H' || status === 'HT');
                 });
 
                 if (upcomingMatches.length === 0) {
-                    resultsDiv.innerHTML = "<h3>📅 Schedule</h3><p>No major upcoming games today.</p>";
+                    resultsDiv.innerHTML = "<h3>📅 Schedule</h3><p>No key games remaining today.</p>";
                     return;
                 }
 
                 upcomingMatches.sort((a, b) => new Date(a.fixture.date) - new Date(b.fixture.date));
 
                 let html = `<h3>⏰ Scan Times (Kickoff + 85m)</h3>`;
-                
                 upcomingMatches.forEach(m => {
                     let kickOff = new Date(m.fixture.date);
                     kickOff.setMinutes(kickOff.getMinutes() + 85); 
-                    
                     const scanTimeDisplay = kickOff.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                     
-                    // Google Calendar Link
+                    // Calendar
                     const startStr = kickOff.toISOString().replace(/-|:|\.\d\d\d/g, ""); 
                     const endTime = new Date(kickOff);
                     endTime.setMinutes(endTime.getMinutes() + 15);
@@ -140,60 +152,54 @@
 
                     html += `
                         <div style="background:#334155; padding:10px; margin-bottom:6px; border-radius:6px; font-size:0.9em; border-left: 4px solid #0f766e; display:flex; justify-content:space-between; align-items:center;">
-                            <div>
-                                <span style="color:#2dd4bf; font-weight:bold; font-size:1.1em;">${scanTimeDisplay}</span> 
-                                <span style="color:#94a3b8; font-size:0.8em;">(Scan)</span><br>
-                                <span style="color:#fff;">${m.teams.home.name} vs ${m.teams.away.name}</span>
-                            </div>
-                            <a href="${calUrl}" target="_blank" style="text-decoration:none;">
-                                <button style="background:#0f766e; color:#fff; border:none; padding:8px 12px; border-radius:6px; cursor:pointer;">🔔</button>
-                            </a>
+                            <div><span style="color:#2dd4bf; font-weight:bold; font-size:1.1em;">${scanTimeDisplay}</span> <span style="color:#94a3b8; font-size:0.8em;">(Scan)</span><br><span style="color:#fff;">${m.teams.home.name} vs ${m.teams.away.name}</span></div>
+                            <a href="${calUrl}" target="_blank" style="text-decoration:none;"><button style="background:#0f766e; color:#fff; border:none; padding:8px 12px; border-radius:6px; cursor:pointer;">🔔</button></a>
                         </div>`;
                 });
                 resultsDiv.innerHTML = html;
-            } catch (error) {
-                showError("Connection Error. Check internet.");
-                resultsDiv.innerHTML = "";
-            }
+            } catch (error) { showError("Connection Error."); }
         }
 
         // --- SCANNER FUNCTION ---
         async function startScan() {
-            resultsDiv.innerHTML = '<p style="text-align:center;">Analyzing live data feeds...</p>';
-            logsDiv.innerHTML = "";
+            resultsDiv.innerHTML = '<p style="text-align:center;">Scanning live matches...</p>';
             errorDiv.style.display = 'none';
 
             try {
+                // Fetch ALL live games first (Cost: 1 Call)
                 const response = await fetch("https://v3.football.api-sports.io/fixtures?live=all", {
                     "method": "GET",
                     "headers": { "x-apisports-key": API_KEY }
                 });
                 const data = await response.json();
                 
-                if (data.errors && Object.keys(data.errors).length > 0) {
-                    showError("Daily API Limit Reached. Try again tomorrow.");
-                    resultsDiv.innerHTML = "";
-                    return;
-                }
+                if (data.errors && Object.keys(data.errors).length > 0) { showError("Daily Limit Reached."); return; }
 
-                const matches = data.response;
-                if (!matches || matches.length === 0) {
-                    resultsDiv.innerHTML = "<p style='text-align:center;'>No live games right now.</p>";
-                    return;
+                let matches = data.response;
+                if (!matches || matches.length === 0) { resultsDiv.innerHTML = "<p style='text-align:center;'>No live games.</p>"; return; }
+
+                // --- LEAGUE FILTERING (Saves Quota) ---
+                const filterType = document.getElementById('league-filter').value;
+                if (filterType === 'major') {
+                    matches = matches.filter(m => LEAGUES.major.includes(m.league.id) || m.league.type === 'Cup');
+                } else if (filterType === 'goals') {
+                    matches = matches.filter(m => LEAGUES.goals.includes(m.league.id));
                 }
+                // 'all' does no filtering
 
                 resultsDiv.innerHTML = ""; 
                 let potentialTips = 0;
 
+                // Process filtered matches
                 for (let match of matches) {
                     const elapsed = match.fixture.status.elapsed;
                     const homeGoals = match.goals.home;
                     const awayGoals = match.goals.away;
                     const fixtureId = match.fixture.id;
 
-                    // FILTER: 70+ mins AND close score
+                    // 70th Min + Close Game Rule
                     if (elapsed >= 70 && Math.abs(homeGoals - awayGoals) <= 1) {
-                        logsDiv.innerHTML = `Analyzing xG: ${match.teams.home.name} vs ${match.teams.away.name}...`;
+                        // Detailed stats fetch (Cost: 1 Call per match)
                         const stats = await getMatchStats(fixtureId);
                         if (stats) {
                             analyzeAndRender(match, stats);
@@ -202,19 +208,13 @@
                     }
                 }
 
-                if (potentialTips === 0) {
-                    resultsDiv.innerHTML = "<p style='text-align:center;'>No high-value matches found.</p>";
-                }
-                logsDiv.innerHTML = "Scan Complete.";
+                if (potentialTips === 0) { resultsDiv.innerHTML = "<p style='text-align:center;'>No active matches fit the criteria.</p>"; }
 
-            } catch (err) {
-                showError("Connection Error. Check internet.");
-                resultsDiv.innerHTML = "";
-            }
+            } catch (err) { showError("Connection Error."); }
         }
 
         async function getMatchStats(fixtureId) {
-            await new Promise(r => setTimeout(r, 250)); 
+            await new Promise(r => setTimeout(r, 200)); // Slight delay to be gentle on API
             try {
                 const response = await fetch(`https://v3.football.api-sports.io/fixtures/statistics?fixture=${fixtureId}`, {
                     "method": "GET",
@@ -233,7 +233,7 @@
                 if (!stat || stat.value === null) return 0;
                 if (type === "Ball Possession") return parseInt(stat.value);
                 if (type === "expected_goals") return parseFloat(stat.value);
-                return stat.value;
+                return stat.value; // Returns number for simple stats
             };
 
             const homeStats = statsData[0];
@@ -242,20 +242,17 @@
             const hxg = getStat(homeStats, "expected_goals");
             const axg = getStat(awayStats, "expected_goals");
             const hasXG = (hxg > 0 || axg > 0); 
-
             const hShots = getStat(homeStats, "Total Shots");
             const aShots = getStat(awayStats, "Total Shots");
             
-            // Wasteful Logic
-            let hWasteful = (hShots > 10 && match.goals.home <= 1);
-            let aWasteful = (aShots > 10 && match.goals.away <= 1);
-            
-            // Pressure Formula
+            // PRESSURE FORMULA V2 (Includes Dangerous Attacks)
             const calcPressure = (s, goals, xgValue) => {
                 let score = 0;
                 score += getStat(s, "Corner Kicks") * 3;
                 score += getStat(s, "Shots on Goal") * 3;
                 score += getStat(s, "Shots insidebox") * 2;
+                score += (getStat(s, "Dangerous Attacks") * 0.5); // NEW: 0.5pts per DA
+                
                 if (xgValue > 0 && xgValue > (goals + 0.5)) score += 10;
                 if (getStat(s, "Ball Possession") > 60) score += 5;
                 return score;
@@ -264,7 +261,11 @@
             let homeP = calcPressure(homeStats, match.goals.home, hxg);
             let awayP = calcPressure(awayStats, match.goals.away, axg);
 
+            // Badges & Logic
             let badges = [];
+            let hWasteful = (hShots > 10 && match.goals.home <= 1);
+            let aWasteful = (aShots > 10 && match.goals.away <= 1);
+
             if (getStat(homeStats, "Red Cards") > 0) { awayP += 20; badges.push(`<span class="badge badge-red">RED: HOME</span>`); }
             if (getStat(awayStats, "Red Cards") > 0) { homeP += 20; badges.push(`<span class="badge badge-red">RED: AWAY</span>`); }
             if (hWasteful) badges.push(`<span class="badge badge-yellow">⚠️ HOME WASTEFUL</span>`);
@@ -275,51 +276,48 @@
             let momentumClass = "";
             let likelihood = "Low";
 
-            if (homeP > awayP + 8) {
-                momentumText = `🔵 ${match.teams.home.name} Dominating`;
-                momentumClass = "pushing";
-            } else if (awayP > homeP + 8) {
-                momentumText = `🔴 ${match.teams.away.name} Dominating`;
-                momentumClass = "pushing";
-            } else if (totalP > 30) {
-                momentumText = "⚔️ End to End Chaos";
-                momentumClass = "danger";
-            }
+            if (homeP > awayP + 10) { momentumText = `🔵 ${match.teams.home.name} Dominating`; momentumClass = "pushing"; } 
+            else if (awayP > homeP + 10) { momentumText = `🔴 ${match.teams.away.name} Dominating`; momentumClass = "pushing"; } 
+            else if (totalP > 40) { momentumText = "⚔️ End to End Chaos"; momentumClass = "danger"; }
 
-            if (totalP > 20) likelihood = "Medium";
-            if (totalP > 40 || badges.length > 0) {
-                likelihood = "High";
-                momentumClass = "danger";
-            }
+            if (totalP > 25) likelihood = "Medium";
+            if (totalP > 50 || badges.length > 0) { likelihood = "High"; momentumClass = "danger"; }
 
             if (totalP < 15 && badges.length === 0) return; 
 
+            // RENDER CARD
             const card = document.createElement('div');
             card.className = `card likelihood-${likelihood}`;
             
             const xgDisplay = hasXG 
-                ? `<div class="stat-item"><span class="stat-label highlight-stat">xG (Exp. Goals)</span> <span class="highlight-stat">${hxg.toFixed(2)} - ${axg.toFixed(2)}</span></div>` 
+                ? `<div class="stat-item"><span class="stat-label highlight-stat">xG</span> <span class="highlight-stat">${hxg.toFixed(2)} - ${axg.toFixed(2)}</span></div>` 
                 : `<div class="stat-item"><span class="stat-label">xG</span> <span>N/A</span></div>`;
 
             card.innerHTML = `
-                <div class="match-header">
-                    <span>${match.league.name}</span>
-                    <span style="color:#fff; font-weight:bold;">${match.fixture.status.elapsed}'</span>
+                <div class="match-header"><span>${match.league.name}</span><span style="color:#fff; font-weight:bold;">${match.fixture.status.elapsed}'</span></div>
+                
+                <div class="team-row">
+                    <div class="team-info"><img src="${match.teams.home.logo}" class="team-logo"> ${match.teams.home.name}</div>
+                    <div class="score">${match.goals.home}</div>
                 </div>
-                <div class="scoreline">
-                    ${match.teams.home.name} ${match.goals.home} - ${match.goals.away} ${match.teams.away.name}
+                <div class="team-row">
+                    <div class="team-info"><img src="${match.teams.away.logo}" class="team-logo"> ${match.teams.away.name}</div>
+                    <div class="score">${match.goals.away}</div>
                 </div>
+
                 <div class="badge-container">${badges.join('')}</div>
-                <div class="stats-grid">
-                    ${xgDisplay}
+                
+                <div class="stats-grid">${xgDisplay}
                     <div class="stat-item"><span class="stat-label">Possession</span> <span>${getStat(homeStats, "Ball Possession")}% - ${getStat(awayStats, "Ball Possession")}%</span></div>
-                    <div class="stat-item"><span class="stat-label">Total Shots</span> <span>${hShots} - ${aShots}</span></div>
+                    <div class="stat-item"><span class="stat-label">Shots (In Box)</span> <span>${getStat(homeStats, "Shots insidebox")} - ${getStat(awayStats, "Shots insidebox")}</span></div>
                     <div class="stat-item"><span class="stat-label">Corners</span> <span>${getStat(homeStats, "Corner Kicks")} - ${getStat(awayStats, "Corner Kicks")}</span></div>
                     <div class="stat-item"><span class="stat-label">Pressure Idx</span> <span>${Math.floor(homeP)} - ${Math.floor(awayP)}</span></div>
                 </div>
-                <div class="momentum-box ${momentumClass}">
-                    ${momentumText}
-                </div>
+                <div class="momentum-box ${momentumClass}">${momentumText}</div>
+                
+                <a href="https://www.bet365.com/#/IP/B1" target="_blank" style="text-decoration:none;">
+                    <button class="btn-bet">🚀 Open Bet365</button>
+                </a>
             `;
             resultsDiv.appendChild(card);
         }
