@@ -70,3 +70,311 @@
     </style>
 </head>
 <body>
+
+    <h2>🤖 InPlay Ultimate</h2>
+    
+    <div class="profit-board">
+        <div>
+            <div class="profit-stat">Wins</div>
+            <div id="stat-wins" class="profit-val val-green">0</div>
+        </div>
+        <div>
+            <div class="profit-stat">Losses</div>
+            <div id="stat-losses" class="profit-val val-red">0</div>
+        </div>
+        <div>
+            <div class="profit-stat">Win Rate</div>
+            <div id="stat-rate" class="profit-val">0%</div>
+        </div>
+        <button class="btn-reset" onclick="resetStats()">Reset Daily Stats</button>
+    </div>
+
+    <div id="error-display" class="error-msg"></div>
+
+    <div class="controls">
+        <a href="help.html" style="text-decoration:none;"><button class="btn-nav">📖 Strategy Guide</button></a>
+        <button class="btn-schedule" onclick="checkSchedule()">📅 Check 70th Min Times</button>
+        <select id="league-filter">
+            <option value="major">⭐ Major Leagues (API Saver)</option>
+            <option value="goals">⚽ Goal Machines (Dutch/Aus/Swiss)</option>
+            <option value="all">🌍 Scan World (High Data Usage)</option>
+        </select>
+        <button class="btn-scan" onclick="startScan()">🔍 RUN SCAN</button>
+    </div>
+    
+    <div id="results"></div>
+
+    <script>
+        // CONFIGURATION
+        const RAW_KEY = "0f29a2f96e9dd4231cee515cc5ec52b0"; 
+        const API_KEY = RAW_KEY.trim(); 
+        
+        // GLOBAL STATE
+        const resultsDiv = document.getElementById('results');
+        const errorDiv = document.getElementById('error-display');
+        let audioCtx = null;
+
+        // LEAGUE IDs
+        const LEAGUES = {
+            major: [2, 3, 39, 140, 78, 135, 61, 4, 144, 848, 40, 307],
+            goals: [88, 103, 203, 188, 373, 206, 179, 180]
+        };
+
+        // --- PROFIT TRACKER LOGIC ---
+        function loadStats() {
+            const wins = parseInt(localStorage.getItem('inplay_wins') || 0);
+            const losses = parseInt(localStorage.getItem('inplay_losses') || 0);
+            updateBoard(wins, losses);
+        }
+
+        function updateBoard(w, l) {
+            document.getElementById('stat-wins').innerText = w;
+            document.getElementById('stat-losses').innerText = l;
+            const total = w + l;
+            const rate = total === 0 ? 0 : Math.round((w / total) * 100);
+            document.getElementById('stat-rate').innerText = rate + "%";
+        }
+
+        function recordResult(type) {
+            let wins = parseInt(localStorage.getItem('inplay_wins') || 0);
+            let losses = parseInt(localStorage.getItem('inplay_losses') || 0);
+            if (type === 'win') wins++;
+            if (type === 'loss') losses++;
+            localStorage.setItem('inplay_wins', wins);
+            localStorage.setItem('inplay_losses', losses);
+            updateBoard(wins, losses);
+        }
+
+        function resetStats() {
+            if(confirm("Reset today's stats?")) {
+                localStorage.setItem('inplay_wins', 0);
+                localStorage.setItem('inplay_losses', 0);
+                updateBoard(0, 0);
+            }
+        }
+        
+        // Initialize stats on load
+        loadStats();
+
+        // --- AUDIO ALERT (SONAR PING) ---
+        function playAlertSound() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(800, audioCtx.currentTime); // High pitch
+            oscillator.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.2); // Drop
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.25);
+        }
+
+        // --- COPY TO CLIPBOARD ---
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Tip copied to clipboard! Ready to paste.");
+            });
+        }
+
+        function showError(msg) {
+            errorDiv.style.display = 'block';
+            errorDiv.innerHTML = `⚠️ ${msg}`;
+        }
+
+        // --- SCHEDULE FUNCTION ---
+        async function checkSchedule() {
+            resultsDiv.innerHTML = '<p style="text-align:center;">Checking schedule...</p>';
+            errorDiv.style.display = 'none';
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                const response = await fetch(`https://v3.football.api-sports.io/fixtures?date=${today}`, {
+                    "method": "GET",
+                    "headers": { "x-apisports-key": API_KEY }
+                });
+                const data = await response.json();
+                if (data.errors && Object.keys(data.errors).length > 0) { showError("Daily Limit Reached."); return; }
+
+                const matches = data.response;
+                const scheduleLeagues = [...LEAGUES.major, ...LEAGUES.goals];
+                const validStatuses = ['NS', '1H', 'HT', '2H', 'ET', 'P', 'FT'];
+                
+                const upcomingMatches = matches.filter(m => {
+                    const isMajor = scheduleLeagues.includes(m.league.id) || m.league.type === 'Cup';
+                    return isMajor && validStatuses.includes(m.fixture.status.short);
+                });
+
+                if (upcomingMatches.length === 0) { resultsDiv.innerHTML = "<h3>📅 Schedule</h3><p>No key games today.</p>"; return; }
+                upcomingMatches.sort((a, b) => new Date(a.fixture.date) - new Date(b.fixture.date));
+
+                let html = `<h3>⏰ Scan Times (Kickoff + 85m)</h3>`;
+                upcomingMatches.forEach(m => {
+                    let kickOff = new Date(m.fixture.date);
+                    kickOff.setMinutes(kickOff.getMinutes() + 85); 
+                    const scanTimeDisplay = kickOff.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    let statusColor = '#94a3b8'; 
+                    if(['1H','HT','2H','ET'].includes(m.fixture.status.short)) statusColor = '#ef4444';
+                    
+                    const startStr = kickOff.toISOString().replace(/-|:|\.\d\d\d/g, ""); 
+                    const endTime = new Date(kickOff);
+                    endTime.setMinutes(endTime.getMinutes() + 15);
+                    const endStr = endTime.toISOString().replace(/-|:|\.\d\d\d/g, "");
+                    const eventTitle = `Scan: ${m.teams.home.name} vs ${m.teams.away.name}`;
+                    const calUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(eventTitle)}&dates=${startStr}/${endStr}&details=Check+InPlay+App+Now!`;
+
+                    html += `
+                        <div style="background:#334155; padding:10px; margin-bottom:6px; border-radius:6px; font-size:0.9em; border-left: 4px solid #0f766e; display:flex; justify-content:space-between; align-items:center;">
+                            <div><span style="color:#2dd4bf; font-weight:bold; font-size:1.1em;">${scanTimeDisplay}</span> <span style="color:${statusColor}; font-weight:bold; font-size:0.8em;">[${m.fixture.status.short}]</span><br><span style="color:#fff;">${m.teams.home.name} vs ${m.teams.away.name}</span></div>
+                            <a href="${calUrl}" target="_blank" style="text-decoration:none;"><button style="background:#0f766e; color:#fff; border:none; padding:8px 12px; border-radius:6px; cursor:pointer;">🔔</button></a>
+                        </div>`;
+                });
+                resultsDiv.innerHTML = html;
+            } catch (error) { showError("Connection Error."); }
+        }
+
+        // --- SCANNER FUNCTION ---
+        async function startScan() {
+            resultsDiv.innerHTML = '<p style="text-align:center;">Scanning live matches...</p>';
+            errorDiv.style.display = 'none';
+
+            try {
+                const response = await fetch("https://v3.football.api-sports.io/fixtures?live=all", {
+                    "method": "GET",
+                    "headers": { "x-apisports-key": API_KEY }
+                });
+                const data = await response.json();
+                if (data.errors && Object.keys(data.errors).length > 0) { showError("Daily Limit Reached."); return; }
+
+                let matches = data.response;
+                if (!matches || matches.length === 0) { resultsDiv.innerHTML = "<p style='text-align:center;'>No live games.</p>"; return; }
+
+                const filterType = document.getElementById('league-filter').value;
+                if (filterType === 'major') matches = matches.filter(m => LEAGUES.major.includes(m.league.id) || m.league.type === 'Cup');
+                else if (filterType === 'goals') matches = matches.filter(m => LEAGUES.goals.includes(m.league.id));
+
+                resultsDiv.innerHTML = ""; 
+                let potentialTips = 0;
+
+                for (let match of matches) {
+                    const elapsed = match.fixture.status.elapsed;
+                    const homeGoals = match.goals.home;
+                    const awayGoals = match.goals.away;
+                    const fixtureId = match.fixture.id;
+
+                    if (elapsed >= 70 && Math.abs(homeGoals - awayGoals) <= 1) {
+                        const stats = await getMatchStats(fixtureId);
+                        if (stats) {
+                            analyzeAndRender(match, stats);
+                            potentialTips++;
+                        }
+                    }
+                }
+
+                if (potentialTips > 0) playAlertSound(); // 🔊 PLAY SOUND IF MATCHES FOUND
+                if (potentialTips === 0) { resultsDiv.innerHTML = "<p style='text-align:center;'>No active matches fit the criteria.</p>"; }
+
+            } catch (err) { showError("Connection Error."); }
+        }
+
+        async function getMatchStats(fixtureId) {
+            await new Promise(r => setTimeout(r, 200)); 
+            try {
+                const response = await fetch(`https://v3.football.api-sports.io/fixtures/statistics?fixture=${fixtureId}`, {
+                    "method": "GET",
+                    "headers": { "x-apisports-key": API_KEY }
+                });
+                const data = await response.json();
+                return data.response; 
+            } catch (e) { return null; }
+        }
+
+        function analyzeAndRender(match, statsData) {
+            if (!statsData || statsData.length < 2) return; 
+
+            const getStat = (teamStats, type) => {
+                const stat = teamStats.statistics.find(s => s.type === type);
+                if (!stat || stat.value === null) return 0;
+                if (type === "Ball Possession") return parseInt(stat.value);
+                if (type === "expected_goals") return parseFloat(stat.value);
+                return stat.value; 
+            };
+
+            const homeStats = statsData[0];
+            const awayStats = statsData[1];
+            const hxg = getStat(homeStats, "expected_goals");
+            const axg = getStat(awayStats, "expected_goals");
+            const hasXG = (hxg > 0 || axg > 0); 
+            const hShots = getStat(homeStats, "Total Shots");
+            const aShots = getStat(awayStats, "Total Shots");
+            
+            const calcPressure = (s, goals, xgValue) => {
+                let score = 0;
+                score += getStat(s, "Corner Kicks") * 3;
+                score += getStat(s, "Shots on Goal") * 3;
+                score += getStat(s, "Shots insidebox") * 2;
+                score += (getStat(s, "Dangerous Attacks") * 0.5); 
+                if (xgValue > 0 && xgValue > (goals + 0.5)) score += 10;
+                if (getStat(s, "Ball Possession") > 60) score += 5;
+                return score;
+            };
+
+            let homeP = calcPressure(homeStats, match.goals.home, hxg);
+            let awayP = calcPressure(awayStats, match.goals.away, axg);
+
+            let badges = [];
+            let hWasteful = (hShots > 10 && match.goals.home <= 1);
+            let aWasteful = (aShots > 10 && match.goals.away <= 1);
+            if (getStat(homeStats, "Red Cards") > 0) { awayP += 20; badges.push(`<span class="badge badge-red">RED: HOME</span>`); }
+            if (getStat(awayStats, "Red Cards") > 0) { homeP += 20; badges.push(`<span class="badge badge-red">RED: AWAY</span>`); }
+            if (hWasteful) badges.push(`<span class="badge badge-yellow">⚠️ HOME WASTEFUL</span>`);
+            if (aWasteful) badges.push(`<span class="badge badge-yellow">⚠️ AWAY WASTEFUL</span>`);
+
+            const totalP = homeP + awayP;
+            let momentumText = "Balanced";
+            let momentumClass = "";
+            let likelihood = "Low";
+
+            if (homeP > awayP + 10) { momentumText = `🔵 ${match.teams.home.name} Dominating`; momentumClass = "pushing"; } 
+            else if (awayP > homeP + 10) { momentumText = `🔴 ${match.teams.away.name} Dominating`; momentumClass = "pushing"; } 
+            else if (totalP > 40) { momentumText = "⚔️ End to End Chaos"; momentumClass = "danger"; }
+            if (totalP > 25) likelihood = "Medium";
+            if (totalP > 50 || badges.length > 0) { likelihood = "High"; momentumClass = "danger"; }
+            if (totalP < 15 && badges.length === 0) return; 
+
+            // Copy Text String
+            const copyText = `🚨 *InPlay Alert*\n⚽ ${match.teams.home.name} vs ${match.teams.away.name}\n⏱ ${match.fixture.status.elapsed}' | Score: ${match.goals.home}-${match.goals.away}\n📈 Pressure: ${Math.floor(totalP)}\n${badges.map(b => b.replace(/<[^>]*>?/gm, '')).join(' ')}`;
+
+            const card = document.createElement('div');
+            card.className = `card likelihood-${likelihood}`;
+            
+            const xgDisplay = hasXG 
+                ? `<div class="stat-item"><span class="stat-label highlight-stat">xG</span> <span class="highlight-stat">${hxg.toFixed(2)} - ${axg.toFixed(2)}</span></div>` 
+                : `<div class="stat-item"><span class="stat-label">xG</span> <span>N/A</span></div>`;
+
+            card.innerHTML = `
+                <div class="match-header"><span>${match.league.name}</span><span style="color:#fff; font-weight:bold;">${match.fixture.status.elapsed}'</span></div>
+                <div class="team-row"><div class="team-info"><img src="${match.teams.home.logo}" class="team-logo"> ${match.teams.home.name}</div><div class="score">${match.goals.home}</div></div>
+                <div class="team-row"><div class="team-info"><img src="${match.teams.away.logo}" class="team-logo"> ${match.teams.away.name}</div><div class="score">${match.goals.away}</div></div>
+                <div class="badge-container">${badges.join('')}</div>
+                <div class="stats-grid">${xgDisplay}
+                    <div class="stat-item"><span class="stat-label">Possession</span> <span>${getStat(homeStats, "Ball Possession")}% - ${getStat(awayStats, "Ball Possession")}%</span></div>
+                    <div class="stat-item"><span class="stat-label">Shots (In Box)</span> <span>${getStat(homeStats, "Shots insidebox")} - ${getStat(awayStats, "Shots insidebox")}</span></div>
+                    <div class="stat-item"><span class="stat-label">Corners</span> <span>${getStat(homeStats, "Corner Kicks")} - ${getStat(awayStats, "Corner Kicks")}</span></div>
+                    <div class="stat-item"><span class="stat-label">Pressure Idx</span> <span>${Math.floor(homeP)} - ${Math.floor(awayP)}</span></div>
+                </div>
+                <div class="momentum-box ${momentumClass}">${momentumText}</div>
+                
+                <div class="tools-row">
+                    <button class="btn-tool btn-copy" onclick="copyToClipboard(\`${copyText}\`)">📋 Copy</button>
+                    <a href="https://www.bet365.com/#/IP/B1" target="_blank" style="width:100%; display:block;"><button class="btn-tool btn-bet" style="width:100%">🚀 Open Bet365</button></a>
+                    <button class="btn-tool btn-win" onclick="recordResult('win')">✅</button>
+                    <button class="btn-tool btn-loss" onclick="recordResult('loss')">❌</button>
+                </div>
+            `;
+            resultsDiv.appendChild(card);
+        }
+    </script>
+</body>
+</html>
