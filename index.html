@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InPlay Platinum</title>
+    <title>InPlay God Mode</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="mobile-web-app-capable" content="yes">
@@ -51,9 +51,10 @@
         .tilt-home { background: #3b82f6; height: 100%; transition: width 0.5s; }
         .tilt-away { background: #ef4444; height: 100%; transition: width 0.5s; }
 
-        /* NARRATIVE BOX */
-        .narrative-box { background: #0f172a; padding: 8px; border-radius: 6px; font-size: 0.9em; text-align: center; color: #e2e8f0; border: 1px solid #334155; margin-bottom: 10px; font-weight: bold; }
-        .narrative-highlight { color: #2dd4bf; }
+        /* BET ADVISOR BOX */
+        .advisor-box { background: #0f172a; padding: 10px; border-radius: 6px; font-size: 0.9em; text-align: center; color: #e2e8f0; border: 1px solid #334155; margin-bottom: 10px; display:flex; justify-content: space-around; align-items: center; }
+        .market-tag { color: #2dd4bf; font-weight: bold; text-transform: uppercase; border: 1px solid #0f766e; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; }
+        .stake-tag { color: #f472b6; font-weight: bold; }
 
         /* Tools Row */
         .tools-row { display: grid; grid-template-columns: 1fr 3fr 1fr 1fr; gap: 8px; margin-top: 12px; }
@@ -73,13 +74,14 @@
         .badge-red { background: #ef4444; color: white; }
         .badge-yellow { background: #f59e0b; color: black; }
         .badge-blue { background: #3b82f6; color: white; }
+        .badge-purple { background: #a855f7; color: white; }
 
         .error-msg { color: #fca5a5; background: #450a0a; padding: 10px; border-radius: 8px; text-align: center; margin-bottom: 15px; display: none; }
     </style>
 </head>
 <body>
 
-    <h2>🤖 InPlay Platinum</h2>
+    <h2>🤖 InPlay God Mode</h2>
     
     <div class="profit-board">
         <div><div class="profit-stat">Wins</div><div id="stat-wins" class="profit-val val-green">0</div></div>
@@ -325,60 +327,46 @@
             let awayP = calcPressure(awayStats, aSot, aShots);
             const totalP = homeP + awayP;
 
-            // --- STARS CALCULATION ---
+            // --- STARS & STAKE ---
             let stars = "⭐⭐";
-            if (totalP > 30) stars = "⭐⭐⭐";
-            if (totalP > 45) stars = "⭐⭐⭐⭐";
-            if (totalP > 60) stars = "⭐⭐⭐⭐⭐";
+            let unitStake = "0.5u";
+            if (totalP > 30) { stars = "⭐⭐⭐"; unitStake = "0.5u"; }
+            if (totalP > 45) { stars = "⭐⭐⭐⭐"; unitStake = "1u"; }
+            if (totalP > 60) { stars = "⭐⭐⭐⭐⭐"; unitStake = "2u (MAX)"; }
 
-            // --- NARRATIVE ENGINE ---
-            let narrative = "";
-            let momentumClass = "";
-            let likelihood = "Low";
-
-            // Determine who is pushing
-            let dominantTeam = "None";
-            if (homeP > awayP + 12) dominantTeam = "Home";
-            else if (awayP > homeP + 12) dominantTeam = "Away";
-
-            // Story Logic
-            if (match.goals.home === match.goals.away) {
-                // DRAW
-                if (totalP > 40) narrative = `⚔️ <span class="narrative-highlight">LATE WINNER ALERT</span> - Both teams pushing!`;
-                else if (dominantTeam === "Home") narrative = `🔵 <span class="narrative-highlight">HOME PUSHING</span> for the winner.`;
-                else if (dominantTeam === "Away") narrative = `🔴 <span class="narrative-highlight">AWAY PUSHING</span> for the winner.`;
-                else narrative = "⚖️ Tight game, low value.";
-            } else {
-                // SOMEONE LEADING
-                let leader = match.goals.home > match.goals.away ? "Home" : "Away";
-                if (leader === "Home" && dominantTeam === "Away") narrative = `🔴 <span class="narrative-highlight">EQUALIZER ALERT</span> - Away team swarming!`;
-                else if (leader === "Away" && dominantTeam === "Home") narrative = `🔵 <span class="narrative-highlight">EQUALIZER ALERT</span> - Home team swarming!`;
-                else if (leader === dominantTeam) narrative = `💀 <span class="narrative-highlight">KILLING THE GAME</span> - Leader looking for next goal.`;
-                else narrative = "🛡️ Leader defending lead.";
-            }
-
-            // --- CORNER MAGNET LOGIC ---
-            // If Pressure is high (40+) but Accuracy is Low (<30%), it's a Corner game.
+            // --- SUGGESTED MARKET LOGIC ---
+            let market = "Wait";
+            
+            // Corner Logic
             let homeCornerAlert = (homeP > 30 && (hSot/hShots) < 0.35);
             let awayCornerAlert = (awayP > 30 && (aSot/aShots) < 0.35);
+            if (homeCornerAlert || awayCornerAlert) market = "OVER CORNERS";
+
+            // Goal Logic
+            if (totalP > 45) market = "NEXT GOAL";
+
+            // Crumbling Wall Logic (New)
+            let hCrumbling = (getStat(homeStats, "Goalkeeper saves") >= 5 && getStat(homeStats, "Shots insidebox") >= 8);
+            let aCrumbling = (getStat(awayStats, "Goalkeeper saves") >= 5 && getStat(awayStats, "Shots insidebox") >= 8);
+            if (hCrumbling) market = "AWAY TEAM GOAL";
+            if (aCrumbling) market = "HOME TEAM GOAL";
 
             // --- BADGES ---
             let badges = [];
             if (getStat(homeStats, "Red Cards") > 0) { awayP += 20; badges.push(`<span class="badge badge-red">RED: HOME</span>`); }
             if (getStat(awayStats, "Red Cards") > 0) { homeP += 20; badges.push(`<span class="badge badge-red">RED: AWAY</span>`); }
-            if (homeCornerAlert) badges.push(`<span class="badge badge-blue">🚩 CORNER MAGNET (HOME)</span>`);
-            if (awayCornerAlert) badges.push(`<span class="badge badge-blue">🚩 CORNER MAGNET (AWAY)</span>`);
+            if (hCrumbling) badges.push(`<span class="badge badge-purple">🧱 HOME CRUMBLING</span>`);
+            if (aCrumbling) badges.push(`<span class="badge badge-purple">🧱 AWAY CRUMBLING</span>`);
 
-            // --- TILT CALCULATION ---
+            // --- TILT ---
             let homeTilt = 50;
             if (totalP > 0) homeTilt = (homeP / totalP) * 100;
-
-            if (totalP > 25) likelihood = "Medium";
-            if (totalP > 50 || badges.length > 0) { likelihood = "High"; momentumClass = "danger"; }
+            let likelihood = totalP > 25 ? "Medium" : "Low";
+            if (totalP > 50 || badges.length > 0) likelihood = "High";
             if (totalP < 15 && badges.length === 0) return; 
 
             // Copy Text String
-            const copyText = `🚨 *InPlay Alert*\n⚽ ${match.teams.home.name} vs ${match.teams.away.name}\n${stars} | Score: ${match.goals.home}-${match.goals.away}\n📝 ${narrative.replace(/<[^>]*>?/gm, '')}\n📈 Pressure: ${Math.floor(totalP)}`;
+            const copyText = `🚨 *InPlay Alert*\n⚽ ${match.teams.home.name} vs ${match.teams.away.name}\n${stars} | Stake: ${unitStake}\n🎯 Market: ${market}\n📈 Pressure: ${Math.floor(totalP)}`;
 
             const card = document.createElement('div');
             card.className = `card likelihood-${likelihood}`;
@@ -402,7 +390,17 @@
                     <div class="tilt-away" style="width: ${100 - homeTilt}%"></div>
                 </div>
 
-                <div class="narrative-box">${narrative}</div>
+                <div class="advisor-box">
+                    <div>
+                        <div style="color:#94a3b8; font-size:0.8em;">RECOMMENDED</div>
+                        <div class="market-tag">${market}</div>
+                    </div>
+                    <div>
+                        <div style="color:#94a3b8; font-size:0.8em;">STAKE</div>
+                        <div class="stake-tag">${unitStake}</div>
+                    </div>
+                </div>
+
                 <div class="badge-container">${badges.join('')}</div>
 
                 <div class="stats-grid">${xgDisplay}
@@ -416,11 +414,4 @@
                     <button class="btn-tool btn-copy" onclick="copyToClipboard(\`${copyText}\`)">📋 Copy</button>
                     <a href="https://www.bet365.com/#/IP/B1" target="_blank" style="width:100%; display:block;"><button class="btn-tool btn-bet" style="width:100%">🚀 Bet365</button></a>
                     <button class="btn-tool btn-win" onclick="recordResult('win')">✅</button>
-                    <button class="btn-tool btn-loss" onclick="recordResult('loss')">❌</button>
-                </div>
-            `;
-            resultsDiv.appendChild(card);
-        }
-    </script>
-</body>
-</html>
+                    <button class="btn-tool btn
