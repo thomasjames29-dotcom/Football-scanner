@@ -107,7 +107,7 @@
 
         // --- SCHEDULE FUNCTION ---
         async function checkSchedule() {
-            resultsDiv.innerHTML = '<p style="text-align:center;">Checking today\'s schedule...</p>';
+            resultsDiv.innerHTML = '<p style="text-align:center;">Checking today\'s full schedule...</p>';
             errorDiv.style.display = 'none';
             try {
                 const today = new Date().toISOString().split('T')[0];
@@ -123,14 +123,17 @@
                 // Combine lists for schedule check
                 const scheduleLeagues = [...LEAGUES.major, ...LEAGUES.goals];
                 
+                // Allow NS, 1H, HT, 2H, ET, P, FT (Basically everything active or finished)
+                const validStatuses = ['NS', '1H', 'HT', '2H', 'ET', 'P', 'FT'];
+                
                 const upcomingMatches = matches.filter(m => {
                     const isMajor = scheduleLeagues.includes(m.league.id) || m.league.type === 'Cup';
                     const status = m.fixture.status.short;
-                    return isMajor && (status === 'NS' || status === '1H' || status === 'HT');
+                    return isMajor && validStatuses.includes(status);
                 });
 
                 if (upcomingMatches.length === 0) {
-                    resultsDiv.innerHTML = "<h3>📅 Schedule</h3><p>No key games remaining today.</p>";
+                    resultsDiv.innerHTML = "<h3>📅 Schedule</h3><p>No key games today.</p>";
                     return;
                 }
 
@@ -142,6 +145,10 @@
                     kickOff.setMinutes(kickOff.getMinutes() + 85); 
                     const scanTimeDisplay = kickOff.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                     
+                    // Show Current Status in schedule
+                    let statusColor = '#94a3b8'; // Grey for NS/FT
+                    if(['1H','HT','2H','ET'].includes(m.fixture.status.short)) statusColor = '#ef4444'; // Red for LIVE
+                    
                     // Calendar
                     const startStr = kickOff.toISOString().replace(/-|:|\.\d\d\d/g, ""); 
                     const endTime = new Date(kickOff);
@@ -152,7 +159,11 @@
 
                     html += `
                         <div style="background:#334155; padding:10px; margin-bottom:6px; border-radius:6px; font-size:0.9em; border-left: 4px solid #0f766e; display:flex; justify-content:space-between; align-items:center;">
-                            <div><span style="color:#2dd4bf; font-weight:bold; font-size:1.1em;">${scanTimeDisplay}</span> <span style="color:#94a3b8; font-size:0.8em;">(Scan)</span><br><span style="color:#fff;">${m.teams.home.name} vs ${m.teams.away.name}</span></div>
+                            <div>
+                                <span style="color:#2dd4bf; font-weight:bold; font-size:1.1em;">${scanTimeDisplay}</span> 
+                                <span style="color:${statusColor}; font-weight:bold; font-size:0.8em; margin-left:5px;">[${m.fixture.status.short}]</span><br>
+                                <span style="color:#fff;">${m.teams.home.name} vs ${m.teams.away.name}</span>
+                            </div>
                             <a href="${calUrl}" target="_blank" style="text-decoration:none;"><button style="background:#0f766e; color:#fff; border:none; padding:8px 12px; border-radius:6px; cursor:pointer;">🔔</button></a>
                         </div>`;
                 });
@@ -178,14 +189,13 @@
                 let matches = data.response;
                 if (!matches || matches.length === 0) { resultsDiv.innerHTML = "<p style='text-align:center;'>No live games.</p>"; return; }
 
-                // --- LEAGUE FILTERING (Saves Quota) ---
+                // --- LEAGUE FILTERING ---
                 const filterType = document.getElementById('league-filter').value;
                 if (filterType === 'major') {
                     matches = matches.filter(m => LEAGUES.major.includes(m.league.id) || m.league.type === 'Cup');
                 } else if (filterType === 'goals') {
                     matches = matches.filter(m => LEAGUES.goals.includes(m.league.id));
                 }
-                // 'all' does no filtering
 
                 resultsDiv.innerHTML = ""; 
                 let potentialTips = 0;
@@ -199,7 +209,6 @@
 
                     // 70th Min + Close Game Rule
                     if (elapsed >= 70 && Math.abs(homeGoals - awayGoals) <= 1) {
-                        // Detailed stats fetch (Cost: 1 Call per match)
                         const stats = await getMatchStats(fixtureId);
                         if (stats) {
                             analyzeAndRender(match, stats);
@@ -214,7 +223,7 @@
         }
 
         async function getMatchStats(fixtureId) {
-            await new Promise(r => setTimeout(r, 200)); // Slight delay to be gentle on API
+            await new Promise(r => setTimeout(r, 200)); 
             try {
                 const response = await fetch(`https://v3.football.api-sports.io/fixtures/statistics?fixture=${fixtureId}`, {
                     "method": "GET",
@@ -233,7 +242,7 @@
                 if (!stat || stat.value === null) return 0;
                 if (type === "Ball Possession") return parseInt(stat.value);
                 if (type === "expected_goals") return parseFloat(stat.value);
-                return stat.value; // Returns number for simple stats
+                return stat.value; 
             };
 
             const homeStats = statsData[0];
@@ -245,13 +254,13 @@
             const hShots = getStat(homeStats, "Total Shots");
             const aShots = getStat(awayStats, "Total Shots");
             
-            // PRESSURE FORMULA V2 (Includes Dangerous Attacks)
+            // PRESSURE FORMULA V2
             const calcPressure = (s, goals, xgValue) => {
                 let score = 0;
                 score += getStat(s, "Corner Kicks") * 3;
                 score += getStat(s, "Shots on Goal") * 3;
                 score += getStat(s, "Shots insidebox") * 2;
-                score += (getStat(s, "Dangerous Attacks") * 0.5); // NEW: 0.5pts per DA
+                score += (getStat(s, "Dangerous Attacks") * 0.5); 
                 
                 if (xgValue > 0 && xgValue > (goals + 0.5)) score += 10;
                 if (getStat(s, "Ball Possession") > 60) score += 5;
