@@ -5,7 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>God Mode Manual</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f172a; color: #cbd5e1; padding: 20px; line-height: 1.6; }
+        /* FIX: Added large bottom padding and scroll settings */
+        html, body {
+            height: 100%;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling */
+        }
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #0f172a; 
+            color: #cbd5e1; 
+            padding: 20px; 
+            padding-bottom: 150px; /* Extra space to prevent cutoff */
+            line-height: 1.6; 
+            margin: 0;
+        }
+
         h2 { text-align: center; color: #38bdf8; border-bottom: 2px solid #1e293b; padding-bottom: 10px; font-weight: 800; }
         h3 { color: #f1f5f9; margin-top: 30px; border-left: 4px solid #38bdf8; padding-left: 10px; }
         
@@ -65,4 +81,44 @@
     </div>
 
     <div class="example-box">
-        <span
+        <span class="market-tag">OVER CORNERS</span><br>
+        <strong>Scenario:</strong> High Pressure + Low Shot Accuracy.<br>
+        <strong>Meaning:</strong> The team is attacking but shooting poorly or getting blocked. This leads to deflections and corners.
+    </div>
+
+    <h3>3. The "Secret Signals" (Badges)</h3>
+    <p>These badges identify specific algorithmic scenarios.</p>
+
+    <div class="example-box">
+        <span class="badge bg-purple">🧱 HOME CRUMBLING</span><br>
+        <strong>The "Broken Dam" Theory.</strong><br>
+        The Goalkeeper has made <strong>5+ Saves</strong> AND faced <strong>8+ Shots in the Box</strong>. The defense is exhausted. A goal usually follows within 10 minutes.
+    </div>
+
+    <div class="example-box">
+        <span class="badge bg-yellow">⚠️ HOME WASTEFUL</span><br>
+        <strong>The "Law of Averages".</strong><br>
+        Team has 10+ shots but 0 goals. They are dominating but unlucky.
+    </div>
+
+    <div class="example-box">
+        <span class="badge bg-blue">🚩 CORNER MAGNET</span><br>
+        <strong>The Deflection Trap.</strong><br>
+        Dominant possession but shots are off-target. Great for "Asian Corners" or "Race to 9 Corners" bets.
+    </div>
+
+    <h3>4. Managing Wins/Losses</h3>
+    <p>At the bottom of each match card, you will see two buttons:</p>
+    <ul>
+        <li>✅ <strong>Win:</strong> Tap this if your bet won. It adds to your "Daily Wins".</li>
+        <li>❌ <strong>Loss:</strong> Tap this if it lost.</li>
+    </ul>
+    <p><strong>Note:</strong> Your stats are saved to your phone. Click "Reset Daily Stats" at the top to clear them for a new day.</p>
+
+    <br><br>
+    <a href="index.html" style="text-decoration:none;">
+        <button class="btn-back" style="background:#8b5cf6;">🚀 Open Scanner</button>
+    </a>
+
+</body>
+</html>
