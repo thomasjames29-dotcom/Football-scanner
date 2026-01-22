@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InPlay Ultimate Pro</title>
+    <title>InPlay Confidence Pro</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="mobile-web-app-capable" content="yes">
@@ -44,6 +44,11 @@
         .team-logo { width: 28px; height: 28px; object-fit: contain; }
         .score { font-size: 1.3em; color: #fff; }
 
+        /* TILT BAR (New Visual) */
+        .tilt-container { height: 8px; background: #334155; border-radius: 4px; margin: 10px 0; overflow: hidden; display: flex; }
+        .tilt-home { background: #3b82f6; height: 100%; transition: width 0.5s; }
+        .tilt-away { background: #ef4444; height: 100%; transition: width 0.5s; }
+
         /* Tools Row (Copy + Bet + Result) */
         .tools-row { display: grid; grid-template-columns: 1fr 3fr 1fr 1fr; gap: 8px; margin-top: 12px; }
         .btn-tool { border: none; border-radius: 6px; font-weight: bold; cursor: pointer; color: #fff; font-size: 0.9em; padding: 8px 0; }
@@ -71,21 +76,12 @@
 </head>
 <body>
 
-    <h2>🤖 InPlay Ultimate</h2>
+    <h2>🤖 InPlay Confidence Pro</h2>
     
     <div class="profit-board">
-        <div>
-            <div class="profit-stat">Wins</div>
-            <div id="stat-wins" class="profit-val val-green">0</div>
-        </div>
-        <div>
-            <div class="profit-stat">Losses</div>
-            <div id="stat-losses" class="profit-val val-red">0</div>
-        </div>
-        <div>
-            <div class="profit-stat">Win Rate</div>
-            <div id="stat-rate" class="profit-val">0%</div>
-        </div>
+        <div><div class="profit-stat">Wins</div><div id="stat-wins" class="profit-val val-green">0</div></div>
+        <div><div class="profit-stat">Losses</div><div id="stat-losses" class="profit-val val-red">0</div></div>
+        <div><div class="profit-stat">Win Rate</div><div id="stat-rate" class="profit-val">0%</div></div>
         <button class="btn-reset" onclick="resetStats()">Reset Daily Stats</button>
     </div>
 
@@ -153,17 +149,16 @@
             }
         }
         
-        // Initialize stats on load
         loadStats();
 
-        // --- AUDIO ALERT (SONAR PING) ---
+        // --- AUDIO ALERT ---
         function playAlertSound() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const oscillator = audioCtx.createOscillator();
             const gainNode = audioCtx.createGain();
             oscillator.type = 'sine';
-            oscillator.frequency.setValueAtTime(800, audioCtx.currentTime); // High pitch
-            oscillator.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.2); // Drop
+            oscillator.frequency.setValueAtTime(800, audioCtx.currentTime); 
+            oscillator.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.2); 
             gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
             gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
             oscillator.connect(gainNode);
@@ -172,10 +167,9 @@
             oscillator.stop(audioCtx.currentTime + 0.25);
         }
 
-        // --- COPY TO CLIPBOARD ---
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(() => {
-                alert("Tip copied to clipboard! Ready to paste.");
+                alert("Tip copied to clipboard!");
             });
         }
 
@@ -184,7 +178,7 @@
             errorDiv.innerHTML = `⚠️ ${msg}`;
         }
 
-        // --- SCHEDULE FUNCTION ---
+        // --- SCHEDULE ---
         async function checkSchedule() {
             resultsDiv.innerHTML = '<p style="text-align:center;">Checking schedule...</p>';
             errorDiv.style.display = 'none';
@@ -234,7 +228,7 @@
             } catch (error) { showError("Connection Error."); }
         }
 
-        // --- SCANNER FUNCTION ---
+        // --- SCANNER ---
         async function startScan() {
             resultsDiv.innerHTML = '<p style="text-align:center;">Scanning live matches...</p>';
             errorDiv.style.display = 'none';
@@ -272,7 +266,7 @@
                     }
                 }
 
-                if (potentialTips > 0) playAlertSound(); // 🔊 PLAY SOUND IF MATCHES FOUND
+                if (potentialTips > 0) playAlertSound(); 
                 if (potentialTips === 0) { resultsDiv.innerHTML = "<p style='text-align:center;'>No active matches fit the criteria.</p>"; }
 
             } catch (err) { showError("Connection Error."); }
@@ -308,20 +302,42 @@
             const hasXG = (hxg > 0 || axg > 0); 
             const hShots = getStat(homeStats, "Total Shots");
             const aShots = getStat(awayStats, "Total Shots");
-            
-            const calcPressure = (s, goals, xgValue) => {
+            const hSot = getStat(homeStats, "Shots on Goal");
+            const aSot = getStat(awayStats, "Shots on Goal");
+
+            // --- CONFIDENCE FORMULA ---
+            const calcPressure = (s, sot, totalShots) => {
                 let score = 0;
                 score += getStat(s, "Corner Kicks") * 3;
-                score += getStat(s, "Shots on Goal") * 3;
+                score += sot * 4; // Boosted Value for SOT
                 score += getStat(s, "Shots insidebox") * 2;
                 score += (getStat(s, "Dangerous Attacks") * 0.5); 
-                if (xgValue > 0 && xgValue > (goals + 0.5)) score += 10;
-                if (getStat(s, "Ball Possession") > 60) score += 5;
+                
+                // SNIPER PENALTY: If accuracy < 30% and shots > 5, penalize
+                if (totalShots > 5 && (sot / totalShots) < 0.3) {
+                    score -= 5; // Penalty for spamming shots
+                }
+                
+                // SIEGE BONUS: If dangerous attacks are > 70% of total attacks
+                const totalAttacks = getStat(s, "Total attacks") || 1;
+                const dangAttacks = getStat(s, "Dangerous Attacks");
+                if ((dangAttacks / totalAttacks) > 0.7) {
+                    score += 5; // Bonus for siege
+                }
+
+                if (getStat(s, "Ball Possession") > 65) score += 5;
                 return score;
             };
 
-            let homeP = calcPressure(homeStats, match.goals.home, hxg);
-            let awayP = calcPressure(awayStats, match.goals.away, axg);
+            let homeP = calcPressure(homeStats, hSot, hShots);
+            let awayP = calcPressure(awayStats, aSot, aShots);
+
+            // CALCULATE TILT PERCENTAGE
+            const totalPressure = homeP + awayP;
+            let homeTilt = 50;
+            if (totalPressure > 0) {
+                homeTilt = (homeP / totalPressure) * 100;
+            }
 
             let badges = [];
             let hWasteful = (hShots > 10 && match.goals.home <= 1);
@@ -336,8 +352,8 @@
             let momentumClass = "";
             let likelihood = "Low";
 
-            if (homeP > awayP + 10) { momentumText = `🔵 ${match.teams.home.name} Dominating`; momentumClass = "pushing"; } 
-            else if (awayP > homeP + 10) { momentumText = `🔴 ${match.teams.away.name} Dominating`; momentumClass = "pushing"; } 
+            if (homeP > awayP + 12) { momentumText = `🔵 ${match.teams.home.name} Dominating`; momentumClass = "pushing"; } 
+            else if (awayP > homeP + 12) { momentumText = `🔴 ${match.teams.away.name} Dominating`; momentumClass = "pushing"; } 
             else if (totalP > 40) { momentumText = "⚔️ End to End Chaos"; momentumClass = "danger"; }
             if (totalP > 25) likelihood = "Medium";
             if (totalP > 50 || badges.length > 0) { likelihood = "High"; momentumClass = "danger"; }
@@ -357,9 +373,15 @@
                 <div class="match-header"><span>${match.league.name}</span><span style="color:#fff; font-weight:bold;">${match.fixture.status.elapsed}'</span></div>
                 <div class="team-row"><div class="team-info"><img src="${match.teams.home.logo}" class="team-logo"> ${match.teams.home.name}</div><div class="score">${match.goals.home}</div></div>
                 <div class="team-row"><div class="team-info"><img src="${match.teams.away.logo}" class="team-logo"> ${match.teams.away.name}</div><div class="score">${match.goals.away}</div></div>
+                
+                <div class="tilt-container">
+                    <div class="tilt-home" style="width: ${homeTilt}%"></div>
+                    <div class="tilt-away" style="width: ${100 - homeTilt}%"></div>
+                </div>
+
                 <div class="badge-container">${badges.join('')}</div>
                 <div class="stats-grid">${xgDisplay}
-                    <div class="stat-item"><span class="stat-label">Possession</span> <span>${getStat(homeStats, "Ball Possession")}% - ${getStat(awayStats, "Ball Possession")}%</span></div>
+                    <div class="stat-item"><span class="stat-label">Shots (On Target)</span> <span>${hShots}(${hSot}) - ${aShots}(${aSot})</span></div>
                     <div class="stat-item"><span class="stat-label">Shots (In Box)</span> <span>${getStat(homeStats, "Shots insidebox")} - ${getStat(awayStats, "Shots insidebox")}</span></div>
                     <div class="stat-item"><span class="stat-label">Corners</span> <span>${getStat(homeStats, "Corner Kicks")} - ${getStat(awayStats, "Corner Kicks")}</span></div>
                     <div class="stat-item"><span class="stat-label">Pressure Idx</span> <span>${Math.floor(homeP)} - ${Math.floor(awayP)}</span></div>
