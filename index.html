@@ -83,7 +83,7 @@
                 const matches = data.response;
                 
                 // Major Leagues Only Filter
-                const majorLeagues = [2, 3, 39, 140, 78, 135, 61, 4, 144, 848]; 
+                const majorLeagues = [2, 3, 39, 140, 78, 135, 61, 4, 144, 848, 40, 179, 180, 307, 88]; 
                 
                 const upcomingMatches = matches.filter(m => {
                     const isMajor = majorLeagues.includes(m.league.id) || m.league.type === 'Cup';
