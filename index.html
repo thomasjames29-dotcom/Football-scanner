@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><link rel="manifest" href="manifest.json">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#0f172a">
-
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>InPlay Pro Master</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0f172a">
+
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚽</text></svg>">
+    
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f172a; color: #e2e8f0; padding: 15px; }
         h2 { text-align: center; color: #38bdf8; margin-bottom: 5px; }
@@ -70,7 +73,7 @@
         // ==========================================
         // CONFIGURATION
         const RAW_KEY = "0f29a2f96e9dd4231cee515cc5ec52b0"; 
-        const API_KEY = RAW_KEY.trim(); // Safety trim
+        const API_KEY = RAW_KEY.trim(); 
         // ==========================================
 
         const resultsDiv = document.getElementById('results');
@@ -95,7 +98,6 @@
                 
                 const data = await response.json();
 
-                // Simple Error Handling
                 if (data.errors && Object.keys(data.errors).length > 0) {
                     showError("Daily API Limit Reached. Try again tomorrow.");
                     resultsDiv.innerHTML = "";
@@ -104,10 +106,8 @@
 
                 const matches = data.response;
                 
-                // LEAGUES: Big 5 + Europe + Saudi + Scotland + Championship + Dutch
-                const  // Updated League List: Big 5 + Europe + Saudi + Scots + Dutch + Turkey + Norway + Aus + Swiss + Singapore
-const majorLeagues = [2, 3, 39, 140, 78, 135, 61, 4, 144, 848, 40, 179, 180, 307, 88, 103, 203, 188, 89, 373, 206];
-
+                // LEAGUES: Big 5 + Europe + Saudi + Scots + Dutch + Turkey + Norway + Aus + Swiss + Singapore
+                const majorLeagues = [2, 3, 39, 140, 78, 135, 61, 4, 144, 848, 40, 179, 180, 307, 88, 103, 203, 188, 89, 373, 206];
                 
                 const upcomingMatches = matches.filter(m => {
                     const isMajor = majorLeagues.includes(m.league.id) || m.league.type === 'Cup';
