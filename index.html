@@ -105,7 +105,9 @@
                 const matches = data.response;
                 
                 // LEAGUES: Big 5 + Europe + Saudi + Scotland + Championship + Dutch
-                const majorLeagues = [2, 3, 39, 140, 78, 135, 61, 4, 144, 848, 40, 179, 180, 307, 88]; 
+                const  // Updated League List: Big 5 + Europe + Saudi + Scots + Dutch + Turkey + Norway + Aus + Swiss + Singapore
+const majorLeagues = [2, 3, 39, 140, 78, 135, 61, 4, 144, 848, 40, 179, 180, 307, 88, 103, 203, 188, 89, 373, 206];
+
                 
                 const upcomingMatches = matches.filter(m => {
                     const isMajor = majorLeagues.includes(m.league.id) || m.league.type === 'Cup';
