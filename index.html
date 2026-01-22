@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InPlay Confidence Pro</title>
+    <title>InPlay Platinum</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="mobile-web-app-capable" content="yes">
@@ -38,18 +38,24 @@
         .card.likelihood-High { border-left-color: #ef4444; } 
         .card.likelihood-Medium { border-left-color: #f59e0b; } 
 
-        .match-header { display: flex; justify-content: space-between; color: #94a3b8; font-size: 0.85em; margin-bottom: 8px; }
+        .match-header { display: flex; justify-content: space-between; align-items: center; color: #94a3b8; font-size: 0.85em; margin-bottom: 8px; }
+        .star-rating { color: #fbbf24; letter-spacing: 2px; font-size: 1em; }
+        
         .team-row { display: flex; align-items: center; justify-content: space-between; margin: 5px 0; font-size: 1.1em; font-weight: bold; }
         .team-info { display: flex; align-items: center; gap: 10px; }
         .team-logo { width: 28px; height: 28px; object-fit: contain; }
         .score { font-size: 1.3em; color: #fff; }
 
-        /* TILT BAR (New Visual) */
+        /* TILT BAR */
         .tilt-container { height: 8px; background: #334155; border-radius: 4px; margin: 10px 0; overflow: hidden; display: flex; }
         .tilt-home { background: #3b82f6; height: 100%; transition: width 0.5s; }
         .tilt-away { background: #ef4444; height: 100%; transition: width 0.5s; }
 
-        /* Tools Row (Copy + Bet + Result) */
+        /* NARRATIVE BOX */
+        .narrative-box { background: #0f172a; padding: 8px; border-radius: 6px; font-size: 0.9em; text-align: center; color: #e2e8f0; border: 1px solid #334155; margin-bottom: 10px; font-weight: bold; }
+        .narrative-highlight { color: #2dd4bf; }
+
+        /* Tools Row */
         .tools-row { display: grid; grid-template-columns: 1fr 3fr 1fr 1fr; gap: 8px; margin-top: 12px; }
         .btn-tool { border: none; border-radius: 6px; font-weight: bold; cursor: pointer; color: #fff; font-size: 0.9em; padding: 8px 0; }
         .btn-copy { background: #334155; color: #cbd5e1; }
@@ -57,26 +63,23 @@
         .btn-win { background: #0f766e; }
         .btn-loss { background: #991b1b; }
 
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: #0f172a; padding: 10px; border-radius: 8px; font-size: 0.85em; margin-bottom: 12px; margin-top: 10px; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: #0f172a; padding: 10px; border-radius: 8px; font-size: 0.85em; margin-bottom: 12px; }
         .stat-item { display: flex; justify-content: space-between; }
         .stat-label { color: #64748b; }
         .highlight-stat { color: #fbbf24; font-weight: bold; }
-
-        .momentum-box { text-align: center; background: #334155; padding: 8px; border-radius: 6px; font-weight: bold; color: #e2e8f0; font-size: 0.9em; margin-top: 5px;}
-        .momentum-box.pushing { background: #1e3a8a; border: 1px solid #60a5fa; color: #93c5fd; }
-        .momentum-box.danger { background: #450a0a; border: 1px solid #ef4444; color: #fca5a5; }
 
         .badge-container { display: flex; gap: 5px; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
         .badge { font-size: 0.75em; padding: 2px 8px; border-radius: 4px; font-weight: bold; text-transform: uppercase; }
         .badge-red { background: #ef4444; color: white; }
         .badge-yellow { background: #f59e0b; color: black; }
+        .badge-blue { background: #3b82f6; color: white; }
 
         .error-msg { color: #fca5a5; background: #450a0a; padding: 10px; border-radius: 8px; text-align: center; margin-bottom: 15px; display: none; }
     </style>
 </head>
 <body>
 
-    <h2>🤖 InPlay Confidence Pro</h2>
+    <h2>🤖 InPlay Platinum</h2>
     
     <div class="profit-board">
         <div><div class="profit-stat">Wins</div><div id="stat-wins" class="profit-val val-green">0</div></div>
@@ -110,13 +113,12 @@
         const errorDiv = document.getElementById('error-display');
         let audioCtx = null;
 
-        // LEAGUE IDs
         const LEAGUES = {
             major: [2, 3, 39, 140, 78, 135, 61, 4, 144, 848, 40, 307],
             goals: [88, 103, 203, 188, 373, 206, 179, 180]
         };
 
-        // --- PROFIT TRACKER LOGIC ---
+        // --- PROFIT TRACKER ---
         function loadStats() {
             const wins = parseInt(localStorage.getItem('inplay_wins') || 0);
             const losses = parseInt(localStorage.getItem('inplay_losses') || 0);
@@ -148,10 +150,9 @@
                 updateBoard(0, 0);
             }
         }
-        
         loadStats();
 
-        // --- AUDIO ALERT ---
+        // --- AUDIO ---
         function playAlertSound() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const oscillator = audioCtx.createOscillator();
@@ -305,62 +306,79 @@
             const hSot = getStat(homeStats, "Shots on Goal");
             const aSot = getStat(awayStats, "Shots on Goal");
 
-            // --- CONFIDENCE FORMULA ---
             const calcPressure = (s, sot, totalShots) => {
                 let score = 0;
                 score += getStat(s, "Corner Kicks") * 3;
-                score += sot * 4; // Boosted Value for SOT
+                score += sot * 4; 
                 score += getStat(s, "Shots insidebox") * 2;
                 score += (getStat(s, "Dangerous Attacks") * 0.5); 
                 
-                // SNIPER PENALTY: If accuracy < 30% and shots > 5, penalize
-                if (totalShots > 5 && (sot / totalShots) < 0.3) {
-                    score -= 5; // Penalty for spamming shots
-                }
-                
-                // SIEGE BONUS: If dangerous attacks are > 70% of total attacks
+                if (totalShots > 5 && (sot / totalShots) < 0.3) score -= 5;
                 const totalAttacks = getStat(s, "Total attacks") || 1;
                 const dangAttacks = getStat(s, "Dangerous Attacks");
-                if ((dangAttacks / totalAttacks) > 0.7) {
-                    score += 5; // Bonus for siege
-                }
-
+                if ((dangAttacks / totalAttacks) > 0.7) score += 5;
                 if (getStat(s, "Ball Possession") > 65) score += 5;
                 return score;
             };
 
             let homeP = calcPressure(homeStats, hSot, hShots);
             let awayP = calcPressure(awayStats, aSot, aShots);
-
-            // CALCULATE TILT PERCENTAGE
-            const totalPressure = homeP + awayP;
-            let homeTilt = 50;
-            if (totalPressure > 0) {
-                homeTilt = (homeP / totalPressure) * 100;
-            }
-
-            let badges = [];
-            let hWasteful = (hShots > 10 && match.goals.home <= 1);
-            let aWasteful = (aShots > 10 && match.goals.away <= 1);
-            if (getStat(homeStats, "Red Cards") > 0) { awayP += 20; badges.push(`<span class="badge badge-red">RED: HOME</span>`); }
-            if (getStat(awayStats, "Red Cards") > 0) { homeP += 20; badges.push(`<span class="badge badge-red">RED: AWAY</span>`); }
-            if (hWasteful) badges.push(`<span class="badge badge-yellow">⚠️ HOME WASTEFUL</span>`);
-            if (aWasteful) badges.push(`<span class="badge badge-yellow">⚠️ AWAY WASTEFUL</span>`);
-
             const totalP = homeP + awayP;
-            let momentumText = "Balanced";
+
+            // --- STARS CALCULATION ---
+            let stars = "⭐⭐";
+            if (totalP > 30) stars = "⭐⭐⭐";
+            if (totalP > 45) stars = "⭐⭐⭐⭐";
+            if (totalP > 60) stars = "⭐⭐⭐⭐⭐";
+
+            // --- NARRATIVE ENGINE ---
+            let narrative = "";
             let momentumClass = "";
             let likelihood = "Low";
 
-            if (homeP > awayP + 12) { momentumText = `🔵 ${match.teams.home.name} Dominating`; momentumClass = "pushing"; } 
-            else if (awayP > homeP + 12) { momentumText = `🔴 ${match.teams.away.name} Dominating`; momentumClass = "pushing"; } 
-            else if (totalP > 40) { momentumText = "⚔️ End to End Chaos"; momentumClass = "danger"; }
+            // Determine who is pushing
+            let dominantTeam = "None";
+            if (homeP > awayP + 12) dominantTeam = "Home";
+            else if (awayP > homeP + 12) dominantTeam = "Away";
+
+            // Story Logic
+            if (match.goals.home === match.goals.away) {
+                // DRAW
+                if (totalP > 40) narrative = `⚔️ <span class="narrative-highlight">LATE WINNER ALERT</span> - Both teams pushing!`;
+                else if (dominantTeam === "Home") narrative = `🔵 <span class="narrative-highlight">HOME PUSHING</span> for the winner.`;
+                else if (dominantTeam === "Away") narrative = `🔴 <span class="narrative-highlight">AWAY PUSHING</span> for the winner.`;
+                else narrative = "⚖️ Tight game, low value.";
+            } else {
+                // SOMEONE LEADING
+                let leader = match.goals.home > match.goals.away ? "Home" : "Away";
+                if (leader === "Home" && dominantTeam === "Away") narrative = `🔴 <span class="narrative-highlight">EQUALIZER ALERT</span> - Away team swarming!`;
+                else if (leader === "Away" && dominantTeam === "Home") narrative = `🔵 <span class="narrative-highlight">EQUALIZER ALERT</span> - Home team swarming!`;
+                else if (leader === dominantTeam) narrative = `💀 <span class="narrative-highlight">KILLING THE GAME</span> - Leader looking for next goal.`;
+                else narrative = "🛡️ Leader defending lead.";
+            }
+
+            // --- CORNER MAGNET LOGIC ---
+            // If Pressure is high (40+) but Accuracy is Low (<30%), it's a Corner game.
+            let homeCornerAlert = (homeP > 30 && (hSot/hShots) < 0.35);
+            let awayCornerAlert = (awayP > 30 && (aSot/aShots) < 0.35);
+
+            // --- BADGES ---
+            let badges = [];
+            if (getStat(homeStats, "Red Cards") > 0) { awayP += 20; badges.push(`<span class="badge badge-red">RED: HOME</span>`); }
+            if (getStat(awayStats, "Red Cards") > 0) { homeP += 20; badges.push(`<span class="badge badge-red">RED: AWAY</span>`); }
+            if (homeCornerAlert) badges.push(`<span class="badge badge-blue">🚩 CORNER MAGNET (HOME)</span>`);
+            if (awayCornerAlert) badges.push(`<span class="badge badge-blue">🚩 CORNER MAGNET (AWAY)</span>`);
+
+            // --- TILT CALCULATION ---
+            let homeTilt = 50;
+            if (totalP > 0) homeTilt = (homeP / totalP) * 100;
+
             if (totalP > 25) likelihood = "Medium";
             if (totalP > 50 || badges.length > 0) { likelihood = "High"; momentumClass = "danger"; }
             if (totalP < 15 && badges.length === 0) return; 
 
             // Copy Text String
-            const copyText = `🚨 *InPlay Alert*\n⚽ ${match.teams.home.name} vs ${match.teams.away.name}\n⏱ ${match.fixture.status.elapsed}' | Score: ${match.goals.home}-${match.goals.away}\n📈 Pressure: ${Math.floor(totalP)}\n${badges.map(b => b.replace(/<[^>]*>?/gm, '')).join(' ')}`;
+            const copyText = `🚨 *InPlay Alert*\n⚽ ${match.teams.home.name} vs ${match.teams.away.name}\n${stars} | Score: ${match.goals.home}-${match.goals.away}\n📝 ${narrative.replace(/<[^>]*>?/gm, '')}\n📈 Pressure: ${Math.floor(totalP)}`;
 
             const card = document.createElement('div');
             card.className = `card likelihood-${likelihood}`;
@@ -370,7 +388,12 @@
                 : `<div class="stat-item"><span class="stat-label">xG</span> <span>N/A</span></div>`;
 
             card.innerHTML = `
-                <div class="match-header"><span>${match.league.name}</span><span style="color:#fff; font-weight:bold;">${match.fixture.status.elapsed}'</span></div>
+                <div class="match-header">
+                    <span>${match.league.name}</span>
+                    <span class="star-rating">${stars}</span>
+                    <span style="color:#fff; font-weight:bold;">${match.fixture.status.elapsed}'</span>
+                </div>
+                
                 <div class="team-row"><div class="team-info"><img src="${match.teams.home.logo}" class="team-logo"> ${match.teams.home.name}</div><div class="score">${match.goals.home}</div></div>
                 <div class="team-row"><div class="team-info"><img src="${match.teams.away.logo}" class="team-logo"> ${match.teams.away.name}</div><div class="score">${match.goals.away}</div></div>
                 
@@ -379,18 +402,19 @@
                     <div class="tilt-away" style="width: ${100 - homeTilt}%"></div>
                 </div>
 
+                <div class="narrative-box">${narrative}</div>
                 <div class="badge-container">${badges.join('')}</div>
+
                 <div class="stats-grid">${xgDisplay}
                     <div class="stat-item"><span class="stat-label">Shots (On Target)</span> <span>${hShots}(${hSot}) - ${aShots}(${aSot})</span></div>
                     <div class="stat-item"><span class="stat-label">Shots (In Box)</span> <span>${getStat(homeStats, "Shots insidebox")} - ${getStat(awayStats, "Shots insidebox")}</span></div>
                     <div class="stat-item"><span class="stat-label">Corners</span> <span>${getStat(homeStats, "Corner Kicks")} - ${getStat(awayStats, "Corner Kicks")}</span></div>
                     <div class="stat-item"><span class="stat-label">Pressure Idx</span> <span>${Math.floor(homeP)} - ${Math.floor(awayP)}</span></div>
                 </div>
-                <div class="momentum-box ${momentumClass}">${momentumText}</div>
                 
                 <div class="tools-row">
                     <button class="btn-tool btn-copy" onclick="copyToClipboard(\`${copyText}\`)">📋 Copy</button>
-                    <a href="https://www.bet365.com/#/IP/B1" target="_blank" style="width:100%; display:block;"><button class="btn-tool btn-bet" style="width:100%">🚀 Open Bet365</button></a>
+                    <a href="https://www.bet365.com/#/IP/B1" target="_blank" style="width:100%; display:block;"><button class="btn-tool btn-bet" style="width:100%">🚀 Bet365</button></a>
                     <button class="btn-tool btn-win" onclick="recordResult('win')">✅</button>
                     <button class="btn-tool btn-loss" onclick="recordResult('loss')">❌</button>
                 </div>
