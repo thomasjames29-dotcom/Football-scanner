@@ -1,0 +1,15 @@
+{
+  "name": "InPlay Pro",
+  "short_name": "InPlay",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/google/material-design-icons/master/png/action/sports_soccer/materialicons/48dp/2x/baseline_sports_soccer_white_48dp.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    }
+  ]
+}
