@@ -3,27 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InPlay User Guide</title>
+    <title>God Mode Manual</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f172a; color: #cbd5e1; padding: 20px; line-height: 1.6; }
-        h2 { text-align: center; color: #38bdf8; border-bottom: 2px solid #1e293b; padding-bottom: 10px; }
-        h3 { color: #f1f5f9; margin-top: 25px; border-left: 4px solid #38bdf8; padding-left: 10px; }
+        h2 { text-align: center; color: #38bdf8; border-bottom: 2px solid #1e293b; padding-bottom: 10px; font-weight: 800; }
+        h3 { color: #f1f5f9; margin-top: 30px; border-left: 4px solid #38bdf8; padding-left: 10px; }
         
         /* Navigation */
         .btn-back { background: #334155; color: #fff; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; margin-bottom: 20px; font-size: 1em; }
 
         /* Visual Examples */
-        .example-box { background: #1e293b; padding: 15px; border-radius: 8px; margin: 10px 0; border-left: 6px solid #64748b; }
-        .border-red { border-left-color: #ef4444; }
-        .border-amber { border-left-color: #f59e0b; }
+        .example-box { background: #1e293b; padding: 15px; border-radius: 8px; margin: 10px 0; border: 1px solid #334155; }
         
-        .badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 0.75em; font-weight: bold; text-transform: uppercase; color: #000; margin-right: 5px; }
-        .bg-yellow { background: #f59e0b; }
-        .bg-red { background: #ef4444; color: white; }
-        .bg-blue { background: #3b82f6; color: white; }
+        .badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 0.75em; font-weight: bold; text-transform: uppercase; color: #fff; margin-right: 5px; margin-bottom: 5px; }
+        .bg-purple { background: #a855f7; }
+        .bg-yellow { background: #f59e0b; color: #000; }
+        .bg-red { background: #ef4444; }
+        .bg-blue { background: #3b82f6; }
 
-        .stat-explainer { background: #0f172a; padding: 10px; border: 1px solid #334155; border-radius: 6px; font-size: 0.9em; margin-bottom: 8px; }
+        .star { color: #fbbf24; font-size: 1.2em; letter-spacing: 2px; }
+        .market-tag { color: #2dd4bf; font-weight: bold; border: 1px solid #0f766e; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; display: inline-block; margin-bottom: 5px; }
+        
         .highlight { color: #fbbf24; font-weight: bold; }
+        .stake-info { background: #0f172a; padding: 10px; border-radius: 6px; font-size: 0.9em; border: 1px dashed #475569; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -32,76 +34,35 @@
         <button class="btn-back">⬅️ Back to Scanner</button>
     </a>
 
-    <h2>📘 User Manual</h2>
-    <p style="text-align:center; font-size:0.9em;">How to read the InPlay Pro signals.</p>
+    <h2>📘 God Mode Strategy</h2>
+    <p style="text-align:center; font-size:0.9em;">How to read the advanced signals.</p>
 
-    <h3>1. The "Traffic Light" System</h3>
-    <p>The colored border on the left of each match card is your primary signal. It tells you the <strong>Likelihood of a Goal</strong>.</p>
+    <h3>1. The Star Rating & Stakes</h3>
+    <p>The app now calculates the "Confidence Level" of the match. Use this to determine your bet size.</p>
 
-    <div class="example-box border-red">
-        <strong style="color:#ef4444;">🔴 RED BORDER (Critical)</strong><br>
-        <strong>Meaning:</strong> Extreme Pressure or Major Advantage.<br>
-        <strong>Triggers:</strong> Pressure Index > 40, Red Card, or "Wasteful" Badge.<br>
-        <strong>Action:</strong> ✅ <strong>BET NOW.</strong> A goal is highly likely.
-    </div>
-
-    <div class="example-box border-amber">
-        <strong style="color:#f59e0b;">🟠 AMBER BORDER (Heating Up)</strong><br>
-        <strong>Meaning:</strong> Strong attacking stats, but not yet critical.<br>
-        <strong>Triggers:</strong> Pressure Index between 20-40.<br>
-        <strong>Action:</strong> 👁️ <strong>WATCH LIST.</strong> Wait 5 mins. If it turns Red, bet.
+    <div class="example-box">
+        <div><span class="star">⭐⭐⭐</span> <span style="color:#94a3b8;">(Good Value)</span></div>
+        <div class="stake-info"><strong>Stake: 0.5 Units (Small Bet)</strong><br>The stats look good, but it's not a lock. Worth a small punt.</div>
     </div>
 
     <div class="example-box">
-        <strong style="color:#94a3b8;">⚪ GREY BORDER (Low)</strong><br>
-        <strong>Meaning:</strong> Boring game. Teams are tired or settling for a draw.<br>
-        <strong>Action:</strong> 🛑 <strong>IGNORE.</strong> Do not bet.
+        <div><span class="star">⭐⭐⭐⭐</span> <span style="color:#94a3b8;">(High Confidence)</span></div>
+        <div class="stake-info"><strong>Stake: 1 Unit (Standard Bet)</strong><br>Pressure is very high. A goal is expected.</div>
     </div>
 
-    <h3>2. The Badges Explained</h3>
-    <p>The app automatically tags games with specific scenarios.</p>
-
-    <div class="stat-explainer">
-        <span class="badge bg-yellow">⚠️ HOME WASTEFUL</span><br>
-        <strong>The "Law of Averages" Bet.</strong><br>
-        This team has taken <strong>10+ Shots</strong> but scored <strong>0 or 1 goal</strong>. They are dominating but unlucky. Usually, the dam breaks and they score late.
+    <div class="example-box">
+        <div><span class="star">⭐⭐⭐⭐⭐</span> <span style="color:#94a3b8;">(GOD MODE)</span></div>
+        <div class="stake-info"><strong>Stake: 2 Units (Max Bet)</strong><br>Total domination. The "Kitchen Sink" is being thrown. Highly likely to score.</div>
     </div>
 
-    <div class="stat-explainer">
-        <span class="badge bg-red">RED CARD: AWAY</span><br>
-        <strong>The Advantage Bet.</strong><br>
-        The opponent is down to 10 men. The team with 11 men will likely dominate the final 15 minutes as the 10 men get tired.
+    <h3>2. The Market Calls</h3>
+    <p>The app suggests <strong>WHAT</strong> to bet on based on the type of pressure.</p>
+
+    <div class="example-box">
+        <span class="market-tag">NEXT GOAL</span><br>
+        <strong>Scenario:</strong> High Pressure + High Accuracy.<br>
+        <strong>Meaning:</strong> The team is creating clear-cut chances.
     </div>
 
-    <div class="stat-explainer">
-        <span class="badge bg-blue">🔵 HOME DOMINATING</span><br>
-        <strong>Momentum Indicator.</strong><br>
-        Shows which team currently has the higher "Pressure Score." Trust this only if Possession is also > 50%.
-    </div>
-
-    <h3>3. Understanding the Stats</h3>
-    
-    <p><span class="highlight">xG (Expected Goals):</span><br>
-    Measures the quality of chances. If <strong>xG is 2.50</strong> but the score is <strong>0-0</strong>, it means the team "should" have scored 2 goals already. A goal is overdue.</p>
-
-    <p><span class="highlight">Pressure Index:</span><br>
-    Our custom formula. It combines Corners (3pts), Shots on Target (3pts), Shots in Box (2pts), and Possession bonuses. <br>
-    • <strong>> 40:</strong> Extreme Pressure.<br>
-    • <strong>< 15:</strong> Dead Game.</p>
-
-    <h3>4. The Winning Strategy</h3>
-    <ul>
-        <li><strong>Step 1:</strong> Check the <span class="highlight">Schedule</span> button in the morning.</li>
-        <li><strong>Step 2:</strong> Tap the 🔔 to set an alarm for the <strong>70th Minute</strong> (Green Time).</li>
-        <li><strong>Step 3:</strong> When the alarm goes off, open the Scanner.</li>
-        <li><strong>Step 4:</strong> Look for <strong>RED Borders</strong> or <strong>⚠️ WASTEFUL</strong> badges.</li>
-        <li><strong>Step 5:</strong> Check the Odds. If value is good, place the bet.</li>
-    </ul>
-
-    <br><br>
-    <a href="index.html" style="text-decoration:none;">
-        <button class="btn-back" style="background:#8b5cf6;">🚀 Start Scanning</button>
-    </a>
-
-</body>
-</html>
+    <div class="example-box">
+        <span
