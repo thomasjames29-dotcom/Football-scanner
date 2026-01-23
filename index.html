@@ -44,9 +44,12 @@
 
         .match-header { display: flex; justify-content: space-between; align-items: center; color: #94a3b8; font-size: 0.85em; margin-bottom: 8px; }
         .star-rating { color: #fbbf24; letter-spacing: 2px; font-size: 1em; }
+        
+        /* Team Row & Goals */
         .team-row { display: flex; align-items: center; justify-content: space-between; margin: 5px 0; font-size: 1.1em; font-weight: bold; }
-        .team-info { display: flex; align-items: center; gap: 10px; }
+        .team-info { display: flex; align-items: center; gap: 10px; max-width: 85%; }
         .team-logo { width: 28px; height: 28px; object-fit: contain; }
+        .goal-times { font-size: 0.75em; color: #4ade80; font-weight: normal; margin-left: 8px; font-style: italic; }
         .score { font-size: 1.3em; color: #fff; }
 
         /* Stats & Widgets */
@@ -152,7 +155,7 @@
             if(confirm("Reset stats and history?")) {
                 localStorage.setItem('inplay_wins', 0);
                 localStorage.setItem('inplay_losses', 0);
-                localStorage.setItem('inplay_history', JSON.stringify([])); // Clear history too
+                localStorage.setItem('inplay_history', JSON.stringify([])); 
                 updateBoard(0, 0);
             }
         }
@@ -161,16 +164,14 @@
         // --- HISTORY ENGINE ---
         function saveToHistory(match, market, stars) {
             let history = JSON.parse(localStorage.getItem('inplay_history') || "[]");
-            // Check duplicate ID
             if(history.some(h => h.id === match.fixture.id)) return;
-
             history.push({
                 id: match.fixture.id,
                 home: match.teams.home.name,
                 away: match.teams.away.name,
                 homeLogo: match.teams.home.logo,
                 awayLogo: match.teams.away.logo,
-                scanScore: match.goals.home + match.goals.away, // Total goals at scan
+                scanScore: match.goals.home + match.goals.away, 
                 market: market,
                 stars: stars,
                 timestamp: new Date().toLocaleTimeString()
@@ -187,7 +188,6 @@
 
             resultsDiv.innerHTML = "<p style='text-align:center'>Updating match outcomes...</p>";
             
-            // Batch Fetch current status
             const ids = history.map(h => h.id).join('-');
             try {
                 const response = await fetch(`https://v3.football.api-sports.io/fixtures?ids=${ids}`, {
@@ -208,8 +208,6 @@
                     if(currentMatch) {
                         const currentTotal = currentMatch.goals.home + currentMatch.goals.away;
                         finalScore = `${currentMatch.goals.home}-${currentMatch.goals.away}`;
-                        
-                        // SUCCESS LOGIC: Goal scored AFTER scan
                         if(currentTotal > savedMatch.scanScore) {
                             isSuccess = true;
                             status = "GOAL SCORED ✅";
@@ -311,9 +309,9 @@
                     if(matches.length > 5) updateStatus(`Scanning Match ${i+1} of ${matches.length}...`);
 
                     if (elapsed >= 70 && Math.abs(homeGoals - awayGoals) <= 1) {
-                        const stats = await getMatchStats(fixtureId);
-                        if (stats) {
-                            analyzeAndRender(match, stats);
+                        const matchData = await getMatchDetails(fixtureId);
+                        if (matchData) {
+                            analyzeAndRender(matchData); // Use the full detailed data
                             potentialTips++;
                         }
                     }
@@ -326,20 +324,35 @@
             } catch (err) { showError("Connection Error."); }
         }
 
-        async function getMatchStats(fixtureId) {
+        // UPGRADED TO FETCH EVENTS + STATS
+        async function getMatchDetails(fixtureId) {
             await new Promise(r => setTimeout(r, 200)); 
             try {
-                const response = await fetch(`https://v3.football.api-sports.io/fixtures/statistics?fixture=${fixtureId}`, {
+                const response = await fetch(`https://v3.football.api-sports.io/fixtures?id=${fixtureId}`, {
                     "method": "GET",
                     "headers": { "x-apisports-key": API_KEY }
                 });
                 const data = await response.json();
-                return data.response; 
+                return data.response[0]; // Return full object
             } catch (e) { return null; }
         }
 
-        function analyzeAndRender(match, statsData) {
+        function analyzeAndRender(fullMatchData) {
+            const match = fullMatchData;
+            const statsData = match.statistics;
+            const events = match.events || [];
+
             if (!statsData || statsData.length < 2) return; 
+
+            // Extract Goal Times
+            const getGoals = (teamId) => {
+                return events
+                    .filter(e => e.type === 'Goal' && e.team.id === teamId)
+                    .map(e => `${e.time.elapsed}${e.time.extra ? '+' + e.time.extra : ''}'`)
+                    .join(', ');
+            };
+            const homeGoalTimes = getGoals(match.teams.home.id);
+            const awayGoalTimes = getGoals(match.teams.away.id);
 
             const getStat = (teamStats, type) => {
                 try {
@@ -435,8 +448,20 @@
                     <span style="color:#fff; font-weight:bold;">${match.fixture.status.elapsed}'</span>
                 </div>
                 
-                <div class="team-row"><div class="team-info"><img src="${match.teams.home.logo}" class="team-logo"> ${match.teams.home.name}</div><div class="score">${match.goals.home}</div></div>
-                <div class="team-row"><div class="team-info"><img src="${match.teams.away.logo}" class="team-logo"> ${match.teams.away.name}</div><div class="score">${match.goals.away}</div></div>
+                <div class="team-row">
+                    <div class="team-info">
+                        <img src="${match.teams.home.logo}" class="team-logo"> ${match.teams.home.name}
+                        <span class="goal-times">(${homeGoalTimes})</span>
+                    </div>
+                    <div class="score">${match.goals.home}</div>
+                </div>
+                <div class="team-row">
+                    <div class="team-info">
+                        <img src="${match.teams.away.logo}" class="team-logo"> ${match.teams.away.name}
+                        <span class="goal-times">(${awayGoalTimes})</span>
+                    </div>
+                    <div class="score">${match.goals.away}</div>
+                </div>
                 
                 <div class="tilt-container">
                     <div class="tilt-home" style="width: ${homeTilt}%"></div>
