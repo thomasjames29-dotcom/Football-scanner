@@ -3,19 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InPlay God Mode</title>
+    <title>InPlay God Mode Pro</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0f172a">
-
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚽</text></svg>">
     
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f172a; color: #e2e8f0; padding: 15px; padding-bottom: 80px; }
         h2 { text-align: center; color: #38bdf8; margin-bottom: 5px; font-weight: 800; letter-spacing: 1px; }
         
-        /* Profit Tracker Dashboard */
+        /* Dashboard */
         .profit-board { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; background: #1e293b; padding: 10px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #334155; text-align: center; }
         .profit-stat { font-size: 0.9em; color: #94a3b8; }
         .profit-val { font-size: 1.2em; font-weight: bold; color: #fff; }
@@ -27,9 +26,9 @@
         .controls { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 20px; }
         select { background: #1e293b; color: #fff; padding: 12px; border: 1px solid #475569; border-radius: 8px; font-size: 1em; width: 100%; font-weight: bold; appearance: none; }
         
-        /* Main Buttons */
+        /* Buttons */
         .btn-scan { background: #8b5cf6; color: white; border: none; padding: 14px; border-radius: 12px; width: 100%; font-size: 1.1em; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-        .btn-scan:active { transform: scale(0.98); background: #7c3aed; }
+        .btn-history { background: #f59e0b; color: #000; border: none; padding: 10px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; }
         .btn-nav { background: #334155; color: #cbd5e1; border: 1px solid #475569; padding: 10px; border-radius: 8px; width: 100%; font-weight:bold; cursor: pointer; }
         .btn-schedule { background: #0f766e; color: #ccfbf1; border: 1px solid #115e59; padding: 10px; border-radius: 8px; width: 100%; font-weight:bold; cursor: pointer; }
 
@@ -37,26 +36,28 @@
         .card { background-color: #1e293b; padding: 15px; margin-bottom: 15px; border-radius: 12px; border-left: 6px solid #64748b; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2); position: relative; }
         .card.likelihood-High { border-left-color: #ef4444; } 
         .card.likelihood-Medium { border-left-color: #f59e0b; } 
+        
+        /* History Success Styles */
+        .card.history-success { border: 2px solid #4ade80; background: #064e3b; }
+        .history-tag { position: absolute; top: 10px; right: 10px; background: #4ade80; color: #064e3b; font-weight: bold; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; display: none; }
+        .card.history-success .history-tag { display: block; }
 
         .match-header { display: flex; justify-content: space-between; align-items: center; color: #94a3b8; font-size: 0.85em; margin-bottom: 8px; }
         .star-rating { color: #fbbf24; letter-spacing: 2px; font-size: 1em; }
-        
         .team-row { display: flex; align-items: center; justify-content: space-between; margin: 5px 0; font-size: 1.1em; font-weight: bold; }
         .team-info { display: flex; align-items: center; gap: 10px; }
         .team-logo { width: 28px; height: 28px; object-fit: contain; }
         .score { font-size: 1.3em; color: #fff; }
 
-        /* TILT BAR */
+        /* Stats & Widgets */
         .tilt-container { height: 8px; background: #334155; border-radius: 4px; margin: 10px 0; overflow: hidden; display: flex; }
         .tilt-home { background: #3b82f6; height: 100%; transition: width 0.5s; }
         .tilt-away { background: #ef4444; height: 100%; transition: width 0.5s; }
 
-        /* ADVISOR BOX */
         .advisor-box { background: #0f172a; padding: 10px; border-radius: 6px; font-size: 0.9em; text-align: center; color: #e2e8f0; border: 1px solid #334155; margin-bottom: 10px; display:flex; justify-content: space-around; align-items: center; }
         .market-tag { color: #2dd4bf; font-weight: bold; text-transform: uppercase; border: 1px solid #0f766e; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; }
         .stake-tag { color: #f472b6; font-weight: bold; }
 
-        /* Tools Row */
         .tools-row { display: grid; grid-template-columns: 1fr 3fr 1fr 1fr; gap: 8px; margin-top: 12px; }
         .btn-tool { border: none; border-radius: 6px; font-weight: bold; cursor: pointer; color: #fff; font-size: 0.9em; padding: 8px 0; }
         .btn-copy { background: #334155; color: #cbd5e1; }
@@ -95,7 +96,10 @@
     <div id="scan-status" class="scan-status"></div>
 
     <div class="controls">
-        <a href="help.html" style="text-decoration:none;"><button class="btn-nav">📖 Strategy Guide</button></a>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:10px;">
+            <a href="help.html" style="text-decoration:none;"><button class="btn-nav" style="width:100%">📖 Guide</button></a>
+            <button class="btn-history" onclick="viewHistory()">📜 History</button>
+        </div>
         <button class="btn-schedule" onclick="checkSchedule()">📅 Check 70th Min Times</button>
         <select id="league-filter">
             <option value="major">⭐ Major Leagues (API Saver)</option>
@@ -108,11 +112,9 @@
     <div id="results"></div>
 
     <script>
-        // CONFIGURATION
         const RAW_KEY = "0f29a2f96e9dd4231cee515cc5ec52b0"; 
         const API_KEY = RAW_KEY.trim(); 
         
-        // GLOBAL STATE
         const resultsDiv = document.getElementById('results');
         const errorDiv = document.getElementById('error-display');
         const statusDiv = document.getElementById('scan-status');
@@ -124,7 +126,7 @@
             goals: [88, 103, 203, 188, 373, 206, 179, 180]
         };
 
-        // --- PROFIT TRACKER ---
+        // --- STATS LOGIC ---
         function loadStats() {
             const wins = parseInt(localStorage.getItem('inplay_wins') || 0);
             const losses = parseInt(localStorage.getItem('inplay_losses') || 0);
@@ -147,15 +149,97 @@
             updateBoard(wins, losses);
         }
         function resetStats() {
-            if(confirm("Reset today's stats?")) {
+            if(confirm("Reset stats and history?")) {
                 localStorage.setItem('inplay_wins', 0);
                 localStorage.setItem('inplay_losses', 0);
+                localStorage.setItem('inplay_history', JSON.stringify([])); // Clear history too
                 updateBoard(0, 0);
             }
         }
         loadStats();
 
-        // --- AUDIO ---
+        // --- HISTORY ENGINE ---
+        function saveToHistory(match, market, stars) {
+            let history = JSON.parse(localStorage.getItem('inplay_history') || "[]");
+            // Check duplicate ID
+            if(history.some(h => h.id === match.fixture.id)) return;
+
+            history.push({
+                id: match.fixture.id,
+                home: match.teams.home.name,
+                away: match.teams.away.name,
+                homeLogo: match.teams.home.logo,
+                awayLogo: match.teams.away.logo,
+                scanScore: match.goals.home + match.goals.away, // Total goals at scan
+                market: market,
+                stars: stars,
+                timestamp: new Date().toLocaleTimeString()
+            });
+            localStorage.setItem('inplay_history', JSON.stringify(history));
+        }
+
+        async function viewHistory() {
+            const history = JSON.parse(localStorage.getItem('inplay_history') || "[]");
+            if(history.length === 0) {
+                resultsDiv.innerHTML = "<p style='text-align:center'>No scan history today.</p>";
+                return;
+            }
+
+            resultsDiv.innerHTML = "<p style='text-align:center'>Updating match outcomes...</p>";
+            
+            // Batch Fetch current status
+            const ids = history.map(h => h.id).join('-');
+            try {
+                const response = await fetch(`https://v3.football.api-sports.io/fixtures?ids=${ids}`, {
+                    "method": "GET",
+                    "headers": { "x-apisports-key": API_KEY }
+                });
+                const data = await response.json();
+                const liveMatches = data.response;
+
+                resultsDiv.innerHTML = "<h3>📜 Scan History (Success Check)</h3>";
+
+                history.forEach(savedMatch => {
+                    const currentMatch = liveMatches.find(m => m.fixture.id === savedMatch.id);
+                    let status = "Checking...";
+                    let finalScore = "N/A";
+                    let isSuccess = false;
+
+                    if(currentMatch) {
+                        const currentTotal = currentMatch.goals.home + currentMatch.goals.away;
+                        finalScore = `${currentMatch.goals.home}-${currentMatch.goals.away}`;
+                        
+                        // SUCCESS LOGIC: Goal scored AFTER scan
+                        if(currentTotal > savedMatch.scanScore) {
+                            isSuccess = true;
+                            status = "GOAL SCORED ✅";
+                        } else {
+                            status = `Pending (${currentMatch.fixture.status.short})`;
+                        }
+                    }
+
+                    const card = document.createElement('div');
+                    card.className = `card ${isSuccess ? 'history-success' : ''}`;
+                    card.innerHTML = `
+                        <div class="history-tag">GOAL LANDED</div>
+                        <div class="match-header"><span>${savedMatch.timestamp}</span><span>${savedMatch.stars}</span></div>
+                        <div class="team-row"><div class="team-info"><img src="${savedMatch.homeLogo}" class="team-logo"> ${savedMatch.home}</div></div>
+                        <div class="team-row"><div class="team-info"><img src="${savedMatch.awayLogo}" class="team-logo"> ${savedMatch.away}</div></div>
+                        <div class="stats-grid" style="margin-top:10px;">
+                            <div class="stat-item"><span class="stat-label">Market</span> <span class="highlight-stat">${savedMatch.market}</span></div>
+                            <div class="stat-item"><span class="stat-label">Result</span> <span style="font-weight:bold; color:${isSuccess?'#4ade80':'#fff'}">${finalScore}</span></div>
+                        </div>
+                    `;
+                    resultsDiv.appendChild(card);
+                });
+
+            } catch(e) {
+                showError("Could not fetch history updates.");
+            }
+        }
+
+
+        // --- CORE FUNCTIONS ---
         function playAlertSound() {
             try {
                 if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -173,14 +257,9 @@
             } catch(e) {}
         }
 
-        // --- SAFE COPY ---
         function copyTip(fixtureId) {
             const text = window.MATCH_TIPS[fixtureId];
-            if(text) {
-                navigator.clipboard.writeText(text).then(() => {
-                    alert("Tip copied to clipboard!");
-                });
-            }
+            if(text) navigator.clipboard.writeText(text).then(() => alert("Tip copied!"));
         }
 
         function showError(msg) {
@@ -188,61 +267,9 @@
             errorDiv.innerHTML = `⚠️ ${msg}`;
             statusDiv.style.display = 'none';
         }
-
         function updateStatus(msg) {
             statusDiv.style.display = 'block';
             statusDiv.innerText = msg;
-        }
-
-        // --- SCHEDULE ---
-        async function checkSchedule() {
-            resultsDiv.innerHTML = '<p style="text-align:center;">Checking schedule...</p>';
-            errorDiv.style.display = 'none';
-            statusDiv.style.display = 'none';
-            try {
-                const today = new Date().toISOString().split('T')[0];
-                const response = await fetch(`https://v3.football.api-sports.io/fixtures?date=${today}`, {
-                    "method": "GET",
-                    "headers": { "x-apisports-key": API_KEY }
-                });
-                const data = await response.json();
-                if (data.errors && Object.keys(data.errors).length > 0) { showError("Daily Limit Reached."); return; }
-
-                const matches = data.response;
-                const scheduleLeagues = [...LEAGUES.major, ...LEAGUES.goals];
-                const validStatuses = ['NS', '1H', 'HT', '2H', 'ET', 'P', 'FT'];
-                
-                const upcomingMatches = matches.filter(m => {
-                    const isMajor = scheduleLeagues.includes(m.league.id) || m.league.type === 'Cup';
-                    return isMajor && validStatuses.includes(m.fixture.status.short);
-                });
-
-                if (upcomingMatches.length === 0) { resultsDiv.innerHTML = "<h3>📅 Schedule</h3><p>No key games today.</p>"; return; }
-                upcomingMatches.sort((a, b) => new Date(a.fixture.date) - new Date(b.fixture.date));
-
-                let html = `<h3>⏰ Scan Times (Kickoff + 85m)</h3>`;
-                upcomingMatches.forEach(m => {
-                    let kickOff = new Date(m.fixture.date);
-                    kickOff.setMinutes(kickOff.getMinutes() + 85); 
-                    const scanTimeDisplay = kickOff.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                    let statusColor = '#94a3b8'; 
-                    if(['1H','HT','2H','ET'].includes(m.fixture.status.short)) statusColor = '#ef4444';
-                    
-                    const startStr = kickOff.toISOString().replace(/-|:|\.\d\d\d/g, ""); 
-                    const endTime = new Date(kickOff);
-                    endTime.setMinutes(endTime.getMinutes() + 15);
-                    const endStr = endTime.toISOString().replace(/-|:|\.\d\d\d/g, "");
-                    const eventTitle = `Scan: ${m.teams.home.name} vs ${m.teams.away.name}`;
-                    const calUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(eventTitle)}&dates=${startStr}/${endStr}&details=Check+InPlay+App+Now!`;
-
-                    html += `
-                        <div style="background:#334155; padding:10px; margin-bottom:6px; border-radius:6px; font-size:0.9em; border-left: 4px solid #0f766e; display:flex; justify-content:space-between; align-items:center;">
-                            <div><span style="color:#2dd4bf; font-weight:bold; font-size:1.1em;">${scanTimeDisplay}</span> <span style="color:${statusColor}; font-weight:bold; font-size:0.8em;">[${m.fixture.status.short}]</span><br><span style="color:#fff;">${m.teams.home.name} vs ${m.teams.away.name}</span></div>
-                            <a href="${calUrl}" target="_blank" style="text-decoration:none;"><button style="background:#0f766e; color:#fff; border:none; padding:8px 12px; border-radius:6px; cursor:pointer;">🔔</button></a>
-                        </div>`;
-                });
-                resultsDiv.innerHTML = html;
-            } catch (error) { showError("Connection Error."); }
         }
 
         // --- SCANNER ---
@@ -271,11 +298,8 @@
                 else if (filterType === 'goals') matches = matches.filter(m => LEAGUES.goals.includes(m.league.id));
 
                 let potentialTips = 0;
-                // Safety loop
                 for (let i = 0; i < matches.length; i++) {
                     const match = matches[i];
-                    
-                    // SAFEGUARD: Skip broken data
                     if (!match || !match.fixture || !match.goals) continue;
                     if (match.goals.home === null || match.goals.away === null) continue;
 
@@ -284,7 +308,6 @@
                     const awayGoals = match.goals.away;
                     const fixtureId = match.fixture.id;
 
-                    // Progress Update for World Scan
                     if(matches.length > 5) updateStatus(`Scanning Match ${i+1} of ${matches.length}...`);
 
                     if (elapsed >= 70 && Math.abs(homeGoals - awayGoals) <= 1) {
@@ -297,7 +320,6 @@
                 }
 
                 statusDiv.style.display = 'none';
-
                 if (potentialTips > 0) playAlertSound(); 
                 if (potentialTips === 0) { resultsDiv.innerHTML = "<p style='text-align:center;'>No active matches fit the criteria.</p>"; }
 
@@ -377,6 +399,11 @@
             if (hCrumbling) market = "AWAY TEAM GOAL";
             if (aCrumbling) market = "HOME TEAM GOAL";
 
+            // --- SAVE HISTORY ---
+            if(totalP > 30) {
+                saveToHistory(match, market, stars);
+            }
+
             // --- BADGES ---
             let badges = [];
             if (getStat(homeStats, "Red Cards") > 0) { awayP += 20; badges.push(`<span class="badge badge-red">RED: HOME</span>`); }
@@ -438,6 +465,57 @@
                 </div>
             `;
             resultsDiv.appendChild(card);
+        }
+
+        // --- SCHEDULE ---
+        async function checkSchedule() {
+            resultsDiv.innerHTML = '<p style="text-align:center;">Checking schedule...</p>';
+            errorDiv.style.display = 'none';
+            statusDiv.style.display = 'none';
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                const response = await fetch(`https://v3.football.api-sports.io/fixtures?date=${today}`, {
+                    "method": "GET",
+                    "headers": { "x-apisports-key": API_KEY }
+                });
+                const data = await response.json();
+                if (data.errors && Object.keys(data.errors).length > 0) { showError("Daily Limit Reached."); return; }
+
+                const matches = data.response;
+                const scheduleLeagues = [...LEAGUES.major, ...LEAGUES.goals];
+                const validStatuses = ['NS', '1H', 'HT', '2H', 'ET', 'P', 'FT'];
+                
+                const upcomingMatches = matches.filter(m => {
+                    const isMajor = scheduleLeagues.includes(m.league.id) || m.league.type === 'Cup';
+                    return isMajor && validStatuses.includes(m.fixture.status.short);
+                });
+
+                if (upcomingMatches.length === 0) { resultsDiv.innerHTML = "<h3>📅 Schedule</h3><p>No key games today.</p>"; return; }
+                upcomingMatches.sort((a, b) => new Date(a.fixture.date) - new Date(b.fixture.date));
+
+                let html = `<h3>⏰ Scan Times (Kickoff + 85m)</h3>`;
+                upcomingMatches.forEach(m => {
+                    let kickOff = new Date(m.fixture.date);
+                    kickOff.setMinutes(kickOff.getMinutes() + 85); 
+                    const scanTimeDisplay = kickOff.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    let statusColor = '#94a3b8'; 
+                    if(['1H','HT','2H','ET'].includes(m.fixture.status.short)) statusColor = '#ef4444';
+                    
+                    const startStr = kickOff.toISOString().replace(/-|:|\.\d\d\d/g, ""); 
+                    const endTime = new Date(kickOff);
+                    endTime.setMinutes(endTime.getMinutes() + 15);
+                    const endStr = endTime.toISOString().replace(/-|:|\.\d\d\d/g, "");
+                    const eventTitle = `Scan: ${m.teams.home.name} vs ${m.teams.away.name}`;
+                    const calUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(eventTitle)}&dates=${startStr}/${endStr}&details=Check+InPlay+App+Now!`;
+
+                    html += `
+                        <div style="background:#334155; padding:10px; margin-bottom:6px; border-radius:6px; font-size:0.9em; border-left: 4px solid #0f766e; display:flex; justify-content:space-between; align-items:center;">
+                            <div><span style="color:#2dd4bf; font-weight:bold; font-size:1.1em;">${scanTimeDisplay}</span> <span style="color:${statusColor}; font-weight:bold; font-size:0.8em;">[${m.fixture.status.short}]</span><br><span style="color:#fff;">${m.teams.home.name} vs ${m.teams.away.name}</span></div>
+                            <a href="${calUrl}" target="_blank" style="text-decoration:none;"><button style="background:#0f766e; color:#fff; border:none; padding:8px 12px; border-radius:6px; cursor:pointer;">🔔</button></a>
+                        </div>`;
+                });
+                resultsDiv.innerHTML = html;
+            } catch (error) { showError("Connection Error."); }
         }
     </script>
 </body>
