@@ -2,546 +2,550 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InPlay God Mode Pro</title>
-    
-    <link rel="manifest" href="manifest.json">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#0f172a">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚽</text></svg>">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0d1117">
+    <title>60' Hunter Pro Max</title>
+
+    <link rel="manifest" href="./manifest.json">
+    <link rel="icon" type="image/png" href="target_PNG26.png">
+    <link rel="apple-touch-icon" href="target_PNG26.png">
+
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f172a; color: #e2e8f0; padding: 15px; padding-bottom: 80px; }
-        h2 { text-align: center; color: #38bdf8; margin-bottom: 5px; font-weight: 800; letter-spacing: 1px; }
+        :root { --bg: #0d1117; --card: #161b22; --green: #2ea043; --gold: #d29922; --red: #da3633; --purple: #a371f7; --blue: #1f6feb; --text: #c9d1d9; }
+        body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 16px; padding-bottom: 120px; }
         
-        /* Dashboard */
-        .profit-board { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; background: #1e293b; padding: 10px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #334155; text-align: center; }
-        .profit-stat { font-size: 0.9em; color: #94a3b8; }
-        .profit-val { font-size: 1.2em; font-weight: bold; color: #fff; }
-        .val-green { color: #4ade80; }
-        .val-red { color: #f87171; }
-        .btn-reset { grid-column: span 3; background: none; border: none; color: #64748b; font-size: 0.75em; cursor: pointer; margin-top: 5px; text-decoration: underline; }
-
-        /* Controls */
-        .controls { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 20px; }
-        select { background: #1e293b; color: #fff; padding: 12px; border: 1px solid #475569; border-radius: 8px; font-size: 1em; width: 100%; font-weight: bold; appearance: none; }
+        /* HEADER */
+        header { display: flex; flex-direction: column; gap: 10px; border-bottom: 1px solid #30363d; padding-bottom: 15px; margin-bottom: 15px; }
+        .top-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        h1 { margin: 0; font-size: 1.4rem; color: var(--green); display: flex; align-items: center; gap: 10px; }
         
-        /* Buttons */
-        .btn-scan { background: #8b5cf6; color: white; border: none; padding: 14px; border-radius: 12px; width: 100%; font-size: 1.1em; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-        .btn-history { background: #f59e0b; color: #000; border: none; padding: 10px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; }
-        .btn-nav { background: #334155; color: #cbd5e1; border: 1px solid #475569; padding: 10px; border-radius: 8px; width: 100%; font-weight:bold; cursor: pointer; }
-        .btn-schedule { background: #0f766e; color: #ccfbf1; border: 1px solid #115e59; padding: 10px; border-radius: 8px; width: 100%; font-weight:bold; cursor: pointer; }
+        /* AUTO-PILOT */
+        .pilot-btn { background: #21262d; border: 1px solid #30363d; color: #888; padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.3s; }
+        .pilot-btn.active { background: rgba(46, 160, 67, 0.2); border-color: var(--green); color: var(--green); }
+        .pilot-dot { width: 8px; height: 8px; border-radius: 50%; background: #555; }
+        .pilot-btn.active .pilot-dot { background: var(--green); box-shadow: 0 0 8px var(--green); }
 
-        /* Card Styles */
-        .card { background-color: #1e293b; padding: 15px; margin-bottom: 15px; border-radius: 12px; border-left: 6px solid #64748b; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2); position: relative; }
-        .card.likelihood-High { border-left-color: #ef4444; } 
-        .card.likelihood-Medium { border-left-color: #f59e0b; } 
+        select { width: 100%; padding: 12px; background: #21262d; color: white; border: 1px solid #30363d; border-radius: 8px; font-size: 1rem; font-weight: bold; outline: none; appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E"); background-repeat: no-repeat; background-position: right 15px top 50%; background-size: 12px auto; }
+
+        /* TABS */
+        .nav-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .nav-tab { flex: 1; text-align: center; padding: 10px; background: #21262d; border-radius: 8px; border: 1px solid #30363d; color: #888; font-weight: bold; cursor: pointer; }
+        .nav-tab.active { background: #2ea043; color: white; border-color: #2ea043; }
+
+        /* MATCH CARD */
+        .match-card { background: var(--card); border: 1px solid #30363d; border-radius: 12px; padding: 15px; margin-bottom: 15px; position: relative; overflow: hidden; }
+        .league-name { font-size: 0.75rem; color: #8b949e; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
+        .score-row { display: flex; justify-content: space-between; align-items: flex-start; margin: 10px 0; }
+        .team-col { width: 40%; display: flex; flex-direction: column; }
+        .team-name { font-size: 1rem; font-weight: bold; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+        .goal-times { font-size: 0.75rem; color: var(--gold); margin-top: 4px; min-height: 14px; font-family: monospace; }
+        .score-box { background: #21262d; padding: 8px 14px; border-radius: 8px; border: 1px solid #30363d; font-family: monospace; font-size: 1.2rem; font-weight: bold; }
         
-        /* History Success Styles */
-        .card.history-success { border: 2px solid #4ade80; background: #064e3b; }
-        .history-tag { position: absolute; top: 10px; right: 10px; background: #4ade80; color: #064e3b; font-weight: bold; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; display: none; }
-        .card.history-success .history-tag { display: block; }
+        /* SCHEDULE */
+        .sched-card { background: #161b22; border-bottom: 1px solid #30363d; padding: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .sched-time { font-family: monospace; color: var(--gold); font-weight: bold; width: 50px; font-size: 1rem; }
+        .sched-teams { flex: 1; font-size: 0.9rem; }
+        .sched-league { font-size: 0.75rem; color: #a371f7; text-transform: uppercase; margin-bottom: 4px; font-weight: bold; letter-spacing: 0.5px; }
 
-        .match-header { display: flex; justify-content: space-between; align-items: center; color: #94a3b8; font-size: 0.85em; margin-bottom: 8px; }
-        .star-rating { color: #fbbf24; letter-spacing: 2px; font-size: 1em; }
+        /* BADGES */
+        .pred-row { display: flex; justify-content: space-between; align-items: center; background: rgba(255, 255, 255, 0.05); padding: 10px; border-radius: 8px; margin-top: 10px; }
+        .pred-text { color: var(--green); font-weight: bold; font-size: 0.9rem; }
+        .conf-badge { padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; color: #000; }
+        .conf-high { background-color: var(--green); } 
+        .conf-med { background-color: var(--gold); }   
+        .conf-low { background-color: #8b949e; }
+        .upset-badge { background: rgba(218, 54, 51, 0.15); border: 1px solid var(--red); color: var(--red); font-size: 0.75rem; font-weight: bold; text-align: center; padding: 6px; border-radius: 6px; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .red-card-badge { background: rgba(218, 54, 51, 0.2); border: 1px solid var(--red); color: white; font-weight: bold; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; margin-top: 4px; display: inline-block; }
+
+        /* BUTTONS */
+        .btn-row { display: flex; gap: 10px; margin-top: 10px; }
+        .player-btn { flex: 1; background: #21262d; border: 1px solid #30363d; color: #ccc; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer;}
+        .analyze-btn { flex: 1; background: rgba(163, 113, 247, 0.15); border: 1px solid var(--purple); color: var(--purple); padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        .bet365-btn { flex: 1; background: #00703c; border: 1px solid #005c31; color: white; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; text-decoration: none; text-align: center; display: block;}
+        .copy-btn { width:100%; background: #333; border: 1px solid #444; color: #fff; padding: 8px; border-radius: 6px; font-size: 0.8rem; margin-top: 8px; cursor: pointer; }
+
+        /* ANALYSIS */
+        .analysis-box { background: #1c1c1c; border: 1px solid var(--purple); padding: 10px; border-radius: 8px; margin-top: 10px; font-size: 0.9rem; display: none; }
+        .stat-bar { display: flex; justify-content: space-between; margin-bottom: 4px; color: #bbb; font-size: 0.8rem; }
+        .stat-val { font-weight: bold; color: white; }
+        .gauge-container { height: 8px; background: #333; border-radius: 4px; overflow: hidden; margin: 5px 0 15px 0; display: flex; }
+        .gauge-home { background: var(--green); height: 100%; transition: width 0.5s; }
+        .gauge-away { background: var(--purple); height: 100%; transition: width 0.5s; }
+        .gauge-labels { display: flex; justify-content: space-between; font-size: 0.75rem; color: #888; margin-top:-2px; margin-bottom: 10px; }
         
-        /* Team Row & Goals */
-        .team-row { display: flex; align-items: center; justify-content: space-between; margin: 5px 0; font-size: 1.1em; font-weight: bold; }
-        .team-info { display: flex; align-items: center; gap: 10px; max-width: 85%; }
-        .team-logo { width: 28px; height: 28px; object-fit: contain; }
-        .goal-times { font-size: 0.75em; color: #4ade80; font-weight: normal; margin-left: 8px; font-style: italic; }
-        .score { font-size: 1.3em; color: #fff; }
+        .tip-box { background: rgba(255, 255, 255, 0.05); border-radius: 6px; padding: 8px; margin: 10px 0; border-left: 3px solid var(--gold); }
+        .tip-header { font-size: 0.75rem; color: #888; text-transform: uppercase; margin-bottom: 4px; font-weight: bold; }
+        .tip-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .tip-name { color: #fff; font-weight: bold; font-size: 0.9rem; }
+        
+        .val-good { color: var(--green); text-shadow: 0 0 5px rgba(46, 160, 67, 0.5); }
+        .rank-badge { font-size: 0.75rem; color: var(--gold); margin-left: 4px; font-weight: normal; }
 
-        /* Stats & Widgets */
-        .tilt-container { height: 8px; background: #334155; border-radius: 4px; margin: 10px 0; overflow: hidden; display: flex; }
-        .tilt-home { background: #3b82f6; height: 100%; transition: width 0.5s; }
-        .tilt-away { background: #ef4444; height: 100%; transition: width 0.5s; }
-
-        .advisor-box { background: #0f172a; padding: 10px; border-radius: 6px; font-size: 0.9em; text-align: center; color: #e2e8f0; border: 1px solid #334155; margin-bottom: 10px; display:flex; justify-content: space-around; align-items: center; }
-        .market-tag { color: #2dd4bf; font-weight: bold; text-transform: uppercase; border: 1px solid #0f766e; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; }
-        .stake-tag { color: #f472b6; font-weight: bold; }
-
-        .tools-row { display: grid; grid-template-columns: 1fr 3fr 1fr 1fr; gap: 8px; margin-top: 12px; }
-        .btn-tool { border: none; border-radius: 6px; font-weight: bold; cursor: pointer; color: #fff; font-size: 0.9em; padding: 8px 0; }
-        .btn-copy { background: #334155; color: #cbd5e1; }
-        .btn-bet { background: #047857; }
-        .btn-win { background: #0f766e; }
-        .btn-loss { background: #991b1b; }
-
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: #0f172a; padding: 10px; border-radius: 8px; font-size: 0.85em; margin-bottom: 12px; }
-        .stat-item { display: flex; justify-content: space-between; }
-        .stat-label { color: #64748b; }
-        .highlight-stat { color: #fbbf24; font-weight: bold; }
-
-        .badge-container { display: flex; gap: 5px; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
-        .badge { font-size: 0.75em; padding: 2px 8px; border-radius: 4px; font-weight: bold; text-transform: uppercase; }
-        .badge-red { background: #ef4444; color: white; }
-        .badge-yellow { background: #f59e0b; color: black; }
-        .badge-blue { background: #3b82f6; color: white; }
-        .badge-purple { background: #a855f7; color: white; }
-
-        .error-msg { color: #fca5a5; background: #450a0a; padding: 10px; border-radius: 8px; text-align: center; margin-bottom: 15px; display: none; }
-        .scan-status { text-align: center; color: #94a3b8; font-size: 0.9em; margin-bottom: 10px; font-style: italic; display: none; }
+        .scan-btn { position: fixed; bottom: 30px; left: 5%; width: 90%; background: var(--green); color: white; border: none; padding: 16px; border-radius: 16px; font-size: 1.1rem; font-weight: bold; box-shadow: 0 5px 20px rgba(0,0,0,0.5); z-index: 100; }
     </style>
 </head>
 <body>
 
-    <h2>🤖 InPlay God Mode</h2>
-    
-    <div class="profit-board">
-        <div><div class="profit-stat">Wins</div><div id="stat-wins" class="profit-val val-green">0</div></div>
-        <div><div class="profit-stat">Losses</div><div id="stat-losses" class="profit-val val-red">0</div></div>
-        <div><div class="profit-stat">Win Rate</div><div id="stat-rate" class="profit-val">0%</div></div>
-        <button class="btn-reset" onclick="resetStats()">Reset Daily Stats</button>
-    </div>
-
-    <div id="error-display" class="error-msg"></div>
-    <div id="scan-status" class="scan-status"></div>
-
-    <div class="controls">
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:10px;">
-            <a href="help.html" style="text-decoration:none;"><button class="btn-nav" style="width:100%">📖 Guide</button></a>
-            <button class="btn-history" onclick="viewHistory()">📜 History</button>
+    <header>
+        <div class="top-row">
+            <h1><img src="target_PNG26.png" style="width:28px;"> Hunter Pro Max</h1>
+            <button id="pilotBtn" class="pilot-btn" onclick="togglePilot()">
+                <div class="pilot-dot"></div> Auto-Pilot
+            </button>
         </div>
-        <button class="btn-schedule" onclick="checkSchedule()">📅 Check 70th Min Times</button>
-        <select id="league-filter">
-            <option value="major">⭐ Major Leagues (API Saver)</option>
-            <option value="goals">⚽ Goal Machines (Dutch/Aus/Swiss)</option>
-            <option value="all">🌍 Scan World (High Data Usage)</option>
+        
+        <div class="nav-tabs">
+            <div id="tabLive" class="nav-tab active" onclick="switchTab('live')">🔴 Live Hunt</div>
+            <div id="tabSched" class="nav-tab" onclick="switchTab('sched')">📅 Elite Schedule</div>
+        </div>
+
+        <select id="filterSelect" onchange="applyFilter()">
+            <option value="elite">🇬🇧 UK & Elite (Full Stats)</option>
+            <option value="europe">🇪🇺 Rest of Europe</option>
+            <option value="world">🌎 World Scan</option>
         </select>
-        <button class="btn-scan" onclick="startScan()">🔍 RUN SCAN</button>
+    </header>
+
+    <div id="liveView">
+        <div id="content">
+            <div style="text-align:center; padding-top:50px; color:#888;">
+                <p style="font-size:2rem; margin-bottom:10px;">🔭</p>
+                <p>Ready to Hunt (60'-85').</p>
+                <p style="font-size:0.8rem; color:#555">Active: xG • Bet365 • Standings</p>
+            </div>
+        </div>
+        <button class="scan-btn" onclick="runScan()" id="mainBtn">🎯 SCAN MARKETS</button>
     </div>
-    
-    <div id="results"></div>
+
+    <div id="schedView" style="display:none;">
+        <div id="schedContent" style="padding-bottom:100px;"></div>
+    </div>
 
     <script>
-        const RAW_KEY = "0f29a2f96e9dd4231cee515cc5ec52b0"; 
-        const API_KEY = RAW_KEY.trim(); 
+        const API_KEY = "0f29a2f96e9dd4231cee515cc5ec52b0"; 
         
-        const resultsDiv = document.getElementById('results');
-        const errorDiv = document.getElementById('error-display');
-        const statusDiv = document.getElementById('scan-status');
-        let audioCtx = null;
-        window.MATCH_TIPS = {};
+        const ELITE_IDS = [39, 40, 45, 48, 179, 180, 140, 78, 135, 61, 88, 94, 144, 2, 3, 529, 556, 81, 143];
+        const EU_COUNTRIES = ["Albania", "Andorra", "Armenia", "Austria", "Azerbaijan", "Belarus", "Belgium", "Bosnia", "Bulgaria", "Croatia", "Cyprus", "Czech Republic", "Czech-Republic", "Denmark", "England", "Estonia", "Faroe Islands", "Finland", "France", "Georgia", "Germany", "Gibraltar", "Greece", "Hungary", "Iceland", "Ireland", "Israel", "Italy", "Kazakhstan", "Kosovo", "Latvia", "Liechtenstein", "Lithuania", "Luxembourg", "Malta", "Moldova", "Montenegro", "Netherlands", "Northern Ireland", "North Macedonia", "Norway", "Poland", "Portugal", "Romania", "Russia", "San Marino", "Scotland", "Serbia", "Slovakia", "Slovenia", "Spain", "Sweden", "Switzerland", "Turkey", "Ukraine", "Wales"];
 
-        const LEAGUES = {
-            major: [2, 3, 39, 140, 78, 135, 61, 4, 144, 848, 40, 307],
-            goals: [88, 103, 203, 188, 373, 206, 179, 180]
-        };
+        let allMatches = [];
+        let pilotMode = false;
+        let pilotInterval;
+        
+        const content = document.getElementById('content');
+        const mainBtn = document.getElementById('mainBtn');
+        const pilotBtn = document.getElementById('pilotBtn');
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-        // --- STATS LOGIC ---
-        function loadStats() {
-            const wins = parseInt(localStorage.getItem('inplay_wins') || 0);
-            const losses = parseInt(localStorage.getItem('inplay_losses') || 0);
-            updateBoard(wins, losses);
-        }
-        function updateBoard(w, l) {
-            document.getElementById('stat-wins').innerText = w;
-            document.getElementById('stat-losses').innerText = l;
-            const total = w + l;
-            const rate = total === 0 ? 0 : Math.round((w / total) * 100);
-            document.getElementById('stat-rate').innerText = rate + "%";
-        }
-        function recordResult(type) {
-            let wins = parseInt(localStorage.getItem('inplay_wins') || 0);
-            let losses = parseInt(localStorage.getItem('inplay_losses') || 0);
-            if (type === 'win') wins++;
-            if (type === 'loss') losses++;
-            localStorage.setItem('inplay_wins', wins);
-            localStorage.setItem('inplay_losses', losses);
-            updateBoard(wins, losses);
-        }
-        function resetStats() {
-            if(confirm("Reset stats and history?")) {
-                localStorage.setItem('inplay_wins', 0);
-                localStorage.setItem('inplay_losses', 0);
-                localStorage.setItem('inplay_history', JSON.stringify([])); 
-                updateBoard(0, 0);
-            }
-        }
-        loadStats();
-
-        // --- HISTORY ENGINE ---
-        function saveToHistory(match, market, stars) {
-            let history = JSON.parse(localStorage.getItem('inplay_history') || "[]");
-            if(history.some(h => h.id === match.fixture.id)) return;
-            history.push({
-                id: match.fixture.id,
-                home: match.teams.home.name,
-                away: match.teams.away.name,
-                homeLogo: match.teams.home.logo,
-                awayLogo: match.teams.away.logo,
-                scanScore: match.goals.home + match.goals.away, 
-                market: market,
-                stars: stars,
-                timestamp: new Date().toLocaleTimeString()
-            });
-            localStorage.setItem('inplay_history', JSON.stringify(history));
-        }
-
-        async function viewHistory() {
-            const history = JSON.parse(localStorage.getItem('inplay_history') || "[]");
-            if(history.length === 0) {
-                resultsDiv.innerHTML = "<p style='text-align:center'>No scan history today.</p>";
-                return;
-            }
-
-            resultsDiv.innerHTML = "<p style='text-align:center'>Updating match outcomes...</p>";
-            
-            const ids = history.map(h => h.id).join('-');
-            try {
-                const response = await fetch(`https://v3.football.api-sports.io/fixtures?ids=${ids}`, {
-                    "method": "GET",
-                    "headers": { "x-apisports-key": API_KEY }
-                });
-                const data = await response.json();
-                const liveMatches = data.response;
-
-                resultsDiv.innerHTML = "<h3>📜 Scan History (Success Check)</h3>";
-
-                history.forEach(savedMatch => {
-                    const currentMatch = liveMatches.find(m => m.fixture.id === savedMatch.id);
-                    let status = "Checking...";
-                    let finalScore = "N/A";
-                    let isSuccess = false;
-
-                    if(currentMatch) {
-                        const currentTotal = currentMatch.goals.home + currentMatch.goals.away;
-                        finalScore = `${currentMatch.goals.home}-${currentMatch.goals.away}`;
-                        if(currentTotal > savedMatch.scanScore) {
-                            isSuccess = true;
-                            status = "GOAL SCORED ✅";
-                        } else {
-                            status = `Pending (${currentMatch.fixture.status.short})`;
-                        }
-                    }
-
-                    const card = document.createElement('div');
-                    card.className = `card ${isSuccess ? 'history-success' : ''}`;
-                    card.innerHTML = `
-                        <div class="history-tag">GOAL LANDED</div>
-                        <div class="match-header"><span>${savedMatch.timestamp}</span><span>${savedMatch.stars}</span></div>
-                        <div class="team-row"><div class="team-info"><img src="${savedMatch.homeLogo}" class="team-logo"> ${savedMatch.home}</div></div>
-                        <div class="team-row"><div class="team-info"><img src="${savedMatch.awayLogo}" class="team-logo"> ${savedMatch.away}</div></div>
-                        <div class="stats-grid" style="margin-top:10px;">
-                            <div class="stat-item"><span class="stat-label">Market</span> <span class="highlight-stat">${savedMatch.market}</span></div>
-                            <div class="stat-item"><span class="stat-label">Result</span> <span style="font-weight:bold; color:${isSuccess?'#4ade80':'#fff'}">${finalScore}</span></div>
-                        </div>
-                    `;
-                    resultsDiv.appendChild(card);
-                });
-
-            } catch(e) {
-                showError("Could not fetch history updates.");
+        function switchTab(tab) {
+            if(tab === 'live') {
+                document.getElementById('liveView').style.display = 'block';
+                document.getElementById('schedView').style.display = 'none';
+                document.getElementById('tabLive').classList.add('active');
+                document.getElementById('tabSched').classList.remove('active');
+                document.getElementById('filterSelect').style.display = 'block';
+            } else {
+                document.getElementById('liveView').style.display = 'none';
+                document.getElementById('schedView').style.display = 'block';
+                document.getElementById('tabLive').classList.remove('active');
+                document.getElementById('tabSched').classList.add('active');
+                document.getElementById('filterSelect').style.display = 'none';
+                loadSchedule();
             }
         }
 
-
-        // --- CORE FUNCTIONS ---
-        function playAlertSound() {
+        async function loadSchedule() {
+            const schedDiv = document.getElementById('schedContent');
+            schedDiv.innerHTML = "<p style='text-align:center; color:#888; margin-top:50px;'>Loading Elite Fixtures...</p>";
+            const localDate = new Date().toLocaleDateString('en-CA'); 
             try {
-                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioCtx.createOscillator();
-                const gainNode = audioCtx.createGain();
-                oscillator.type = 'sine';
-                oscillator.frequency.setValueAtTime(800, audioCtx.currentTime); 
-                oscillator.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.2); 
-                gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-                oscillator.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
-                oscillator.start();
-                oscillator.stop(audioCtx.currentTime + 0.25);
-            } catch(e) {}
-        }
+                const res = await fetch(`https://v3.football.api-sports.io/fixtures?date=${localDate}`, { headers: { "x-rapidapi-key": API_KEY } });
+                const data = await res.json();
+                const eliteGames = data.response.filter(m => ELITE_IDS.includes(m.league.id));
+                eliteGames.sort((a, b) => a.fixture.timestamp - b.fixture.timestamp);
 
-        function copyTip(fixtureId) {
-            const text = window.MATCH_TIPS[fixtureId];
-            if(text) navigator.clipboard.writeText(text).then(() => alert("Tip copied!"));
-        }
-
-        function showError(msg) {
-            errorDiv.style.display = 'block';
-            errorDiv.innerHTML = `⚠️ ${msg}`;
-            statusDiv.style.display = 'none';
-        }
-        function updateStatus(msg) {
-            statusDiv.style.display = 'block';
-            statusDiv.innerText = msg;
-        }
-
-        // --- SCANNER ---
-        async function startScan() {
-            resultsDiv.innerHTML = "";
-            errorDiv.style.display = 'none';
-            updateStatus("Scanning live matches...");
-
-            try {
-                const response = await fetch("https://v3.football.api-sports.io/fixtures?live=all", {
-                    "method": "GET",
-                    "headers": { "x-apisports-key": API_KEY }
-                });
-                const data = await response.json();
-                if (data.errors && Object.keys(data.errors).length > 0) { showError("Daily Limit Reached."); return; }
-
-                let matches = data.response;
-                if (!matches || matches.length === 0) { 
-                    statusDiv.style.display = 'none';
-                    resultsDiv.innerHTML = "<p style='text-align:center;'>No live games.</p>"; 
-                    return; 
+                if(eliteGames.length === 0) {
+                    schedDiv.innerHTML = "<p style='text-align:center; color:#888; margin-top:50px;'>No Elite Games Scheduled Today.</p>";
+                    return;
                 }
 
-                const filterType = document.getElementById('league-filter').value;
-                if (filterType === 'major') matches = matches.filter(m => LEAGUES.major.includes(m.league.id) || m.league.type === 'Cup');
-                else if (filterType === 'goals') matches = matches.filter(m => LEAGUES.goals.includes(m.league.id));
-
-                let potentialTips = 0;
-                for (let i = 0; i < matches.length; i++) {
-                    const match = matches[i];
-                    if (!match || !match.fixture || !match.goals) continue;
-                    if (match.goals.home === null || match.goals.away === null) continue;
-
-                    const elapsed = match.fixture.status.elapsed;
-                    const homeGoals = match.goals.home;
-                    const awayGoals = match.goals.away;
-                    const fixtureId = match.fixture.id;
-
-                    if(matches.length > 5) updateStatus(`Scanning Match ${i+1} of ${matches.length}...`);
-
-                    if (elapsed >= 70 && Math.abs(homeGoals - awayGoals) <= 1) {
-                        const matchData = await getMatchDetails(fixtureId);
-                        if (matchData) {
-                            analyzeAndRender(matchData); // Use the full detailed data
-                            potentialTips++;
-                        }
-                    }
-                }
-
-                statusDiv.style.display = 'none';
-                if (potentialTips > 0) playAlertSound(); 
-                if (potentialTips === 0) { resultsDiv.innerHTML = "<p style='text-align:center;'>No active matches fit the criteria.</p>"; }
-
-            } catch (err) { showError("Connection Error."); }
-        }
-
-        // UPGRADED TO FETCH EVENTS + STATS
-        async function getMatchDetails(fixtureId) {
-            await new Promise(r => setTimeout(r, 200)); 
-            try {
-                const response = await fetch(`https://v3.football.api-sports.io/fixtures?id=${fixtureId}`, {
-                    "method": "GET",
-                    "headers": { "x-apisports-key": API_KEY }
-                });
-                const data = await response.json();
-                return data.response[0]; // Return full object
-            } catch (e) { return null; }
-        }
-
-        function analyzeAndRender(fullMatchData) {
-            const match = fullMatchData;
-            const statsData = match.statistics;
-            const events = match.events || [];
-
-            if (!statsData || statsData.length < 2) return; 
-
-            // Extract Goal Times
-            const getGoals = (teamId) => {
-                return events
-                    .filter(e => e.type === 'Goal' && e.team.id === teamId)
-                    .map(e => `${e.time.elapsed}${e.time.extra ? '+' + e.time.extra : ''}'`)
-                    .join(', ');
-            };
-            const homeGoalTimes = getGoals(match.teams.home.id);
-            const awayGoalTimes = getGoals(match.teams.away.id);
-
-            const getStat = (teamStats, type) => {
-                try {
-                    const stat = teamStats.statistics.find(s => s.type === type);
-                    if (!stat || stat.value === null) return 0;
-                    if (type === "Ball Possession") return parseInt(stat.value);
-                    if (type === "expected_goals") return parseFloat(stat.value);
-                    return stat.value;
-                } catch(e) { return 0; }
-            };
-
-            const homeStats = statsData[0];
-            const awayStats = statsData[1];
-            const hxg = getStat(homeStats, "expected_goals");
-            const axg = getStat(awayStats, "expected_goals");
-            const hasXG = (hxg > 0 || axg > 0); 
-            const hShots = getStat(homeStats, "Total Shots");
-            const aShots = getStat(awayStats, "Total Shots");
-            const hSot = getStat(homeStats, "Shots on Goal");
-            const aSot = getStat(awayStats, "Shots on Goal");
-
-            const calcPressure = (s, sot, totalShots) => {
-                let score = 0;
-                score += getStat(s, "Corner Kicks") * 3;
-                score += sot * 4; 
-                score += getStat(s, "Shots insidebox") * 2;
-                score += (getStat(s, "Dangerous Attacks") * 0.5); 
-                
-                if (totalShots > 5 && (sot / totalShots) < 0.3) score -= 5;
-                const totalAttacks = getStat(s, "Total attacks") || 1;
-                const dangAttacks = getStat(s, "Dangerous Attacks");
-                if ((dangAttacks / totalAttacks) > 0.7) score += 5;
-                if (getStat(s, "Ball Possession") > 65) score += 5;
-                return score;
-            };
-
-            let homeP = calcPressure(homeStats, hSot, hShots);
-            let awayP = calcPressure(awayStats, aSot, aShots);
-            const totalP = homeP + awayP;
-
-            // --- STARS & STAKE ---
-            let stars = "⭐⭐";
-            let unitStake = "0.5u";
-            if (totalP > 30) { stars = "⭐⭐⭐"; unitStake = "0.5u"; }
-            if (totalP > 45) { stars = "⭐⭐⭐⭐"; unitStake = "1u"; }
-            if (totalP > 60) { stars = "⭐⭐⭐⭐⭐"; unitStake = "2u (MAX)"; }
-
-            // --- MARKET ---
-            let market = "Wait";
-            let homeCornerAlert = (homeP > 30 && hShots > 0 && (hSot/hShots) < 0.35);
-            let awayCornerAlert = (awayP > 30 && aShots > 0 && (aSot/aShots) < 0.35);
-            if (homeCornerAlert || awayCornerAlert) market = "OVER CORNERS";
-            if (totalP > 45) market = "NEXT GOAL";
-
-            let hCrumbling = (getStat(homeStats, "Goalkeeper saves") >= 5 && getStat(homeStats, "Shots insidebox") >= 8);
-            let aCrumbling = (getStat(awayStats, "Goalkeeper saves") >= 5 && getStat(awayStats, "Shots insidebox") >= 8);
-            if (hCrumbling) market = "AWAY TEAM GOAL";
-            if (aCrumbling) market = "HOME TEAM GOAL";
-
-            // --- SAVE HISTORY ---
-            if(totalP > 30) {
-                saveToHistory(match, market, stars);
-            }
-
-            // --- BADGES ---
-            let badges = [];
-            if (getStat(homeStats, "Red Cards") > 0) { awayP += 20; badges.push(`<span class="badge badge-red">RED: HOME</span>`); }
-            if (getStat(awayStats, "Red Cards") > 0) { homeP += 20; badges.push(`<span class="badge badge-red">RED: AWAY</span>`); }
-            if (hCrumbling) badges.push(`<span class="badge badge-purple">🧱 HOME CRUMBLING</span>`);
-            if (aCrumbling) badges.push(`<span class="badge badge-purple">🧱 AWAY CRUMBLING</span>`);
-
-            let homeTilt = 50;
-            if (totalP > 0) homeTilt = (homeP / totalP) * 100;
-            let likelihood = totalP > 25 ? "Medium" : "Low";
-            if (totalP > 50 || badges.length > 0) likelihood = "High";
-            if (totalP < 15 && badges.length === 0) return; 
-
-            // STORE TIP
-            const copyText = `🚨 *InPlay Alert*\n⚽ ${match.teams.home.name} vs ${match.teams.away.name}\n${stars} | Stake: ${unitStake}\n🎯 Market: ${market}\n📈 Pressure: ${Math.floor(totalP)}`;
-            window.MATCH_TIPS[match.fixture.id] = copyText;
-
-            const card = document.createElement('div');
-            card.className = `card likelihood-${likelihood}`;
-            
-            const xgDisplay = hasXG 
-                ? `<div class="stat-item"><span class="stat-label highlight-stat">xG</span> <span class="highlight-stat">${hxg.toFixed(2)} - ${axg.toFixed(2)}</span></div>` 
-                : `<div class="stat-item"><span class="stat-label">xG</span> <span>N/A</span></div>`;
-
-            card.innerHTML = `
-                <div class="match-header">
-                    <span>${match.league.name}</span>
-                    <span class="star-rating">${stars}</span>
-                    <span style="color:#fff; font-weight:bold;">${match.fixture.status.elapsed}'</span>
-                </div>
-                
-                <div class="team-row">
-                    <div class="team-info">
-                        <img src="${match.teams.home.logo}" class="team-logo"> ${match.teams.home.name}
-                        <span class="goal-times">(${homeGoalTimes})</span>
-                    </div>
-                    <div class="score">${match.goals.home}</div>
-                </div>
-                <div class="team-row">
-                    <div class="team-info">
-                        <img src="${match.teams.away.logo}" class="team-logo"> ${match.teams.away.name}
-                        <span class="goal-times">(${awayGoalTimes})</span>
-                    </div>
-                    <div class="score">${match.goals.away}</div>
-                </div>
-                
-                <div class="tilt-container">
-                    <div class="tilt-home" style="width: ${homeTilt}%"></div>
-                    <div class="tilt-away" style="width: ${100 - homeTilt}%"></div>
-                </div>
-
-                <div class="advisor-box">
-                    <div><div style="color:#94a3b8; font-size:0.8em;">RECOMMENDED</div><div class="market-tag">${market}</div></div>
-                    <div><div style="color:#94a3b8; font-size:0.8em;">STAKE</div><div class="stake-tag">${unitStake}</div></div>
-                </div>
-
-                <div class="badge-container">${badges.join('')}</div>
-
-                <div class="stats-grid">${xgDisplay}
-                    <div class="stat-item"><span class="stat-label">Shots (On Target)</span> <span>${hShots}(${hSot}) - ${aShots}(${aSot})</span></div>
-                    <div class="stat-item"><span class="stat-label">Shots (In Box)</span> <span>${getStat(homeStats, "Shots insidebox")} - ${getStat(awayStats, "Shots insidebox")}</span></div>
-                    <div class="stat-item"><span class="stat-label">Corners</span> <span>${getStat(homeStats, "Corner Kicks")} - ${getStat(awayStats, "Corner Kicks")}</span></div>
-                    <div class="stat-item"><span class="stat-label">Pressure Idx</span> <span>${Math.floor(homeP)} - ${Math.floor(awayP)}</span></div>
-                </div>
-                
-                <div class="tools-row">
-                    <button class="btn-tool btn-copy" onclick="copyTip(${match.fixture.id})">📋 Copy</button>
-                    <a href="https://www.bet365.com/#/IP/B1" target="_blank" style="width:100%; display:block;"><button class="btn-tool btn-bet" style="width:100%">🚀 Bet365</button></a>
-                    <button class="btn-tool btn-win" onclick="recordResult('win')">✅</button>
-                    <button class="btn-tool btn-loss" onclick="recordResult('loss')">❌</button>
-                </div>
-            `;
-            resultsDiv.appendChild(card);
-        }
-
-        // --- SCHEDULE ---
-        async function checkSchedule() {
-            resultsDiv.innerHTML = '<p style="text-align:center;">Checking schedule...</p>';
-            errorDiv.style.display = 'none';
-            statusDiv.style.display = 'none';
-            try {
-                const today = new Date().toISOString().split('T')[0];
-                const response = await fetch(`https://v3.football.api-sports.io/fixtures?date=${today}`, {
-                    "method": "GET",
-                    "headers": { "x-apisports-key": API_KEY }
-                });
-                const data = await response.json();
-                if (data.errors && Object.keys(data.errors).length > 0) { showError("Daily Limit Reached."); return; }
-
-                const matches = data.response;
-                const scheduleLeagues = [...LEAGUES.major, ...LEAGUES.goals];
-                const validStatuses = ['NS', '1H', 'HT', '2H', 'ET', 'P', 'FT'];
-                
-                const upcomingMatches = matches.filter(m => {
-                    const isMajor = scheduleLeagues.includes(m.league.id) || m.league.type === 'Cup';
-                    return isMajor && validStatuses.includes(m.fixture.status.short);
-                });
-
-                if (upcomingMatches.length === 0) { resultsDiv.innerHTML = "<h3>📅 Schedule</h3><p>No key games today.</p>"; return; }
-                upcomingMatches.sort((a, b) => new Date(a.fixture.date) - new Date(b.fixture.date));
-
-                let html = `<h3>⏰ Scan Times (Kickoff + 85m)</h3>`;
-                upcomingMatches.forEach(m => {
-                    let kickOff = new Date(m.fixture.date);
-                    kickOff.setMinutes(kickOff.getMinutes() + 85); 
-                    const scanTimeDisplay = kickOff.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                    let statusColor = '#94a3b8'; 
-                    if(['1H','HT','2H','ET'].includes(m.fixture.status.short)) statusColor = '#ef4444';
-                    
-                    const startStr = kickOff.toISOString().replace(/-|:|\.\d\d\d/g, ""); 
-                    const endTime = new Date(kickOff);
-                    endTime.setMinutes(endTime.getMinutes() + 15);
-                    const endStr = endTime.toISOString().replace(/-|:|\.\d\d\d/g, "");
-                    const eventTitle = `Scan: ${m.teams.home.name} vs ${m.teams.away.name}`;
-                    const calUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(eventTitle)}&dates=${startStr}/${endStr}&details=Check+InPlay+App+Now!`;
-
-                    html += `
-                        <div style="background:#334155; padding:10px; margin-bottom:6px; border-radius:6px; font-size:0.9em; border-left: 4px solid #0f766e; display:flex; justify-content:space-between; align-items:center;">
-                            <div><span style="color:#2dd4bf; font-weight:bold; font-size:1.1em;">${scanTimeDisplay}</span> <span style="color:${statusColor}; font-weight:bold; font-size:0.8em;">[${m.fixture.status.short}]</span><br><span style="color:#fff;">${m.teams.home.name} vs ${m.teams.away.name}</span></div>
-                            <a href="${calUrl}" target="_blank" style="text-decoration:none;"><button style="background:#0f766e; color:#fff; border:none; padding:8px 12px; border-radius:6px; cursor:pointer;">🔔</button></a>
+                let html = "";
+                eliteGames.forEach(m => {
+                    const date = new Date(m.fixture.timestamp * 1000);
+                    const time = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    html += `<div class="sched-card">
+                            <div style="text-align:center; margin-right:15px;"><div class="sched-time">${time}</div></div>
+                            <div class="sched-teams">
+                                <div class="sched-league">${m.league.country} • ${m.league.name}</div>
+                                <div>${m.teams.home.name} vs ${m.teams.away.name}</div>
+                            </div>
                         </div>`;
                 });
-                resultsDiv.innerHTML = html;
-            } catch (error) { showError("Connection Error."); }
+                schedDiv.innerHTML = html;
+            } catch(e) { schedDiv.innerHTML = "<p style='text-align:center; color:#da3633;'>Error loading schedule.</p>"; }
         }
+
+        function playPing() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.4);
+        }
+
+        function togglePilot() {
+            pilotMode = !pilotMode;
+            if(pilotMode) {
+                pilotBtn.classList.add('active');
+                pilotBtn.innerHTML = `<div class="pilot-dot"></div> ON (60s)`;
+                playPing(); 
+                runScan(true); 
+                pilotInterval = setInterval(() => runScan(true), 60000); 
+            } else {
+                pilotBtn.classList.remove('active');
+                pilotBtn.innerHTML = `<div class="pilot-dot"></div> Auto-Pilot`;
+                clearInterval(pilotInterval);
+            }
+        }
+
+        async function runScan(isAuto = false) {
+            if(!isAuto) {
+                mainBtn.innerText = "Scanning Global Feeds..."; mainBtn.disabled = true;
+                content.innerHTML = "<p style='text-align:center; margin-top:50px; color:#666'>Fetching live data...</p>";
+            } else {
+                mainBtn.innerText = "🤖 Auto-Scanning...";
+            }
+            try {
+                const res = await fetch("https://v3.football.api-sports.io/fixtures?live=all", {
+                    headers: { "x-rapidapi-key": API_KEY, "x-rapidapi-host": "v3.football.api-sports.io" }
+                });
+                const data = await res.json();
+                if(!data.response || data.results === 0) {
+                    if(!isAuto) content.innerHTML = "<p style='text-align:center; margin-top:50px'>No live games.</p>";
+                    allMatches = [];
+                } else {
+                    allMatches = data.response.filter(m => m.fixture.status.elapsed >= 60 && m.fixture.status.elapsed <= 85);
+                    allMatches.sort((a, b) => b.fixture.status.elapsed - a.fixture.status.elapsed);
+                    applyFilter(isAuto);
+                }
+            } catch(e) { if(!isAuto) content.innerHTML = "<p style='text-align:center; margin-top:50px; color:#da3633'>Error.</p>"; }
+            mainBtn.innerText = "🎯 SCAN MARKETS"; mainBtn.disabled = false;
+        }
+
+        function applyFilter(isAuto = false) {
+            const mode = document.getElementById('filterSelect').value;
+            content.innerHTML = "";
+            let highValueFound = false;
+            if(allMatches.length === 0) { content.innerHTML = "<p style='text-align:center; margin-top:50px; color:#888'>No games in 60-85min window.</p>"; return; }
+
+            const filtered = allMatches.filter(m => {
+                const league = (m.league.name || "").toLowerCase();
+                const blocked = ["friendly", "friendlies", "club friendlies", "u19", "u20", "u21", "u23", "youth", "reserve", "reserves"];
+                if(blocked.some(word => league.includes(word))) return false; 
+                const lid = m.league.id;
+                const country = m.league.country;
+                if (mode === 'elite') return ELITE_IDS.includes(lid); 
+                else if (mode === 'europe') return EU_COUNTRIES.includes(country) || ELITE_IDS.includes(lid); 
+                else return true;
+            });
+
+            if(filtered.length === 0) {
+                content.innerHTML = `<p style='text-align:center; margin-top:50px; color:#888'>No ${mode.toUpperCase()} games found.</p>`;
+            } else {
+                filtered.forEach(m => {
+                    const t = m.fixture.status.elapsed;
+                    const s = m.goals;
+                    if ((Math.abs(s.home - s.away) === 1 && t > 75) || (s.home === s.away && t > 75)) highValueFound = true;
+                    createCard(m);
+                });
+            }
+            if(isAuto && highValueFound) playPing();
+        }
+
+        function createCard(m) {
+            const div = document.createElement('div');
+            div.className = 'match-card';
+            
+            const h = m.teams.home;
+            const a = m.teams.away;
+            const s = m.goals;
+            const t = m.fixture.status.elapsed;
+            const lid = m.league.id;
+            const sid = m.league.season; // Season Year
+            
+            let hGoals = "", aGoals = "";
+            let hRed = false, aRed = false;
+
+            if (m.events) {
+                hGoals = m.events.filter(e => e.type === 'Goal' && e.team.id === h.id).map(e => e.time.elapsed + "'").join(', ');
+                aGoals = m.events.filter(e => e.type === 'Goal' && e.team.id === a.id).map(e => e.time.elapsed + "'").join(', ');
+                hRed = m.events.some(e => e.type === 'Card' && e.detail === 'Red Card' && e.team.id === h.id);
+                aRed = m.events.some(e => e.type === 'Card' && e.detail === 'Red Card' && e.team.id === a.id);
+            }
+
+            const hRedBadge = hRed ? "<div class='red-card-badge'>🟥 RED CARD</div>" : "";
+            const aRedBadge = aRed ? "<div class='red-card-badge'>🟥 RED CARD</div>" : "";
+
+            let upsetHtml = "";
+            if (ELITE_IDS.includes(lid) && s.home < s.away && (s.away - s.home === 1)) {
+                upsetHtml = `<div class="upset-badge">🔥 UPSET ALERT: ${h.name} Chasing!</div>`;
+            }
+
+            let predText = "Monitoring...";
+            let confVal = 0;
+            let confClass = "conf-low";
+
+            // Basic Context Logic (Pre-Analyze)
+            if (s.home === s.away) {
+                if (s.home > 1) { predText = "⚔️ High Score Draw"; confVal = 78; }
+                else if (s.home === 0) { predText = "🛡️ 0-0 Stalemate"; confVal = 70; }
+                else { predText = "⚠️ Tight Match"; confVal = 75; }
+                
+                if(hRed || aRed) { predText = "⚔️ 10 Men vs 11"; confVal = 85; }
+            } 
+            else if (Math.abs(s.home - s.away) === 1) {
+                predText = "⚽ Late Goal Likely";
+                confVal = (t > 75) ? 90 : 82;
+            } 
+            else {
+                predText = "🔒 Result Likely Safe";
+                confVal = 94;
+            }
+            
+            if(upsetHtml !== "") { predText = "🔥 Favorite Chasing"; confVal = 95; }
+            if(confVal >= 80) confClass = "conf-high"; else if(confVal >= 60) confClass = "conf-med";
+
+            div.innerHTML = `
+                <div class="league-name">${m.league.country} • ${m.league.name}</div>
+                <div class="score-row">
+                    <div class="team-col" style="align-items:flex-end; text-align:right;">
+                        <span class="team-name">${h.name}</span>
+                        <span class="goal-times">${hGoals}</span>
+                        ${hRedBadge}
+                    </div>
+                    <span class="score-box">${s.home}-${s.away}</span>
+                    <div class="team-col" style="align-items:flex-start; text-align:left;">
+                        <span class="team-name">${a.name}</span>
+                        <span class="goal-times">${aGoals}</span>
+                        ${aRedBadge}
+                    </div>
+                </div>
+                <div style="text-align:center; color:#888; font-size:0.8rem; margin-top:5px;">${t}' Played</div>
+                ${upsetHtml}
+                <div class="pred-row">
+                    <span class="pred-text" id="pred-text-${m.fixture.id}">${predText}</span>
+                    <span class="conf-badge ${confClass}" id="pred-badge-${m.fixture.id}">${confVal}%</span>
+                </div>
+                <div class="btn-row">
+                    <a href="https://www.bet365.com/#/IP/B1" target="_blank" class="bet365-btn">Bet365</a>
+                    <button class="analyze-btn" onclick="deepAnalyze(this, ${m.fixture.id}, '${h.name}', '${a.name}', ${s.home}, ${s.away}, ${hRed}, ${aRed}, ${lid}, ${sid})">⚡ Analyze</button>
+                </div>
+                <div class="btn-row">
+                    <button class="player-btn" onclick="checkPlayers(this, ${m.fixture.id})">🕵️ Check Players</button>
+                </div>
+                <div id="p-${m.fixture.id}"></div>
+                <div id="stats-${m.fixture.id}" class="analysis-box"></div>
+            `;
+            content.appendChild(div);
+        }
+
+        async function deepAnalyze(btn, id, hName, aName, hGoals, aGoals, hRed, aRed, leagueId, season) {
+            btn.innerText = "Scanning...";
+            const statBox = document.getElementById(`stats-${id}`);
+            const predText = document.getElementById(`pred-text-${id}`);
+            const predBadge = document.getElementById(`pred-badge-${id}`);
+            statBox.style.display = 'block';
+            statBox.innerHTML = "<div style='color:#888; text-align:center;'>Fetching Data...</div>";
+
+            try {
+                // PARALLEL FETCH: STATS + ODDS + STANDINGS
+                const [statRes, oddsRes, standRes] = await Promise.all([
+                    fetch(`https://v3.football.api-sports.io/fixtures/statistics?fixture=${id}`, { headers: { "x-rapidapi-key": API_KEY } }),
+                    fetch(`https://v3.football.api-sports.io/odds/live?fixture=${id}`, { headers: { "x-rapidapi-key": API_KEY } }),
+                    fetch(`https://v3.football.api-sports.io/standings?league=${leagueId}&season=${season}`, { headers: { "x-rapidapi-key": API_KEY } })
+                ]);
+                
+                const statData = await statRes.json();
+                const oddsData = await oddsRes.json();
+                const standData = await standRes.json();
+
+                // 1. STANDINGS PARSING
+                let hRank = "", aRank = "";
+                if(standData.response && standData.response.length > 0) {
+                    const table = standData.response[0].league.standings[0];
+                    const hTeam = table.find(t => t.team.name === hName);
+                    const aTeam = table.find(t => t.team.name === aName);
+                    if(hTeam) hRank = `<span class="rank-badge">[${hTeam.rank}]</span>`;
+                    if(aTeam) aRank = `<span class="rank-badge">[${aTeam.rank}]</span>`;
+                }
+
+                // 2. STATS PROCESSING (SMART FALLBACK)
+                let hStats = [], aStats = [];
+                if(statData.response && statData.response.length === 2) {
+                    hStats = statData.response[0].statistics;
+                    aStats = statData.response[1].statistics;
+                }
+
+                const getStat = (arr, type) => { 
+                    const i = arr.find(s => s.type === type || s.type === type.replace(" ", "")); 
+                    if(i && i.value) return parseFloat(i.value);
+                    return 0; 
+                };
+
+                const hSoT = getStat(hStats, "Shots on Goal");
+                const aSoT = getStat(aStats, "Shots on Goal");
+                const hTotal = getStat(hStats, "Total Shots");
+                const aTotal = getStat(aStats, "Total Shots");
+                const hCorn = getStat(hStats, "Corner Kicks");
+                const aCorn = getStat(aStats, "Corner Kicks");
+                const hPoss = getStat(hStats, "Ball Possession");
+                const aPoss = getStat(aStats, "Ball Possession");
+                const hxG = getStat(hStats, "expected_goals");
+                const axG = getStat(aStats, "expected_goals");
+
+                // CALCULATE "CHAOS SCORE" (The fallback metric)
+                // If Stats Missing, defaults to 0
+                const hChaos = (hSoT * 3) + (hCorn * 1) + (hTotal * 0.5) + (hPoss > 0 ? (hPoss - 50)/5 : 0);
+                const aChaos = (aSoT * 3) + (aCorn * 1) + (aTotal * 0.5) + (aPoss > 0 ? (aPoss - 50)/5 : 0);
+                const totalChaos = hChaos + aChaos;
+                const chaosDiff = Math.abs(hChaos - aChaos);
+
+                // GAUGE CALCULATION
+                let hPercent = 50, aPercent = 50;
+                if(totalChaos > 0) {
+                    hPercent = Math.round((hChaos / totalChaos) * 100);
+                    aPercent = 100 - hPercent;
+                }
+
+                // VERDICT ENGINE
+                let verdict = "⚖️ BALANCED", vColor = "#d29922", newConf = 75;
+
+                if(hxG > 0 || axG > 0) {
+                    // ELITE DATA LOGIC
+                    if(hxG > (hGoals + 0.6)) { verdict = `📉 ${hName} xG ANOMALY`; vColor = "#a371f7"; newConf = 92; }
+                    else if(axG > (aGoals + 0.6)) { verdict = `📉 ${aName} xG ANOMALY`; vColor = "#a371f7"; newConf = 92; }
+                    else if(totalChaos < 10) { verdict = "🛡️ DEFENSIVE LOCK"; vColor = "#8b949e"; newConf = 88; }
+                    else if(chaosDiff > 15) { 
+                        const leader = hChaos > aChaos ? hName : aName;
+                        verdict = `🔥 SIEGE: ${leader}`; vColor = "#2ea043"; newConf = 92;
+                    } 
+                    else if(totalChaos > 25) { verdict = "⚔️ END-TO-END (High Pace)"; vColor = "#a371f7"; newConf = 85; }
+                } else {
+                    // LOW DATA LOGIC
+                    if(totalChaos < 5) { verdict = "⏳ STALEMATE (No Chances)"; vColor = "#8b949e"; newConf = 85; }
+                    else if(chaosDiff > 12) { 
+                        const leader = hChaos > aChaos ? hName : aName;
+                        verdict = `🔥 DOMINATING: ${leader}`; vColor = "#2ea043"; newConf = 90;
+                    }
+                    else if(totalChaos > 20) { verdict = "⚔️ OPEN GAME"; vColor = "#a371f7"; newConf = 80; }
+                }
+
+                // AI TIPS
+                let tips = [];
+                if (hChaos > aChaos + 20) tips.push({type: `⚡ ${hName} To Score Next`, conf: 92});
+                else if (aChaos > hChaos + 20) tips.push({type: `⚡ ${aName} To Score Next`, conf: 92});
+                
+                if ((hSoT + aSoT) > 8 && (hGoals + aGoals) === 0) tips.push({type: "⚽ Over 0.5 Goals", conf: 88});
+                if(totalChaos < 5 && (hGoals + aGoals) === 0) tips.push({type: "💤 Under 0.5 Goals", conf: 85});
+                
+                // ODDS PROCESSING
+                let oddsHTML = "<div style='text-align:center; color:#666; font-size:0.8rem; margin-top:5px;'>Odds Locked</div>";
+                if(oddsData.response && oddsData.response.length > 0 && oddsData.response[0].odds.length > 0) {
+                    const vals = oddsData.response[0].odds[0].values;
+                    const homeOdd = vals.find(v => v.value === "Home")?.odd || "-";
+                    const drawOdd = vals.find(v => v.value === "Draw")?.odd || "-";
+                    const awayOdd = vals.find(v => v.value === "Away")?.odd || "-";
+                    const impliedOdds = 1 / (newConf / 100);
+                    const formatOdd = (odd) => {
+                         if(!odd) return "-";
+                         if(newConf > 80 && odd > impliedOdds) return `<span class="val-good">${odd} (Value!)</span>`;
+                         return odd;
+                    };
+                    oddsHTML = `<div style="display:flex; justify-content:space-between; margin-top:8px; background:#111; padding:5px; border-radius:4px; font-family:monospace;">
+                        <span style="color:#2ea043">1: ${formatOdd(homeOdd)}</span>
+                        <span style="color:#888">X: ${drawOdd}</span>
+                        <span style="color:#a371f7">2: ${formatOdd(awayOdd)}</span>
+                    </div>`;
+                }
+                
+                let xgHTML = "";
+                if(hxG > 0 || axG > 0) xgHTML = `<div class="stat-bar" style="color:#a371f7"><span>Expected Goals (xG)</span><span class="stat-val">${hxG || 0} - ${axG || 0}</span></div>`;
+
+                // TIPS HTML
+                let tipsHTML = "";
+                if(tips.length > 0) {
+                    tipsHTML = `<div class="tip-box"><div class="tip-header">🎯 AI Suggestions</div>`;
+                    tips.forEach(t => {
+                        let cClass = t.conf > 85 ? "#2ea043" : "#d29922";
+                        tipsHTML += `<div class="tip-item"><span class="tip-name">${t.type}</span><span style="color:${cClass}; font-weight:bold;">${t.conf}%</span></div>`;
+                    });
+                    tipsHTML += `</div>`;
+                }
+
+                statBox.innerHTML = `
+                    <div style="text-align:center; margin-bottom:5px; font-weight:bold; color:${vColor}; font-size:1rem;">${verdict}</div>
+                    
+                    <div class="gauge-labels">
+                        <span>${hName} ${hRank} (${hPercent}%)</span>
+                        <span>${aName} ${aRank} (${aPercent}%)</span>
+                    </div>
+                    <div class="gauge-container"><div class="gauge-home" style="width:${hPercent}%"></div><div class="gauge-away" style="width:${aPercent}%"></div></div>
+                    
+                    ${xgHTML}
+                    <div class="stat-bar"><span>Shots (Total)</span><span class="stat-val">${hTotal} (${hSoT}) - ${aTotal} (${aSoT})</span></div>
+                    <div class="stat-bar"><span>Corners</span><span class="stat-val">${hCorn} - ${aCorn}</span></div>
+                    
+                    ${tipsHTML}
+                    ${oddsHTML}
+                    <button class="copy-btn" onclick="copyTip('${hName}', '${aName}', '${verdict}', ${newConf})">📋 Copy Report</button>
+                `;
+                
+                predText.innerText = verdict; 
+                predText.style.color = vColor;
+                predBadge.innerText = newConf + "%";
+                if(newConf > 80) predBadge.className = "conf-badge conf-high"; else if(newConf > 60) predBadge.className = "conf-badge conf-med"; else predBadge.className = "conf-badge conf-low";
+                
+            } catch(e) { statBox.innerHTML = "<div style='color:#da3633;'>Error analyzing.</div>"; console.log(e); }
+            btn.innerText = "⚡ Analyze";
+        }
+
+        function copyTip(h, a, verdict, conf) {
+            const text = `🎯 Hunter Pro Tip\n⚽ ${h} vs ${a}\n📊 Verdict: ${verdict}\n🔥 Confidence: ${conf}%\nSent from 60' Hunter`;
+            navigator.clipboard.writeText(text).then(() => alert("Tip Copied!"));
+        }
+
+        async function checkPlayers(btn, id) {
+            btn.innerText = "Checking...";
+            try {
+                const res = await fetch(`https://v3.football.api-sports.io/fixtures/players?fixture=${id}`, { headers: { "x-rapidapi-key": API_KEY } });
+                const data = await res.json();
+                const area = document.getElementById(`p-${id}`);
+                let html = "";
+                if(data.response && data.response.length > 0) {
+                    data.response.forEach(t => t.players.forEach(p => {
+                        const s = p.statistics[0];
+                        if(s.shots.on >= 2 && s.goals.total === 0) html += `<div style="display:flex; justify-content:space-between; margin-top:8px; font-size:0.9rem; color:#2ea043"><span>🎯 ${p.player.name} To Score</span><span style="font-weight:bold">${s.shots.on} SoT</span></div>`;
+                        if(s.fouls.committed >= 3 && !s.cards.yellow) html += `<div style="display:flex; justify-content:space-between; margin-top:8px; font-size:0.9rem; color:#ffffff"><span>🟨 ${p.player.name} Card Risk</span><span style="font-weight:bold">${s.fouls.committed} Fouls</span></div>`;
+                    }));
+                }
+                area.innerHTML = html || "<div style='font-size:0.8rem; color:#666; text-align:center; margin-top:5px'>No high value signals.</div>";
+            } catch(e) { }
+            btn.style.display = 'none';
+        }
+
+        if ('serviceWorker' in navigator) {
+            const blob = new Blob([`self.addEventListener('fetch', () => {});`], {type: 'application/javascript'});
+            navigator.serviceWorker.register(URL.createObjectURL(blob));
+        }
+        let deferredPrompt;
+        const installBtn = document.getElementById('installBtn');
+        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; installBtn.style.display = 'block'; });
+        installBtn.addEventListener('click', async () => { if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt = null; installBtn.style.display = 'none'; } });
     </script>
 </body>
 </html>
