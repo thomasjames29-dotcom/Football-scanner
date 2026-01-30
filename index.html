@@ -8,7 +8,7 @@
 
     <link rel="manifest" href="./manifest.json">
     <link rel="icon" type="image/png" href="target_PNG26.png">
-    <link rel="apple-touch-icon" lhref="target_PNG26.png">
+    <link rel="apple-touch-icon" href="target_PNG26.png">
 
     <style>
         :root { --bg: #0d1117; --card: #161b22; --green: #2ea043; --gold: #d29922; --red: #da3633; --purple: #a371f7; --blue: #1f6feb; --text: #c9d1d9; --cyan: #3fb950; }
@@ -134,7 +134,7 @@
         .form-badge { font-family: monospace; font-size: 0.7rem; letter-spacing: 1px; margin-left: 5px; }
         .form-w { color: var(--green); } .form-l { color: var(--red); } .form-d { color: #888; }
 
-        .pos-badge { font-size: 0.7rem; color: var(--gold); background: #21262d; padding: 1px 4px; border-radius: 4px; margin-left: 4px; font-weight: bold; border: 1px solid #30363d; vertical-align: middle; }
+        .pos-badge { font-size: 0.75rem; color: #58a6ff; background: transparent; padding: 1px 4px; border-radius: 4px; margin-left: 4px; font-weight: 800; vertical-align: middle; font-family: monospace; }
         .pos-badge:empty { display: none; }
         
         /* PLAYER RATINGS */
@@ -210,7 +210,7 @@
             <div class="chip" onclick="setStrategy('drought', this)">⏳ Goal Drought</div>
             <div class="chip" onclick="setStrategy('red', this)">🟥 Red Card</div>
             <div class="chip" onclick="setStrategy('late', this)">🧨 Late (80'+)</div>
-            <div class="chip" onclick="setStrategy('draw', this)">⚖️ Draw</div>
+            <div class="chip" onclick="setStrategy('imminent', this)">🎯 Goal Imminent</div>
         </div>
 
         <div id="content">
@@ -644,7 +644,17 @@
                     return m.events.some(e => e.type === 'Card' && e.detail === 'Red Card');
                 }
                 if (currentStrategy === 'late') return (m.fixture.status.elapsed >= 80);
-                if (currentStrategy === 'draw') return (m.goals.home === m.goals.away);
+                if (currentStrategy === 'imminent') {
+                    // Logic for Goal Imminent:
+                    // 1. High Pressure (hPercent or aPercent > 70%)
+                    // 2. Significant xG relative to score
+                    // 3. High recent momentum
+                    // 4. Heavy Siege situation
+                    const card = document.getElementById(`card-${m.fixture.id}`);
+                    const isSiege = card && card.querySelector('.pred-text') && card.querySelector('.pred-text').innerText.includes('SIEGE');
+                    const hasPulse = card && (card.classList.contains('pulse-home') || card.classList.contains('pulse-away'));
+                    return isSiege || hasPulse;
+                }
                 
                 if (currentStrategy === 'drought') {
                     if (m.goals.home + m.goals.away === 0) return false; 
