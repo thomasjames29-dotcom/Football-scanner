@@ -1,14 +1,14 @@
 {
-  "name": "InPlay Pro",
-  "short_name": "InPlay",
-  "start_url": "index.html",
+  "name": "60 Minute Hunter",
+  "short_name": "Hunter",
+  "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#0f172a",
+  "background_color": "#0d1117",
+  "theme_color": "#0d1117",
   "icons": [
     {
-      "src": "https://raw.githubusercontent.com/google/material-design-icons/master/png/action/sports_soccer/materialicons/48dp/2x/baseline_sports_soccer_white_48dp.png",
-      "sizes": "96x96",
+      "src": "target_PNG26.png",
+      "sizes": "512x512",
       "type": "image/png"
     }
   ]
