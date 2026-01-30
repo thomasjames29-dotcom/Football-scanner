@@ -316,6 +316,7 @@
         let alertedGames = new Set();
         let currentStrategy = 'all';
         let momentumHistory = {}; 
+        let teamFoulTracker = {}; // Ref Breaking Point Tracking
         
         // UNLOCKED
         let isPremium = true; 
@@ -910,6 +911,23 @@
                 let hCorn = getStat(hStats, "Corner Kicks");
                 let aCorn = getStat(aStats, "Corner Kicks");
                 
+                // --- NEW IMPROVED METRICS ---
+                // 1. Danger Zone Entries (Deep Completions/Box Entries proxy)
+                const hDanger = getStat(hStats, "Passes %") > 0 ? (hCorn * 2) + (hSoT * 1.5) : 0;
+                const aDanger = getStat(aStats, "Passes %") > 0 ? (aCorn * 2) + (aSoT * 1.5) : 0;
+                
+                // 2. Defensive Fatigue (Clearance to Tackle Ratio)
+                const hClear = getStat(hStats, "Clearances");
+                const hTack = getStat(hStats, "Tackles") || 1;
+                const aClear = getStat(aStats, "Clearances");
+                const aTack = getStat(aStats, "Tackles") || 1;
+                const hFatigue = hClear / hTack > 2.0; // High ratio = pinned in
+                const aFatigue = aClear / aTack > 2.0;
+                
+                // 3. Team Foul Pressure (Ref Breaking Point)
+                const hFouls = getStat(hStats, "Fouls");
+                const aFouls = getStat(aStats, "Fouls");
+                
                 const hxG = isSynthetic ? 0 : getStat(hStats, "expected_goals");
                 const axG = isSynthetic ? 0 : getStat(aStats, "expected_goals");
 
@@ -932,11 +950,17 @@
                     return; 
                 }
 
-                const prev = momentumHistory[id] || 50;
+                // --- 4. RELATIVE RECENT MOMENTUM ---
+                const prev = momentumHistory[id] || {h: 50, time: 0};
+                const currentTime = Date.now();
                 let trendBadge = "";
-                if(hPercent > prev + 5) trendBadge = " 📈 RISING";
-                else if(hPercent < prev - 5) trendBadge = " 📉 FADING";
-                momentumHistory[id] = hPercent;
+                let isChokehold = false;
+                
+                if (currentTime - prev.time > 60000) { // Check every minute
+                    if(hPercent > prev.h + 8) { trendBadge = " 📈 RISING"; if(hPercent > 80) isChokehold = true; }
+                    else if(hPercent < prev.h - 8) { trendBadge = " 📉 FADING"; if(aPercent > 80) isChokehold = true; }
+                    momentumHistory[id] = {h: hPercent, time: currentTime};
+                }
 
                 const card = document.getElementById(`card-${id}`);
                 card.classList.remove('pulse-home', 'pulse-away');
@@ -950,16 +974,18 @@
                     if(hxG > (hGoals + 0.6)) { verdict = `📉 ${hName} xG ANOMALY`; vColor = "#a371f7"; newConf = 92; }
                     else if(axG > (aGoals + 0.6)) { verdict = `📉 ${aName} xG ANOMALY`; vColor = "#a371f7"; newConf = 92; }
                     else if(totalPress < 20) { verdict = "💤 LOW ENERGY"; vColor = "#8b949e"; newConf = 88; }
-                    else if(diff > 30) { 
+                    else if(diff > 30 || isChokehold) { 
                         const leader = hPressure > aPressure ? hName : aName;
-                        verdict = `🔥 SIEGE: ${leader}`; vColor = "#2ea043"; newConf = 92;
+                        verdict = isChokehold ? `🚨 CHOKEHOLD: ${leader}` : `🔥 SIEGE: ${leader}`; 
+                        vColor = "#2ea043"; newConf = 95;
                     } 
                     else { verdict = "⚔️ END-TO-END"; vColor = "#a371f7"; newConf = 85; }
                 } else {
                     if(totalPress < 5) { verdict = "⏳ STALEMATE (No Chances)"; vColor = "#8b949e"; newConf = 85; }
-                    else if(diff > (isSynthetic ? 40 : 12)) { 
+                    else if(diff > (isSynthetic ? 40 : 12) || isChokehold) { 
                         const leader = hPressure > aPressure ? hName : aName;
-                        verdict = `🔥 DOMINATING: ${leader}`; vColor = "#2ea043"; newConf = 90;
+                        verdict = isChokehold ? `🚨 CHOKEHOLD: ${leader}` : `🔥 DOMINATING: ${leader}`; 
+                        vColor = "#2ea043"; newConf = 92;
                     }
                     else if(totalPress > 20) { verdict = "⚔️ OPEN GAME"; vColor = "#a371f7"; newConf = 80; }
                 }
@@ -971,8 +997,15 @@
                 }
 
                 let tips = [];
-                if (hPressure > aPressure + 20) tips.push({type: `⚡ ${hName} To Score Next`, conf: 92});
-                else if (aPressure > hPressure + 20) tips.push({type: `⚡ ${aName} To Score Next`, conf: 92});
+                if (hPressure > aPressure + 20 || (hFatigue && aPressure > 10)) tips.push({type: `⚡ ${hName} To Score Next`, conf: hFatigue ? 95 : 92});
+                else if (aPressure > hPressure + 20 || (aFatigue && hPressure > 10)) tips.push({type: `⚡ ${aName} To Score Next`, conf: aFatigue ? 95 : 92});
+                
+                if (hFatigue) tips.push({type: `🩹 ${hName} DEFENSIVE FATIGUE`, conf: 88});
+                if (aFatigue) tips.push({type: `🩹 ${aName} DEFENSIVE FATIGUE`, conf: 88});
+                
+                if (hFouls > 8 && !hRed) tips.push({type: "👮 Home Ref Breaking Point", conf: 85});
+                if (aFouls > 8 && !aRed) tips.push({type: "👮 Away Ref Breaking Point", conf: 85});
+
                 if ((hSoT + aSoT) > 8 && (hGoals + aGoals) === 0) tips.push({type: "⚽ Over 0.5 Goals", conf: 88});
                 if(totalPress < 5 && (hGoals + aGoals) === 0) tips.push({type: "💤 Under 0.5 Goals", conf: 85});
                 
