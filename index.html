@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acca Master: v14 Monitor</title>
+    <title>Acca Master: v15 Resilient</title>
     <link rel="manifest" href="manifest.json">
     <style>
         :root { --primary: #00ff88; --safe: #4cc9f0; --risk: #f72585; --player: #ffbe0b; --card: #ff4d4d; --shot: #9d4edd; --bg: #121212; --surface: #1e1e1e; --text: #ffffff; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); padding: 20px; padding-bottom: 80px; margin: 0; }
         
-        /* HEADER & API COUNTER */
         .header-area { padding: 10px 0; border-bottom: 1px solid #333; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end; }
         .title-group h1 { color: var(--primary); margin: 0; font-size: 1.4rem; line-height: 1.2; }
         .badge { background: #333; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; color: #aaa; vertical-align: middle; }
@@ -18,20 +17,17 @@
         .api-val { color: var(--primary); font-weight: bold; font-size: 0.9rem; }
         .api-label { display: block; font-size: 0.65rem; }
 
-        /* TABS */
         .tabs { display: flex; gap: 8px; margin-bottom: 20px; background: #1a1a1a; padding: 5px; border-radius: 12px; overflow-x: auto; }
         .tab-btn { flex: 1; min-width: 80px; background: transparent; color: #888; border: none; padding: 12px 5px; font-weight: bold; cursor: pointer; border-radius: 8px; transition: 0.2s; white-space: nowrap; font-size: 0.9rem;}
         .tab-btn.active { background: #333; color: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        /* Controls */
         .controls { margin-bottom: 20px; }
         button#scanBtn { background: linear-gradient(135deg, var(--primary), #00cc6a); color: #000; border: none; padding: 16px; border-radius: 12px; font-weight: 800; width: 100%; font-size: 1rem; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(0,255,136,0.3); transition: transform 0.2s; }
         button#scanBtn:active { transform: scale(0.98); }
         button:disabled { opacity: 0.6; background: #444; cursor: wait; box-shadow: none; }
         
-        /* Cards */
         .acca-card { background: var(--surface); border-radius: 16px; padding: 16px; margin-bottom: 20px; border-left: 5px solid var(--primary); box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
         .acca-header { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding-bottom: 12px; margin-bottom: 12px; align-items: center; }
         .acca-title { font-weight: 800; color: var(--primary); font-size: 1.1rem; }
@@ -45,7 +41,6 @@
         .builder-leg { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; color: #ccc; font-size: 0.9rem; }
         .check-icon { color: var(--safe); }
 
-        /* Tags */
         .tag { font-size: 0.7rem; padding: 3px 8px; border-radius: 20px; font-weight: bold; width: fit-content; }
         .tag-safe { background: rgba(76, 201, 240, 0.2); color: var(--safe); }
         .tag-value { background: rgba(0, 255, 136, 0.2); color: var(--primary); }
@@ -75,7 +70,7 @@
 
     <div class="header-area">
         <div class="title-group">
-            <h1>Acca Master</h1><span class="badge">v14 Monitor</span>
+            <h1>Acca Master</h1><span class="badge">v15 Resilient</span>
         </div>
         <div class="api-monitor">
             <span class="api-label">REMAINING CALLS</span>
@@ -96,32 +91,25 @@
         <button class="tab-btn" onclick="switchTab('props')">Player Props</button>
     </div>
 
-    <div id="accas" class="tab-content active">
-        <div id="results-accas"></div>
-    </div>
-    <div id="trebles" class="tab-content">
-        <div id="results-trebles"></div>
-    </div>
-    <div id="builders" class="tab-content">
-        <div id="results-builders"></div>
-    </div>
-    <div id="props" class="tab-content">
-        <div id="results-props"></div>
-    </div>
+    <div id="accas" class="tab-content active"><div id="results-accas"></div></div>
+    <div id="trebles" class="tab-content"><div id="results-trebles"></div></div>
+    <div id="builders" class="tab-content"><div id="results-builders"></div></div>
+    <div id="props" class="tab-content"><div id="results-props"></div></div>
 
     <div id="toast">Selections Copied!</div>
 
     <script>
-        // --- ⚙️ CONFIGURATION ---
+        // --- CONFIGURATION ---
         const API_KEY = '0f29a2f96e9dd4231cee515cc5ec52b0'; 
         const BASE_URL = 'https://v3.football.api-sports.io';
         
         const MIN_ACCA_ODDS = 3.0; 
         const MIN_IND_ODDS = 1.20; 
         const CURRENT_SEASON = 2025; 
+        // 10 Major Leagues
         const LEAGUES = [39, 140, 78, 135, 61, 40, 88, 94, 144, 203]; 
 
-        // --- 📝 UTILS ---
+        // --- UTILS ---
         function log(msg, type='normal') {
             const c = document.getElementById('console');
             const color = type === 'error' ? 'log-warn' : (type === 'info' ? 'log-info' : '');
@@ -137,7 +125,7 @@
         }
 
         function updateApiCounter(headers) {
-            // API-Sports headers are usually x-ratelimit-requests-remaining
+            if(!headers) return;
             const remaining = headers.get("x-ratelimit-requests-remaining");
             if (remaining) {
                 document.getElementById('api-remaining').innerText = remaining;
@@ -145,51 +133,32 @@
             }
         }
 
-        // --- 📡 CENTRALIZED API ---
         async function secureFetch(endpoint) {
             try {
                 const res = await fetch(`${BASE_URL}${endpoint}`, { 
-                    headers: { 
-                        "x-rapidapi-key": API_KEY,
-                        "x-rapidapi-host": "v3.football.api-sports.io"
-                    } 
+                    headers: { "x-rapidapi-key": API_KEY, "x-rapidapi-host": "v3.football.api-sports.io" } 
                 });
-                
-                // Update Counter
                 updateApiCounter(res.headers);
-                
                 const json = await res.json();
-                if (json.errors && Object.keys(json.errors).length > 0) {
-                    // Check for rate limit error specifically
-                    if (JSON.stringify(json.errors).includes("requests")) {
-                        document.getElementById('api-remaining').innerText = "0";
-                    }
-                    return null;
-                }
+                if (json.errors && Object.keys(json.errors).length > 0) return null;
                 return json.response;
-            } catch (e) {
-                console.error("Fetch Error:", e);
-                return null;
-            }
+            } catch (e) { return null; }
         }
 
         let teamStats = {}; 
 
-        // --- 🚀 MAIN ENGINE ---
+        // --- MAIN ENGINE ---
         async function runMultiScan() {
             const btn = document.getElementById('scanBtn');
-            // Clear outputs
             ['accas','trebles','builders','props'].forEach(id => document.getElementById(`results-${id}`).innerHTML = '');
             document.getElementById('console').innerHTML = ''; 
             
             btn.disabled = true;
-            log("Starting V14 Scan...", 'info');
+            log("Starting V15 Scan...", 'info');
 
             try {
-                // 1. Knowledge
                 await buildKnowledgeBase();
 
-                // 2. Fixtures
                 const d1 = new Date().toISOString().split('T')[0];
                 const t = new Date(); t.setDate(t.getDate() + 1);
                 const d2 = t.toISOString().split('T')[0];
@@ -200,15 +169,13 @@
                     secureFetch(`/fixtures?date=${d2}&timezone=Europe/London`)
                 ]);
                 
-                if (!games1 && !games2) throw new Error("API Connection Failed");
-
                 const allGames = [...(games1||[]), ...(games2||[])].filter(g => LEAGUES.includes(g.league.id));
-                log(`Found ${allGames.length} matches.`);
+                log(`Found ${allGames.length} valid matches.`);
 
-                // 3. Odds Loop
+                if(allGames.length === 0) throw new Error("No matches found in target leagues.");
+
                 log(`Fetching Markets...`);
                 const matchesWithOdds = [];
-                // Chunk requests if needed, but for now we parallelize
                 const oddsPromises = allGames.map(g => secureFetch(`/odds?fixture=${g.fixture.id}`));
                 const oddsResults = await Promise.all(oddsPromises);
                 
@@ -218,8 +185,8 @@
                         matchesWithOdds.push(allGames[i]);
                     }
                 }
+                log(`Got odds for ${matchesWithOdds.length} matches.`);
 
-                // 4. Analyze
                 const picks = [];
                 const builders = []; 
                 const props = [];
@@ -231,6 +198,7 @@
                     const granularProps = analyzeGranularProps(m);
                     if (granularProps.length > 0) {
                         props.push(...granularProps);
+                        // Add best prop to main picks if nice odds
                         if(granularProps[0].odd < 2.0) picks.push(granularProps[0]); 
                     }
 
@@ -238,22 +206,21 @@
                     if (builder) builders.push(builder);
                 }
 
-                log(`Analysis: ${picks.length} Picks, ${props.length} Props.`, 'info');
+                log(`Generated: ${picks.length} Picks, ${props.length} Props.`, 'info');
 
-                // 5. Render
                 const accas4 = buildCombinations(picks, 4);
                 renderList(accas4.slice(0, 20), document.getElementById('results-accas'), '4-Fold');
-                if(accas4.length === 0) document.getElementById('results-accas').innerHTML = "<p>No 4-folds.</p>";
+                if(accas4.length === 0) document.getElementById('results-accas').innerHTML = "<p>No 4-folds found.</p>";
 
                 const accas3 = buildCombinations(picks, 3);
                 renderList(accas3.slice(0, 20), document.getElementById('results-trebles'), 'Treble');
-                if(accas3.length === 0) document.getElementById('results-trebles').innerHTML = "<p>No Trebles.</p>";
+                if(accas3.length === 0) document.getElementById('results-trebles').innerHTML = "<p>No Trebles found.</p>";
 
                 renderBuilders(builders.slice(0, 15), document.getElementById('results-builders'));
-                if(builders.length === 0) document.getElementById('results-builders').innerHTML = "<p>No Builders.</p>";
+                if(builders.length === 0) document.getElementById('results-builders').innerHTML = "<p>No Builders found.</p>";
 
                 renderPropsList(props.slice(0, 25), document.getElementById('results-props'));
-                if(props.length === 0) document.getElementById('results-props').innerHTML = "<p>No Props.</p>";
+                if(props.length === 0) document.getElementById('results-props').innerHTML = "<p>No Props found.</p>";
 
             } catch (err) {
                 log(err.message, 'error');
@@ -262,16 +229,22 @@
             }
         }
 
-        // --- 🧠 LOGIC ---
+        // --- LOGIC ---
         async function buildKnowledgeBase() {
-            const promises = LEAGUES.map(id => secureFetch(`/standings?league=${id}&season=${CURRENT_SEASON}`));
-            const results = await Promise.all(promises);
-            results.forEach(res => {
-                if (!res || !res[0]) return;
-                res[0].league.standings[0].forEach(s => { 
-                    teamStats[s.team.id] = { name: s.team.name, form: s.form, gf: s.all.goals.for/s.all.played, ga: s.all.goals.against/s.all.played };
+            // Attempt to load stats, but don't crash if fails
+            try {
+                const promises = LEAGUES.map(id => secureFetch(`/standings?league=${id}&season=${CURRENT_SEASON}`));
+                const results = await Promise.all(promises);
+                let count = 0;
+                results.forEach(res => {
+                    if (!res || !res[0]) return;
+                    res[0].league.standings[0].forEach(s => { 
+                        teamStats[s.team.id] = { name: s.team.name, form: s.form, gf: s.all.goals.for/s.all.played, ga: s.all.goals.against/s.all.played };
+                        count++;
+                    });
                 });
-            });
+                log(`Stats loaded for ${count} teams.`);
+            } catch(e) { log("Stats fetch partial error (continuing...)", 'log-warn'); }
         }
 
         function getOdd(bets, id, val) {
@@ -282,33 +255,40 @@
         }
 
         function analyzeMatch(m) {
+            // ROBUST ANALYSIS: DOES NOT REQUIRE STATS
             if (!m.odds?.bookmakers?.[0]) return null;
+            const bets = m.odds.bookmakers.find(b=>b.id===6)?.bets || m.odds.bookmakers[0].bets;
             const homeId = m.teams.home.id;
             const awayId = m.teams.away.id;
-            const homeStats = teamStats[homeId];
-            const awayStats = teamStats[awayId];
-            if (!homeStats || !awayStats) return null;
+            
+            // Try get stats, default to dummy object if missing
+            const hs = teamStats[homeId] || { form: "?????" }; 
+            const as = teamStats[awayId] || { form: "?????" }; 
 
-            const bets = m.odds.bookmakers.find(b=>b.id===6)?.bets || m.odds.bookmakers[0].bets;
             const candidates = [];
 
             // Winner
             const homeWin = getOdd(bets, 1, "Home");
             if (homeWin >= MIN_IND_ODDS && homeWin <= 2.2) {
-                if ((homeStats.form.match(/L/g)||[]).length <= 2) candidates.push({sel: `${homeStats.name} Win`, odd: homeWin, type: 'Banker'});
+                // If stats exist, check form. If not, trust odds.
+                if (hs.form === "?????" || (hs.form.match(/L/g)||[]).length <= 2) {
+                    candidates.push({sel: `${m.teams.home.name} Win`, odd: homeWin, type: 'Banker'});
+                }
             }
             const awayWin = getOdd(bets, 1, "Away");
             if (awayWin >= MIN_IND_ODDS && awayWin <= 2.2) {
-                if ((awayStats.form.match(/L/g)||[]).length <= 2) candidates.push({sel: `${awayStats.name} Win`, odd: awayWin, type: 'Banker'});
+                if (as.form === "?????" || (as.form.match(/L/g)||[]).length <= 2) {
+                    candidates.push({sel: `${m.teams.away.name} Win`, odd: awayWin, type: 'Banker'});
+                }
             }
+            
             // Goals
-            const combinedAvg = (homeStats.gf + homeStats.ga + awayStats.gf + awayStats.ga) / 2;
             const over25 = getOdd(bets, 5, "Over 2.5");
-            if (combinedAvg > 2.8 && over25 >= 1.35 && over25 <= 1.9) candidates.push({sel: "Over 2.5 Goals", odd: over25, type: 'Value'});
+            if (over25 && over25 >= 1.35 && over25 <= 1.9) candidates.push({sel: "Over 2.5 Goals", odd: over25, type: 'Value'});
 
             if (candidates.length === 0) return null;
             candidates.sort((a,b) => a.odd - b.odd);
-            return { match: `${homeStats.name} v ${awayStats.name}`, ...candidates[0] };
+            return { match: `${m.teams.home.name} v ${m.teams.away.name}`, ...candidates[0] };
         }
 
         function analyzeGranularProps(m) {
@@ -337,31 +317,22 @@
             // Scorer
              const scorerMarket = bets.find(b => b.name === "Anytime Goalscorer");
              if (scorerMarket) {
-                 // Use home team stats check
-                 const hId = m.teams.home.id; 
-                 if(teamStats[hId] && teamStats[hId].gf > 1.4) {
-                     const candidates = scorerMarket.values.filter(v => parseFloat(v.odd) >= 1.6 && parseFloat(v.odd) <= 2.8);
-                     if(candidates.length > 0) {
-                         candidates.sort((a,b) => parseFloat(a.odd) - parseFloat(b.odd));
-                         props.push({ match: `${m.teams.home.name} v ${m.teams.away.name}`, sel: `${candidates[0].value} Score`, odd: parseFloat(candidates[0].odd), type: 'Player' });
-                     }
+                 const candidates = scorerMarket.values.filter(v => parseFloat(v.odd) >= 1.6 && parseFloat(v.odd) <= 2.8);
+                 if(candidates.length > 0) {
+                     candidates.sort((a,b) => parseFloat(a.odd) - parseFloat(b.odd));
+                     props.push({ match: `${m.teams.home.name} v ${m.teams.away.name}`, sel: `${candidates[0].value} Score`, odd: parseFloat(candidates[0].odd), type: 'Player' });
                  }
              }
-
             return props;
         }
 
         function analyzeForBuilder(m, props) {
             if (!m.odds?.bookmakers?.[0]) return null;
-            const homeId = m.teams.home.id;
-            const hs = teamStats[homeId];
-            if (!hs) return null;
-
             const bets = m.odds.bookmakers.find(b=>b.id===6)?.bets || m.odds.bookmakers[0].bets;
             const homeWin = getOdd(bets, 1, "Home");
             const legs = [];
 
-            if (homeWin && homeWin < 2.0 && (hs.form.match(/W/g)||[]).length >= 2) legs.push(`Match Result: ${hs.name}`);
+            if (homeWin && homeWin < 2.0) legs.push(`Match Result: ${m.teams.home.name}`);
 
             if (props && props.length > 0) {
                 legs.push(props[0].sel);
@@ -369,7 +340,6 @@
                 const over25 = getOdd(bets, 5, "Over 2.5");
                 if (over25 && over25 < 1.8) legs.push("Over 2.5 Goals");
             }
-
             if (legs.length >= 2) return { match: `${m.teams.home.name} v ${m.teams.away.name}`, legs: legs };
             return null;
         }
@@ -392,7 +362,6 @@
             return results.sort((a,b) => a.odds - b.odds); 
         }
 
-        // --- RENDER ---
         function renderList(list, div, label) {
             list.forEach(acca => {
                 const el = document.createElement('div');
