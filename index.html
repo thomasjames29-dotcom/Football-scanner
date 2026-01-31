@@ -2,1271 +2,201 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#0d1117">
-    <title>The Final Third</title>
-
-    <link rel="manifest" href="./manifest.json">
-    <link rel="icon" type="image/png" href="target_PNG26.png">
-    <link rel="apple-touch-icon" href="target_PNG26.png">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acca Master Pro</title>
+    <link rel="manifest" href="manifest.json">
     <style>
-        :root { --bg: #0d1117; --card: #161b22; --green: #2ea043; --gold: #d29922; --red: #da3633; --purple: #a371f7; --blue: #1f6feb; --text: #c9d1d9; --cyan: #3fb950; }
-        body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 16px; padding-bottom: 120px; }
+        :root { --primary: #00ff88; --bg: #121212; --card: #1e1e1e; --text: #ffffff; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; padding-bottom: 80px; }
+        h1 { font-size: 1.5rem; margin-bottom: 5px; color: var(--primary); }
+        h2 { font-size: 1rem; color: #888; margin-top: 0; font-weight: normal; }
         
-        /* HEADER */
-        header { display: flex; flex-direction: column; gap: 10px; border-bottom: 1px solid #30363d; padding-bottom: 15px; margin-bottom: 15px; }
-        .top-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-        h1 { margin: 0; font-size: 1.4rem; color: var(--blue); display: flex; align-items: center; gap: 10px; }
-        .header-right { display: flex; gap: 10px; align-items: center; }
-        .api-badge { background: #21262d; border: 1px solid #30363d; color: #8b949e; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-family: monospace; font-weight: bold; }
-        .help-btn { background: #21262d; border: 1px solid #30363d; color: var(--gold); width: 28px; height: 28px; border-radius: 50%; font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-
-        /* PULSE ANIMATIONS */
-        @keyframes pulse-green { 0% { box-shadow: 0 0 0 0 rgba(46, 160, 67, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(46, 160, 67, 0); } 100% { box-shadow: 0 0 0 0 rgba(46, 160, 67, 0); } }
-        @keyframes pulse-purple { 0% { box-shadow: 0 0 0 0 rgba(163, 113, 247, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(163, 113, 247, 0); } 100% { box-shadow: 0 0 0 0 rgba(163, 113, 247, 0); } }
-
-        /* AUTO-PILOT */
-        .pilot-btn { background: #21262d; border: 1px solid #30363d; color: #888; padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.3s; }
-        .pilot-btn.active { background: rgba(46, 160, 67, 0.2); border-color: var(--green); color: var(--green); }
-        .pilot-dot { width: 8px; height: 8px; border-radius: 50%; background: #555; }
-        .pilot-btn.active .pilot-dot { background: var(--green); box-shadow: 0 0 8px var(--green); }
-        .pilot-btn.paused { border-color: var(--gold); color: var(--gold); animation: none; }
-
-        /* TABS */
-        .nav-tabs { display: flex; gap: 10px; margin-top: 15px; overflow-x: auto; padding-bottom: 5px; }
-        .nav-tab { flex: 1; text-align: center; padding: 10px; background: #21262d; border-radius: 8px; border: 1px solid #30363d; color: #888; font-weight: bold; cursor: pointer; font-size: 0.9rem; white-space: nowrap; }
-        .nav-tab.active { background: var(--blue); color: white; border-color: var(--blue); }
-
-        select { width: 100%; padding: 12px; background: #21262d; color: white; border: 1px solid #30363d; border-radius: 8px; font-size: 1rem; font-weight: bold; outline: none; appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E"); background-repeat: no-repeat; background-position: right 15px top 50%; background-size: 12px auto; }
-
-        /* STRATEGY CHIPS */
-        .chip-container { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; margin-bottom: 15px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
-        .chip-container::-webkit-scrollbar { display: none; }
-        .chip { white-space: nowrap; padding: 6px 12px; border-radius: 20px; background: #21262d; border: 1px solid #30363d; color: #888; font-size: 0.8rem; font-weight: bold; cursor: pointer; transition: all 0.2s; }
-        .chip.active { background: #d29922; color: #0d1117; border-color: #d29922; }
-
-        /* CARDS */
-        .match-card { background: var(--card); border: 1px solid #30363d; border-radius: 12px; padding: 15px; margin-bottom: 15px; position: relative; overflow: hidden; transition: all 0.3s; }
-        .match-card.placed { border: 1px solid var(--green); background: rgba(46, 160, 67, 0.05); }
-        .match-card.ghost { opacity: 0.5; border-color: #30363d; filter: grayscale(0.8); }
-        .match-card.ghost:hover { opacity: 1; filter: grayscale(0); }
-        .match-card.pulse-home { animation: pulse-green 2s infinite; border-color: var(--green); }
-        .match-card.pulse-away { animation: pulse-purple 2s infinite; border-color: var(--purple); }
-
-        .placed-badge { position: absolute; top: 0; right: 0; background: var(--green); color: white; font-size: 0.7rem; font-weight: bold; padding: 4px 8px; border-bottom-left-radius: 8px; }
-        .league-name { font-size: 0.75rem; color: #8b949e; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
-        .score-row { display: flex; justify-content: space-between; align-items: flex-start; margin: 10px 0; }
-        .team-col { width: 40%; display: flex; flex-direction: column; }
-        .team-name { font-size: 1rem; font-weight: bold; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; display: flex; align-items: center; gap: 5px; }
-        .goal-times { font-size: 0.75rem; color: var(--gold); margin-top: 4px; min-height: 14px; font-family: monospace; }
-        .score-box { background: #21262d; padding: 8px 14px; border-radius: 8px; border: 1px solid #30363d; font-family: monospace; font-size: 1.2rem; font-weight: bold; }
+        /* Controls */
+        .controls { margin-bottom: 20px; display: flex; gap: 10px; }
+        button { background: var(--primary); color: #000; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
+        button:disabled { opacity: 0.5; }
         
-        /* RANK BADGE ON CARD */
-        .rank-on-card { color: var(--gold); font-size: 0.8rem; font-weight: bold; font-family: monospace; }
-
-        /* SCHED ITEM */
-        .sched-card { background: #161b22; border-bottom: 1px solid #30363d; padding: 12px; display: flex; justify-content: space-between; align-items: center; }
-        .sched-time { font-family: monospace; color: var(--gold); font-weight: bold; width: 50px; font-size: 1rem; }
-        .sched-teams { flex: 1; font-size: 0.9rem; }
-        .sched-league { font-size: 0.75rem; color: #a371f7; text-transform: uppercase; margin-bottom: 4px; font-weight: bold; letter-spacing: 0.5px; }
-
-        /* HISTORY ITEM */
-        .hist-day { margin-bottom: 20px; }
-        .hist-date-row { display: flex; justify-content: space-between; padding: 10px; background: #21262d; border-radius: 8px; font-weight: bold; margin-bottom: 10px; }
-        .hist-unit-plus { color: var(--green); } .hist-unit-minus { color: var(--red); } .hist-unit-even { color: #888; }
-        .hist-card { background: #161b22; border-bottom: 1px solid #30363d; padding: 12px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; }
-        .hist-res-win { color: var(--green); font-weight: bold; border: 1px solid var(--green); padding: 2px 6px; border-radius: 4px; }
-        .hist-res-loss { color: var(--red); font-weight: bold; border: 1px solid var(--red); padding: 2px 6px; border-radius: 4px; }
-        .hist-res-open { color: var(--gold); font-weight: bold; border: 1px solid var(--gold); padding: 2px 6px; border-radius: 4px; }
-
-        /* CARD WATCH TABLE */
-        .card-table-row { display: flex; justify-content: space-between; align-items: center; background: #161b22; padding: 12px; border-bottom: 1px solid #30363d; transition: all 0.3s; }
-        .card-table-row.marked { background: rgba(46, 160, 160, 0.1); border-left: 3px solid var(--green); }
-        .card-table-row.subbed-off { opacity: 0.4; filter: grayscale(1); background: #0d1117; pointer-events: none; }
-        .card-player-info { display: flex; flex-direction: column; flex: 1; }
-        .card-player-name { font-weight: bold; color: white; display: flex; align-items: center; gap: 6px; }
-        .card-match-info { font-size: 0.75rem; color: #888; }
-        .card-foul-badge { background: rgba(218, 54, 51, 0.2); color: var(--red); border: 1px solid var(--red); padding: 4px 8px; border-radius: 6px; font-weight: bold; font-family: monospace; white-space: nowrap; }
-        .card-scan-btn { width: 100%; background: #da3633; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: bold; font-size: 1rem; margin-bottom: 20px; cursor: pointer; box-shadow: 0 4px 15px rgba(218, 54, 51, 0.3); }
-        .ref-badge { font-size: 0.7rem; background: #333; padding: 2px 6px; border-radius: 4px; margin-top: 4px; display: inline-block; color: #bbb; }
-        .ref-strict { color: #da3633; border: 1px solid #da3633; background: rgba(218, 54, 51, 0.1); }
-        .ref-lenient { color: #2ea043; border: 1px solid #2ea043; background: rgba(46, 160, 67, 0.1); }
-        .card-check-btn { background: #21262d; border: 1px solid #30363d; color: #888; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-right: 10px; font-size: 1rem; }
-        .card-check-btn.active { background: var(--green); color: white; border-color: var(--green); }
-
-        /* BUTTONS */
-        .btn-row { display: flex; gap: 10px; margin-top: 10px; }
-        .player-btn { flex: 1; background: #21262d; border: 1px solid #30363d; color: #ccc; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer;}
-        .analyze-btn { flex: 1; background: rgba(163, 113, 247, 0.15); border: 1px solid var(--purple); color: var(--purple); padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer; }
-        .bet365-btn { flex: 1; background: #00703c; border: 1px solid #005c31; color: white; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; text-decoration: none; text-align: center; display: block;}
-        .copy-btn { width:100%; background: #333; border: 1px solid #444; color: #fff; padding: 8px; border-radius: 6px; font-size: 0.8rem; margin-top: 8px; cursor: pointer; }
-        .mark-btn { flex: 0.4; background: #21262d; border: 1px solid #30363d; color: #888; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
-        .mark-btn.active { background: var(--green); color: white; border-color: var(--green); }
-        .export-btn { width:100%; background: #21262d; border: 1px solid var(--gold); color: var(--gold); padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
+        /* Cards */
+        .acca-card { background: var(--card); border-radius: 12px; padding: 15px; margin-bottom: 15px; border-left: 4px solid var(--primary); box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .acca-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #333; }
+        .acca-odds { font-size: 1.2rem; font-weight: bold; color: var(--primary); }
+        .acca-return { font-size: 0.9rem; color: #aaa; }
         
-        /* SCAN BUTTON - BLUE */
-        .scan-btn { position: fixed; bottom: 30px; left: 5%; width: 90%; background: var(--blue); color: white; border: none; padding: 16px; border-radius: 16px; font-size: 1.1rem; font-weight: bold; box-shadow: 0 5px 20px rgba(0,0,0,0.5); z-index: 100; }
-
-        /* ANALYSIS & PLAYER BOX */
-        .analysis-box { background: #1c1c1c; border: 1px solid var(--purple); padding: 10px; border-radius: 8px; margin-top: 10px; font-size: 0.9rem; display: none; }
-        .player-box { background: #1c1c1c; border: 1px solid #30363d; padding: 10px; border-radius: 8px; margin-top: 10px; font-size: 0.9rem; display: none; }
+        .leg { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem; }
+        .leg-match { color: #fff; }
+        .leg-bet { color: #ccc; font-size: 0.85rem; text-align: right; }
         
-        .stat-bar { display: flex; justify-content: space-between; margin-bottom: 4px; color: #bbb; font-size: 0.8rem; }
-        .stat-val { font-weight: bold; color: white; }
-        .gauge-container { height: 8px; background: #333; border-radius: 4px; overflow: hidden; margin: 5px 0 15px 0; display: flex; }
-        .gauge-home { background: var(--green); height: 100%; transition: width 0.5s; }
-        .gauge-away { background: var(--purple); height: 100%; transition: width 0.5s; }
-        .gauge-labels { display: flex; justify-content: space-between; font-size: 0.75rem; color: #888; margin-top:-2px; margin-bottom: 10px; }
-        
-        .tip-box { background: rgba(255, 255, 255, 0.05); border-radius: 6px; padding: 8px; margin: 10px 0; border-left: 3px solid var(--gold); }
-        .tip-header { font-size: 0.75rem; color: #888; text-transform: uppercase; margin-bottom: 4px; font-weight: bold; }
-        .tip-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-        .tip-name { color: #fff; font-weight: bold; font-size: 0.9rem; }
-        
-        .val-good { color: var(--green); text-shadow: 0 0 5px rgba(46, 160, 67, 0.5); }
-        .rank-badge { font-size: 0.75rem; color: var(--gold); margin-left: 4px; font-weight: normal; }
-        .est-badge { font-size: 0.7rem; background: #333; padding: 2px 4px; border-radius: 3px; color: #888; margin-left: 5px; }
-        .synth-badge { font-size: 0.7rem; background: rgba(63, 185, 80, 0.2); color: var(--cyan); padding: 2px 4px; border-radius: 3px; margin-left: 5px; border: 1px solid var(--cyan); }
-        .ignore-msg { color: var(--red); font-weight: bold; text-align: center; border: 1px solid var(--red); padding: 8px; border-radius: 6px; background: rgba(218, 54, 51, 0.1); margin-bottom: 10px; }
-        .ref-name { font-size: 0.75rem; color: #888; display: block; text-align: center; margin-top: 4px; font-style: italic; }
-        
-        .form-badge { font-family: monospace; font-size: 0.7rem; letter-spacing: 1px; margin-left: 5px; }
-        .form-w { color: var(--green); } .form-l { color: var(--red); } .form-d { color: #888; }
-
-        .pos-badge { font-size: 0.75rem; color: #58a6ff; background: transparent; padding: 1px 4px; border-radius: 4px; margin-left: 4px; font-weight: 800; vertical-align: middle; font-family: monospace; }
-        .pos-badge:empty { display: none; }
-        
-        /* PLAYER RATINGS */
-        .player-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #333; }
-        .player-name { font-weight: bold; color: white; font-size: 0.9rem; }
-        .player-rating { font-family: monospace; font-weight: bold; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; }
-        .rate-high { color: var(--green); border: 1px solid var(--green); background: rgba(46, 160, 67, 0.1); }
-        .rate-med { color: var(--gold); border: 1px solid var(--gold); background: rgba(210, 153, 34, 0.1); }
-        .player-detail { font-size: 0.75rem; color: #888; margin-top: 2px; }
-
-        /* MODALS */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; overflow-y: auto; }
-        .modal-content { background: #161b22; margin: 10% auto; padding: 20px; width: 85%; border-radius: 12px; border: 1px solid #30363d; max-width: 500px; padding-bottom: 100px; }
-        .modal h2 { color: var(--blue); border-bottom: 1px solid #30363d; padding-bottom: 10px; margin-top: 0; }
-        .modal h3 { color: var(--gold); margin-top: 20px; margin-bottom: 5px; }
-        .modal p { color: #ccc; font-size: 0.9rem; line-height: 1.5; margin-top: 0; }
-        .close-modal { background: #333; color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; margin-top: 20px; font-size: 1rem; cursor: pointer; }
-        
-        /* EXPANDABLE DETAILS */
-        details { margin-bottom: 10px; background: rgba(255,255,255,0.03); border-radius: 8px; padding: 10px; border: 1px solid #30363d; }
-        summary { cursor: pointer; font-weight: bold; color: var(--blue); outline: none; list-style: none; display: flex; justify-content: space-between; align-items: center; }
-        summary::-webkit-details-marker { display: none; }
-        summary:after { content: "+"; color: #888; font-weight: bold; }
-        details[open] summary:after { content: "-"; }
-        details p { margin-top: 10px; margin-bottom: 0; color: #ccc; font-size: 0.9rem; line-height: 1.5; }
-        details ul { margin: 5px 0 0 20px; padding: 0; color: #ccc; font-size: 0.85rem; }
-        details li { margin-bottom: 4px; }
-
-        /* COMMON */
-        .pred-row { display: flex; justify-content: space-between; align-items: center; background: rgba(255, 255, 255, 0.05); padding: 10px; border-radius: 8px; margin-top: 10px; }
-        .pred-text { color: var(--green); font-weight: bold; font-size: 0.9rem; }
-        .conf-badge { padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; color: #000; }
-        .conf-high { background-color: var(--green); } .conf-med { background-color: var(--gold); } .conf-low { background-color: #8b949e; }
-        .upset-badge { background: rgba(218, 54, 51, 0.15); border: 1px solid var(--red); color: var(--red); font-size: 0.75rem; font-weight: bold; text-align: center; padding: 6px; border-radius: 6px; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .red-card-badge { background: rgba(218, 54, 51, 0.2); border: 1px solid var(--red); color: white; font-weight: bold; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; margin-top: 4px; display: inline-block; }
+        .loading { text-align: center; color: #666; margin-top: 50px; display: none; }
+        .install-btn { display: none; background: #333; color: #fff; margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="top-row">
-            <h1><img src="target_PNG26.png" style="width:28px;"> The Final Third</h1>
-            <div class="header-right">
-                <div id="apiCounter" class="api-badge">API: 0</div>
-                <button class="help-btn" onclick="openHelp()">?</button>
-            </div>
-        </div>
-        
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <button id="pilotBtn" class="pilot-btn" onclick="togglePilot()">
-                <div class="pilot-dot"></div> Auto-Pilot
-            </button>
-        </div>
-        
-        <div class="nav-tabs">
-            <div id="tabLive" class="nav-tab active" onclick="switchTab('live')">🔴 Live Hunt</div>
-            <div id="tabSched" class="nav-tab" onclick="switchTab('sched')">📅 Elite Schedule</div>
-            <div id="tabCards" class="nav-tab" onclick="switchTab('cards')">🟨 Card Watch</div>
-            <div id="tabHist" class="nav-tab" onclick="switchTab('hist')">📜 History</div>
-        </div>
+    <button id="installBtn" class="install-btn">📲 Install App</button>
 
-        <select id="filterSelect" onchange="applyFilter()">
-            <option value="elite">🇬🇧 UK & Elite (Full Stats)</option>
-            <option value="europe">🇪🇺 Rest of Europe</option>
-            <option value="world">🌎 World Scan</option>
-        </select>
-    </header>
+    <h1>Acca Master Pro</h1>
+    <h2>Daily Value Generator</h2>
 
-    <div id="liveView">
-        <div class="chip-container">
-            <div class="chip active" onclick="setStrategy('all', this)">🌍 All Games</div>
-            <div class="chip" onclick="setStrategy('losing', this)">🩸 Fav Losing</div>
-            <div class="chip" onclick="setStrategy('drought', this)">⏳ Goal Drought</div>
-            <div class="chip" onclick="setStrategy('red', this)">🟥 Red Card</div>
-            <div class="chip" onclick="setStrategy('late', this)">🧨 Late (80'+)</div>
-            <div class="chip" onclick="setStrategy('imminent', this)">🎯 Goal Imminent</div>
-        </div>
-
-        <div id="content">
-            <div style="text-align:center; padding-top:50px; color:#888;">
-                <p style="font-size:2rem; margin-bottom:10px;">🔭</p>
-                <p>Ready to Hunt (60'-85').</p>
-                <p style="font-size:0.8rem; color:#555">Active: xG • Bet365 • Standings • Pulse</p>
-            </div>
-        </div>
-        <button class="scan-btn" onclick="runScan()" id="mainBtn">🎯 SCAN MARKETS</button>
+    <div class="controls">
+        <button onclick="runAnalysis()">GENERATE ACCAS</button>
     </div>
 
-    <div id="schedView" style="display:none;">
-        <div id="schedContent" style="padding-bottom:100px;"></div>
+    <div id="loading" class="loading">
+        Analyzing historic form...<br>Calculating 4/1+ combinations...
     </div>
 
-    <div id="cardView" style="display:none;">
-        <button class="card-scan-btn" onclick="scanGlobalCards(this)">⚠️ SCAN GLOBAL CARD RISKS</button>
-        <div id="cardContent" style="padding-bottom:100px; text-align:center; color:#888;">Click above to find high-risk players across Elite live games.</div>
-    </div>
-
-    <div id="histView" style="display:none;">
-        <div id="histContent" style="padding-bottom:100px;"></div>
-    </div>
-
-    <div id="helpModal" class="modal" onclick="closeHelp(event)">
-        <div class="modal-content">
-            <h2>🔎 User Manual</h2>
-            
-            <details open>
-                <summary>🔴 Live Hunt & Auto-Pilot</summary>
-                <p>The core dashboard. Shows games currently in the "Goldilocks Zone" (60-85 mins) where stats have matured.</p>
-                <p><b>Auto-Pilot:</b> Scans every 5 minutes. Sends notifications for "Siege" games.</p>
-            </details>
-
-            <details>
-                <summary>🎯 Sniper Mode (Chips)</summary>
-                <p>Filter the live list instantly:</p>
-                <ul>
-                    <li><b>Fav Losing:</b> Finds home teams losing.</li>
-                    <li><b>Goal Drought:</b> Games with >50 mins since the last goal (must be >0-0).</li>
-                    <li><b>Red Card:</b> Isolates 10-man situations.</li>
-                    <li><b>Late:</b> Only shows 80th min+ for late drama.</li>
-                </ul>
-            </details>
-
-            <details>
-                <summary>📊 Dashboard Data</summary>
-                <p><b>Pulse Animation:</b> Glowing Green/Purple border = >70% Pressure.</p>
-                <p><b>Ghost Mode:</b> Faded card = No API stats available.</p>
-                <p><b>[SYNTH]:</b> Synthetic Pressure. The app rebuilt stats by summing individual player data because match stats were missing.</p>
-            </details>
-
-            <details>
-                <summary>🟨 Card Watch</summary>
-                <p>Scans ALL live <b>Elite</b> games for players with <b>2+ Fouls</b> who have <b>0 Cards</b>.</p>
-                <p><b>Strict Ref:</b> Calculated live based on Cards per Foul ratio in the current game.</p>
-            </details>
-
-            <details>
-                <summary>🏆 Elite Leagues List</summary>
-                <p>The "Elite" filter restricts deep scanning to these competitions to ensure high-quality data:</p>
-                <ul>
-                    <li>🇬🇧 Premier League & Championship</li>
-                    <li>🇪🇸 La Liga</li>
-                    <li>🇩🇪 Bundesliga</li>
-                    <li>🇮🇹 Serie A</li>
-                    <li>🇫🇷 Ligue 1</li>
-                    <li>🇳🇱 Eredivisie</li>
-                    <li>🇵🇹 Primeira Liga</li>
-                    <li>🇺🇸 MLS (USA)</li>
-                    <li>🇸🇦 Saudi Pro League</li>
-                    <li>🏴󠁧󠁢󠁳󠁣󠁴󠁿 Scottish Premiership</li>
-                    <li>🇪🇺 UEFA Champions/Europa League</li>
-                </ul>
-            </details>
-
-            <details>
-                <summary>💡 Icon Glossary</summary>
-                <ul>
-                    <li>🔥 <b>Siege:</b> Heavy pressure to score.</li>
-                    <li>🅰️ <b>Creator:</b> High Key Passes (Assist threat).</li>
-                    <li>👮 <b>Strict Ref:</b> High card frequency.</li>
-                    <li>💤 <b>Lenient Ref:</b> Low card frequency.</li>
-                    <li>📈 <b>Rising:</b> Momentum is increasing.</li>
-                </ul>
-            </details>
-
-            <button class="close-modal" onclick="document.getElementById('helpModal').style.display='none'">Close Manual</button>
-        </div>
-    </div>
+    <div id="results"></div>
 
     <script>
-        const API_KEY = "0f29a2f96e9dd4231cee515cc5ec52b0"; 
+        // --- CONFIGURATION ---
+        const API_KEY = 'PASTE_YOUR_KEY_HERE'; // <--- PASTE YOUR KEY HERE
+        const MIN_ODDS = 5.0; // 4/1 fractional
         
-        // ELITE IDS
-        const ELITE_IDS = [39, 40, 45, 48, 179, 180, 140, 78, 135, 61, 88, 94, 144, 2, 3, 529, 556, 81, 143, 307, 253];
-        const EU_COUNTRIES = ["Albania", "Andorra", "Armenia", "Austria", "Azerbaijan", "Belarus", "Belgium", "Bosnia", "Bulgaria", "Croatia", "Cyprus", "Czech Republic", "Czech-Republic", "Denmark", "England", "Estonia", "Faroe Islands", "Finland", "France", "Georgia", "Germany", "Gibraltar", "Greece", "Hungary", "Iceland", "Ireland", "Israel", "Italy", "Kazakhstan", "Kosovo", "Latvia", "Liechtenstein", "Lithuania", "Luxembourg", "Malta", "Moldova", "Montenegro", "Netherlands", "Northern Ireland", "North Macedonia", "Norway", "Poland", "Portugal", "Romania", "Russia", "San Marino", "Scotland", "Serbia", "Slovakia", "Slovenia", "Spain", "Sweden", "Switzerland", "Turkey", "Ukraine", "Wales"];
-
-        let allMatches = [];
-        let pilotMode = false;
-        let pilotInterval;
-        let alertedGames = new Set();
-        let currentStrategy = 'all';
-        let momentumHistory = {}; 
-        let teamFoulTracker = {}; // Ref Breaking Point Tracking
-        
-        // UNLOCKED
-        let isPremium = true; 
-        
-        const content = document.getElementById('content');
-        const mainBtn = document.getElementById('mainBtn');
-        const pilotBtn = document.getElementById('pilotBtn');
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-        // --- HELP MODAL ---
-        function openHelp() { document.getElementById('helpModal').style.display = 'block'; }
-        function closeHelp(e) { if(e.target.id === 'helpModal') document.getElementById('helpModal').style.display = 'none'; }
-
-        // --- TRACKER LOGIC ---
-        function getHistory() { return JSON.parse(localStorage.getItem('betHistory') || "[]"); }
-        function saveHistory(bets) { localStorage.setItem('betHistory', JSON.stringify(bets)); }
-        function getPlacedBets() { return getHistory().map(b => b.id); }
-
-        function toggleBet(id, homeGoals, awayGoals, teams) {
-            let bets = getHistory();
-            const existingIndex = bets.findIndex(b => b.id === id);
-            if(existingIndex >= 0) { bets.splice(existingIndex, 1); } 
-            else {
-                const today = new Date().toLocaleDateString('en-CA');
-                bets.push({ id: id, date: today, teams: teams, goalsAtBet: homeGoals + awayGoals, status: 'OPEN' });
-            }
-            saveHistory(bets);
-            applyFilter(); 
-        }
-
-        // --- CARD WATCH TICKER ---
-        function getMarkedPlayers() { return JSON.parse(localStorage.getItem('cardBets') || "[]"); }
-        function togglePlayerBet(uid, el) {
-            let pBets = getMarkedPlayers();
-            if(pBets.includes(uid)) {
-                pBets = pBets.filter(b => b !== uid);
-                el.classList.remove('active');
-                el.innerText = "";
-                el.parentElement.classList.remove('marked');
-            } else {
-                pBets.push(uid);
-                el.classList.add('active');
-                el.innerText = "✓";
-                el.parentElement.classList.add('marked');
-            }
-            localStorage.setItem('cardBets', JSON.stringify(pBets));
-        }
-
-        function exportCSV() {
-            const bets = getHistory();
-            if (bets.length === 0) { alert("No history to export."); return; }
-            let csv = "Date,Match,Result,Status\n";
-            bets.forEach(b => {
-                let res = "OPEN";
-                if(b.status === 'WIN') res = "WIN (+1)";
-                if(b.status === 'LOSS') res = "LOSS (-1)";
-                csv += `${b.date},${b.teams.replace(',',' ')},${res},${b.status}\n`;
+        // --- PWA INSTALL LOGIC ---
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const btn = document.getElementById('installBtn');
+            btn.style.display = 'block';
+            btn.addEventListener('click', () => {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((result) => {
+                    if (result.outcome === 'accepted') btn.style.display = 'none';
+                    deferredPrompt = null;
+                });
             });
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.setAttribute('hidden', '');
-            a.setAttribute('href', url);
-            a.setAttribute('download', 'hunter_history.csv');
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        }
-
-        async function checkBetOutcomes(liveMatches) {
-            let bets = getHistory();
-            let changed = false;
-            let openBets = bets.filter(b => b.status === 'OPEN');
-            if(openBets.length === 0) return;
-
-            openBets.forEach(bet => {
-                const liveMatch = liveMatches.find(m => m.fixture.id === bet.id);
-                if(liveMatch) {
-                    const currentTotal = liveMatch.goals.home + liveMatch.goals.away;
-                    if(currentTotal > bet.goalsAtBet) { bet.status = 'WIN'; changed = true; }
-                }
-            });
-
-            const missingBets = openBets.filter(b => b.status === 'OPEN' && !liveMatches.find(m => m.fixture.id === b.id));
-            if(missingBets.length > 0) {
-                const ids = missingBets.map(b => b.id).join('-');
-                trackAPI(1);
-                try {
-                    const res = await fetch(`https://v3.football.api-sports.io/fixtures?ids=${ids}`, { headers: { "x-rapidapi-key": API_KEY } });
-                    const data = await res.json();
-                    data.response.forEach(m => {
-                        const bet = bets.find(b => b.id === m.fixture.id);
-                        if(bet) {
-                            const finalTotal = m.goals.home + m.goals.away;
-                            const status = m.fixture.status.short;
-                            if (finalTotal > bet.goalsAtBet) { bet.status = 'WIN'; changed = true; } 
-                            else if (['FT', 'AET', 'PEN'].includes(status)) { bet.status = 'LOSS'; changed = true; }
-                        }
-                    });
-                } catch(e) {}
-            }
-            if(changed) { saveHistory(bets); if(document.getElementById('tabHist').classList.contains('active')) renderHistory(); }
-        }
-
-        function renderHistory() {
-            const bets = getHistory();
-            const histDiv = document.getElementById('histContent');
-            if(bets.length === 0) { histDiv.innerHTML = "<p style='text-align:center; color:#888; margin-top:50px;'>No bets tracked yet.</p>"; return; }
-
-            bets.sort((a, b) => new Date(b.date) - new Date(a.date));
-            const grouped = bets.reduce((acc, bet) => {
-                if(!acc[bet.date]) acc[bet.date] = [];
-                acc[bet.date].push(bet);
-                return acc;
-            }, {});
-
-            let html = `<button class="export-btn" onclick="exportCSV()">📥 Export to Excel (CSV)</button>`;
-            for (const [date, dayBets] of Object.entries(grouped)) {
-                let dailyUnits = 0;
-                let cardsHtml = "";
-                dayBets.forEach(b => {
-                    let resClass = "hist-res-open"; let resText = "OPEN";
-                    if(b.status === 'WIN') { resClass = "hist-res-win"; resText = "WIN (+1)"; dailyUnits++; }
-                    if(b.status === 'LOSS') { resClass = "hist-res-loss"; resText = "LOSS (-1)"; dailyUnits--; }
-                    cardsHtml += `<div class="hist-card"><div style="flex:1">${b.teams}</div><div class="${resClass}">${resText}</div></div>`;
-                });
-                let unitClass = dailyUnits > 0 ? "hist-unit-plus" : (dailyUnits < 0 ? "hist-unit-minus" : "hist-unit-even");
-                let unitSign = dailyUnits > 0 ? "+" : "";
-                
-                // NEW MINIMALIST HISTORY ROW
-                html += `
-                    <div class="hist-day" style="margin-bottom:10px;">
-                        <div class="hist-date-row">
-                            <span>📅 ${date}</span>
-                            <span class="${unitClass}">${unitSign}${dailyUnits} Units</span>
-                        </div>
-                    </div>
-                `;
-            }
-            histDiv.innerHTML = html;
-        }
-
-        function trackAPI(count) {
-            const today = new Date().toISOString().split('T')[0];
-            let storeDate = localStorage.getItem('apiDate');
-            let current = parseInt(localStorage.getItem('apiCount') || "0");
-            if (storeDate !== today) { current = 0; localStorage.setItem('apiDate', today); }
-            current += count;
-            localStorage.setItem('apiCount', current);
-            document.getElementById('apiCounter').innerText = `API: ${current}`;
-        }
-        trackAPI(0);
-
-        function switchTab(tab) {
-            document.getElementById('liveView').style.display = 'none';
-            document.getElementById('schedView').style.display = 'none';
-            document.getElementById('histView').style.display = 'none';
-            document.getElementById('cardView').style.display = 'none';
-            document.getElementById('tabLive').classList.remove('active');
-            document.getElementById('tabSched').classList.remove('active');
-            document.getElementById('tabHist').classList.remove('active');
-            document.getElementById('tabCards').classList.remove('active');
-            document.getElementById('filterSelect').style.display = 'none';
-
-            if(tab === 'live') {
-                document.getElementById('liveView').style.display = 'block';
-                document.getElementById('tabLive').classList.add('active');
-                document.getElementById('filterSelect').style.display = 'block';
-            } else if(tab === 'sched') {
-                document.getElementById('schedView').style.display = 'block';
-                document.getElementById('tabSched').classList.add('active');
-                loadSchedule();
-            } else if(tab === 'cards') {
-                document.getElementById('cardView').style.display = 'block';
-                document.getElementById('tabCards').classList.add('active');
-            } else {
-                document.getElementById('histView').style.display = 'block';
-                document.getElementById('tabHist').classList.add('active');
-                checkBetOutcomes(allMatches); 
-                renderHistory();
-            }
-        }
-
-        function setStrategy(strat, el) {
-            currentStrategy = strat;
-            document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-            el.classList.add('active');
-            applyFilter();
-        }
-
-        async function loadSchedule() {
-            trackAPI(1);
-            const schedDiv = document.getElementById('schedContent');
-            schedDiv.innerHTML = "<p style='text-align:center; color:#888; margin-top:50px;'>Loading Elite Fixtures...</p>";
-            const localDate = new Date().toLocaleDateString('en-CA'); 
-            try {
-                const res = await fetch(`https://v3.football.api-sports.io/fixtures?date=${localDate}`, { headers: { "x-rapidapi-key": API_KEY } });
-                const data = await res.json();
-                const eliteGames = data.response.filter(m => ELITE_IDS.includes(m.league.id));
-                eliteGames.sort((a, b) => a.fixture.timestamp - b.fixture.timestamp);
-
-                if(eliteGames.length === 0) { schedDiv.innerHTML = "<p style='text-align:center; color:#888; margin-top:50px;'>No Elite Games Scheduled Today.</p>"; return; }
-
-                let html = "";
-                eliteGames.forEach(m => {
-                    const date = new Date(m.fixture.timestamp * 1000);
-                    const time = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                    html += `<div class="sched-card"><div style="text-align:center; margin-right:15px;"><div class="sched-time">${time}</div></div><div class="sched-teams"><div class="sched-league">${m.league.country} • ${m.league.name}</div><div>${m.teams.home.name} vs ${m.teams.away.name}</div></div></div>`;
-                });
-                schedDiv.innerHTML = html;
-            } catch(e) { schedDiv.innerHTML = "<p style='text-align:center; color:#da3633;'>Error loading schedule.</p>"; }
-        }
-
-        function playPing() {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
-            gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.4);
-        }
-
-        function togglePilot() {
-            // UNPAUSE LOGIC
-            if(pilotMode && pilotBtn.classList.contains('paused')) {
-                // Close all busy windows
-                document.querySelectorAll('.analysis-box').forEach(el => el.style.display = 'none');
-                document.querySelectorAll('.player-box').forEach(el => el.style.display = 'none');
-                
-                // Reset Button
-                pilotBtn.classList.remove('paused');
-                pilotBtn.innerHTML = `<div class="pilot-dot"></div> ON (5m)`;
-                
-                // Force Scan
-                runScan(true); 
-                return; 
-            }
-
-            pilotMode = !pilotMode;
-            if(pilotMode) {
-                if (Notification.permission !== "granted") { Notification.requestPermission(); }
-                pilotBtn.classList.add('active');
-                pilotBtn.innerHTML = `<div class="pilot-dot"></div> ON (5m)`;
-                playPing(); 
-                runScan(true); 
-                pilotInterval = setInterval(() => runScan(true), 300000); 
-            } else {
-                pilotBtn.classList.remove('active');
-                pilotBtn.classList.remove('paused');
-                pilotBtn.innerHTML = `<div class="pilot-dot"></div> Auto-Pilot`;
-                clearInterval(pilotInterval);
-            }
-        }
-
-        async function runScan(isAuto = false) {
-            trackAPI(1);
-            if(!isAuto) {
-                mainBtn.innerText = "Scanning Global Feeds..."; mainBtn.disabled = true;
-                content.innerHTML = "<p style='text-align:center; margin-top:50px; color:#666'>Fetching live data...</p>";
-            } else {
-                mainBtn.innerText = "🤖 Auto-Scanning...";
-            }
-            try {
-                const res = await fetch("https://v3.football.api-sports.io/fixtures?live=all", {
-                    headers: { "x-rapidapi-key": API_KEY, "x-rapidapi-host": "v3.football.api-sports.io" }
-                });
-                const data = await res.json();
-                if(!data.response || data.results === 0) {
-                    if(!isAuto) content.innerHTML = "<p style='text-align:center; margin-top:50px'>No live games.</p>";
-                    allMatches = [];
-                } else {
-                    allMatches = data.response.filter(m => m.fixture.status.elapsed >= 60 && m.fixture.status.elapsed <= 85);
-                    allMatches.sort((a, b) => b.fixture.status.elapsed - a.fixture.status.elapsed);
-                    checkBetOutcomes(allMatches);
-                    applyFilter(isAuto);
-                }
-            } catch(e) { if(!isAuto) content.innerHTML = "<p style='text-align:center; margin-top:50px; color:#da3633'>Error.</p>"; }
-            mainBtn.innerText = "🎯 SCAN MARKETS"; mainBtn.disabled = false;
-        }
-
-        async function enrichEliteMatches(matches) {
-            // SEQUENTIAL WATERFALL TO PREVENT RATE LIMITING
-            for (const m of matches) {
-                // If it's ELITE or Filter is Elite, auto-analyze
-                // We check if the container is empty first to avoid re-fetching
-                const container = document.getElementById(`stats-${m.fixture.id}`);
-                if (container && container.innerHTML === 'Loading Stats...') {
-                    await deepAnalyze(null, m.fixture.id, m.teams.home.name, m.teams.away.name, m.goals.home, m.goals.away, false, false, m.league.id, m.league.season);
-                    // DELAY BETWEEN MATCHES
-                    await new Promise(r => setTimeout(r, 400));
-                }
-            }
-        }
-
-        function applyFilter(isAuto = false) {
-            const mode = document.getElementById('filterSelect').value;
-            content.innerHTML = "";
-            let highValueFound = false;
-            const placedBets = getHistory().map(b => b.id);
-            let matchesToEnrich = [];
-
-            if(allMatches.length === 0) { content.innerHTML = "<p style='text-align:center; margin-top:50px; color:#888'>No games in 60-85min window.</p>"; return; }
-
-            const filtered = allMatches.filter(m => {
-                const league = (m.league.name || "").toLowerCase();
-                const blocked = ["friendly", "friendlies", "club friendlies", "u19", "u20", "u21", "u23", "youth", "reserve", "reserves"];
-                if(blocked.some(word => league.includes(word))) return false; 
-                
-                const lid = m.league.id;
-                const country = m.league.country;
-                let leagueMatch = true;
-                if (mode === 'elite') leagueMatch = ELITE_IDS.includes(lid); 
-                else if (mode === 'europe') leagueMatch = (EU_COUNTRIES.includes(country) || ELITE_IDS.includes(lid)); 
-                
-                if (!leagueMatch) return false;
-
-                if (currentStrategy === 'all') return true;
-                if (currentStrategy === 'losing') return (m.goals.home < m.goals.away); 
-                if (currentStrategy === 'red') {
-                    if(!m.events) return false;
-                    return m.events.some(e => e.type === 'Card' && e.detail === 'Red Card');
-                }
-                if (currentStrategy === 'late') return (m.fixture.status.elapsed >= 80);
-                if (currentStrategy === 'imminent') {
-                    // Logic for Goal Imminent:
-                    // 1. High Pressure (hPercent or aPercent > 70%)
-                    // 2. Significant xG relative to score
-                    // 3. High recent momentum
-                    // 4. Heavy Siege situation
-                    const card = document.getElementById(`card-${m.fixture.id}`);
-                    const isSiege = card && card.querySelector('.pred-text') && card.querySelector('.pred-text').innerText.includes('SIEGE');
-                    const hasPulse = card && (card.classList.contains('pulse-home') || card.classList.contains('pulse-away'));
-                    return isSiege || hasPulse;
-                }
-                
-                if (currentStrategy === 'drought') {
-                    if (m.goals.home + m.goals.away === 0) return false; 
-                    if (!m.events) return false;
-                    
-                    const goalTimes = m.events
-                        .filter(e => e.type === 'Goal')
-                        .map(e => e.time.elapsed + (e.time.extra || 0));
-
-                    if (goalTimes.length === 0) return false;
-
-                    const lastGoalTime = Math.max(...goalTimes);
-                    const timeSince = m.fixture.status.elapsed - lastGoalTime;
-
-                    return (timeSince > 50);
-                }
-                
-                return true;
-            });
-
-            if(filtered.length === 0) {
-                content.innerHTML = `<p style='text-align:center; margin-top:50px; color:#888'>No games found for ${currentStrategy.toUpperCase()} filter.</p>`;
-            } else {
-                filtered.forEach(m => {
-                    const isElite = ELITE_IDS.includes(m.league.id);
-                    const isPlaced = placedBets.includes(m.fixture.id);
-                    createCard(m, isPlaced, isElite);
-                    if(isElite) matchesToEnrich.push(m);
-                });
-            }
-            if(isAuto && highValueFound) playPing();
-            
-            // TRIGGER AUTO ENRICHMENT FOR ELITE MATCHES
-            if(matchesToEnrich.length > 0) {
-                enrichEliteMatches(matchesToEnrich);
-            }
-        }
-
-        function createCard(m, isPlaced, isElite) {
-            const div = document.createElement('div');
-            div.className = `match-card ${isPlaced ? 'placed' : ''}`;
-            div.id = `card-${m.fixture.id}`;
-            
-            // Fetch standings for card
-            getStandings(m.fixture.id, m.teams.home.id, m.teams.away.id, m.league.id, m.league.season);
-
-            const h = m.teams.home;
-            const a = m.teams.away;
-            const s = m.goals;
-            const t = m.fixture.status.elapsed;
-            const lid = m.league.id;
-            const sid = m.league.season;
-            
-            let refName = "";
-            if (m.fixture.referee) { refName = `<span class="ref-name">👮 ${m.fixture.referee.split(',')[0]}</span>`; }
-            
-            let hGoals = "", aGoals = "";
-            let hRed = false, aRed = false;
-
-            if (m.events) {
-                hGoals = m.events.filter(e => e.type === 'Goal' && e.team.id === h.id).map(e => e.time.elapsed + "'").join(', ');
-                aGoals = m.events.filter(e => e.type === 'Goal' && e.team.id === a.id).map(e => e.time.elapsed + "'").join(', ');
-                hRed = m.events.some(e => e.type === 'Card' && e.detail === 'Red Card' && e.team.id === h.id);
-                aRed = m.events.some(e => e.type === 'Card' && e.detail === 'Red Card' && e.team.id === a.id);
-            }
-
-            const hRedBadge = hRed ? "<div class='red-card-badge'>🟥 RED CARD</div>" : "";
-            const aRedBadge = aRed ? "<div class='red-card-badge'>🟥 RED CARD</div>" : "";
-            const placedBadge = isPlaced ? "<div class='placed-badge'>✅ BET PLACED</div>" : "";
-
-            let upsetHtml = "";
-            if (ELITE_IDS.includes(lid) && s.home < s.away && (s.away - s.home === 1)) {
-                upsetHtml = `<div class="upset-badge">🔥 UPSET ALERT: ${h.name} Chasing!</div>`;
-            }
-
-            let predText = "Monitoring...";
-            let confVal = 0;
-            let confClass = "conf-low";
-
-            if (s.home === s.away) {
-                if (s.home > 1) { predText = "⚔️ High Score Draw"; confVal = 78; }
-                else if (s.home === 0) { predText = "🛡️ 0-0 Stalemate"; confVal = 70; }
-                else { predText = "⚠️ Tight Match"; confVal = 75; }
-                if(hRed || aRed) { predText = "⚔️ 10 Men vs 11"; confVal = 85; }
-            } 
-            else if (Math.abs(s.home - s.away) === 1) {
-                predText = "⚽ Late Goal Likely";
-                confVal = (t > 75) ? 90 : 82;
-            } 
-            else {
-                predText = "🔒 Result Likely Safe";
-                confVal = 94;
-            }
-            
-            if(upsetHtml !== "") { predText = "🔥 Favorite Chasing"; confVal = 95; }
-            if(confVal >= 80) confClass = "conf-high"; else if(confVal >= 60) confClass = "conf-med";
-
-            // AUTO ANALYSIS CONTAINER (If Elite, we show "Loading Stats..." else we show the button)
-            let analysisBlock = "";
-            if(isElite) {
-                analysisBlock = `<div id="stats-${m.fixture.id}" class="analysis-box" style="display:block; text-align:center; color:#888;">Loading Stats...</div>`;
-            } else {
-                analysisBlock = `<div class="btn-row">
-                    <button class="analyze-btn" id="an-btn-${m.fixture.id}" onclick="deepAnalyze(this, ${m.fixture.id}, '${h.name}', '${a.name}', ${s.home}, ${s.away}, ${hRed}, ${aRed}, ${lid}, ${sid})">⚡ Analyze</button>
-                    <button class="player-btn" id="pl-btn-${m.fixture.id}" onclick="checkPlayers(this, ${m.fixture.id})">🕵️ Check Players</button>
-                </div>
-                <div id="stats-${m.fixture.id}" class="analysis-box"></div>`;
-            }
-
-            // If elite, the player button is put in a separate row below or integrated
-            let playerBtnIfElite = "";
-            if(isElite) {
-                playerBtnIfElite = `<div class="btn-row"><button class="player-btn" id="pl-btn-${m.fixture.id}" onclick="checkPlayers(this, ${m.fixture.id})">🕵️ Check Players</button></div>`;
-            }
-
-            div.innerHTML = `
-                ${placedBadge}
-                <div class="league-name">${m.league.country} • ${m.league.name}</div>
-                <div class="score-row">
-                    <div class="team-col" style="align-items:flex-end; text-align:right;">
-                        <div style="display:flex; align-items:center;">
-                            <span id="rank-h-${m.fixture.id}" class="rank-on-card"></span>
-                            <span class="team-name">${h.name} <span class="pos-badge" id="pos-h-${m.fixture.id}"></span></span>
-                        </div>
-                        <span class="goal-times">${hGoals}</span>
-                        ${hRedBadge}
-                    </div>
-                    <span class="score-box">${s.home}-${s.away}</span>
-                    <div class="team-col" style="align-items:flex-start; text-align:left;">
-                        <div style="display:flex; align-items:center;">
-                            <span class="team-name">${a.name} <span class="pos-badge" id="pos-a-${m.fixture.id}"></span></span>
-                            <span id="rank-a-${m.fixture.id}" class="rank-on-card"></span>
-                        </div>
-                        <span class="goal-times">${aGoals}</span>
-                        ${aRedBadge}
-                    </div>
-                </div>
-                <div style="text-align:center; color:#888; font-size:0.8rem; margin-top:5px;">${t}' Played ${refName}</div>
-                ${upsetHtml}
-                <div class="pred-row">
-                    <span class="pred-text" id="pred-text-${m.fixture.id}">${predText}</span>
-                    <span class="conf-badge ${confClass}" id="pred-badge-${m.fixture.id}">${confVal}%</span>
-                </div>
-                
-                ${analysisBlock}
-                
-                <div class="btn-row">
-                    <a href="https://www.bet365.com/#/IP/B1" target="_blank" class="bet365-btn">Bet365</a>
-                    <button class="mark-btn ${isPlaced ? 'active' : ''}" onclick="toggleBet(${m.fixture.id}, ${s.home}, ${s.away}, '${h.name} vs ${a.name}')">${isPlaced ? '✅' : '📌'}</button>
-                </div>
-                
-                ${playerBtnIfElite}
-                
-                <div id="p-${m.fixture.id}" class="player-box"></div>
-            `;
-            content.appendChild(div);
-        }
-
-        async function getStandings(fid, hId, aId, lid, sid) {
-            try {
-                const res = await fetch(`https://v3.football.api-sports.io/standings?league=${lid}&season=${sid}`, { headers: { "x-rapidapi-key": API_KEY } });
-                const data = await res.json();
-                if(data.response && data.response.length > 0) {
-                    const standings = data.response[0].league.standings[0];
-                    const homePos = standings.find(s => s.team.id === hId);
-                    const awayPos = standings.find(s => s.team.id === aId);
-                    
-                    if(homePos) {
-                        const hBadge = document.getElementById(`pos-h-${fid}`);
-                        if(hBadge) hBadge.innerText = homePos.rank;
-                        const match = allMatches.find(m => m.fixture.id === fid);
-                        if(match) match.homePos = homePos.rank;
-                    }
-                    if(awayPos) {
-                        const aBadge = document.getElementById(`pos-a-${fid}`);
-                        if(aBadge) aBadge.innerText = awayPos.rank;
-                        const match = allMatches.find(m => m.fixture.id === fid);
-                        if(match) match.awayPos = awayPos.rank;
-                    }
-                }
-            } catch(e) {}
-        }
-
-        async function deepAnalyze(btn, id, hName, aName, hGoals, aGoals, hRed, aRed, leagueId, season) {
-            trackAPI(3);
-            const statBox = document.getElementById(`stats-${id}`);
-            if(btn) btn.innerText = "Scanning..."; // Only if button exists (non-elite)
-            
-            // No loading text for auto-enrich as it's already there
-
-            try {
-                // SEQUENTIAL FETCH TO AVOID RATE LIMITS (Stability Fix)
-                const statRes = await fetch(`https://v3.football.api-sports.io/fixtures/statistics?fixture=${id}`, { headers: { "x-rapidapi-key": API_KEY } });
-                const statData = await statRes.json();
-                
-                const oddsRes = await fetch(`https://v3.football.api-sports.io/odds/live?fixture=${id}`, { headers: { "x-rapidapi-key": API_KEY } });
-                const oddsData = await oddsRes.json();
-                
-                const standRes = await fetch(`https://v3.football.api-sports.io/standings?league=${leagueId}&season=${season}`, { headers: { "x-rapidapi-key": API_KEY } });
-                const standData = await standRes.json();
-
-                let hStats = [], aStats = [];
-                let isSynthetic = false;
-
-                if(!statData.response || statData.response.length === 0) {
-                    isSynthetic = true;
-                    const playerRes = await fetch(`https://v3.football.api-sports.io/fixtures/players?fixture=${id}`, { headers: { "x-rapidapi-key": API_KEY } });
-                    const playerData = await playerRes.json();
-                    
-                    if(playerData.response && playerData.response.length > 0) {
-                        let hTotalShots = 0, aTotalShots = 0, hOnTarget = 0, aOnTarget = 0;
-                        playerData.response[0].players.forEach(p => { hTotalShots += (p.statistics[0].shots.total||0); hOnTarget += (p.statistics[0].shots.on||0); });
-                        playerData.response[1].players.forEach(p => { aTotalShots += (p.statistics[0].shots.total||0); aOnTarget += (p.statistics[0].shots.on||0); });
-                        
-                        hStats = [{type:"Total Shots",value:hTotalShots}, {type:"Shots on Goal",value:hOnTarget}, {type:"Corner Kicks",value:0}];
-                        aStats = [{type:"Total Shots",value:aTotalShots}, {type:"Shots on Goal",value:aOnTarget}, {type:"Corner Kicks",value:0}];
-                    } else {
-                        statBox.innerHTML = "<div class='ignore-msg'>⚠️ MATCH IGNORED: Insufficient Data</div>";
-                        document.getElementById(`card-${id}`).classList.add('ghost');
-                        if(btn) btn.innerText = "⚡ Analyze";
-                        return;
-                    }
-                } else {
-                    hStats = statData.response[0].statistics;
-                    aStats = statData.response[1].statistics;
-                }
-
-                let hRank = "", aRank = "";
-                let hForm = "", aForm = "";
-                if(standData.response && standData.response.length > 0) {
-                    const table = standData.response[0].league.standings[0];
-                    const hTeam = table.find(t => t.team.name === hName);
-                    const aTeam = table.find(t => t.team.name === aName);
-                    const formatForm = (f) => f.split('').map(c => `<span class="form-${c.toLowerCase()}">${c}</span>`).join('');
-                    if(hTeam) { hRank = `<span class="rank-badge">[${hTeam.rank}]</span>`; hForm = `<span class="form-badge">${formatForm(hTeam.form.slice(-5))}</span>`; }
-                    if(aTeam) { aRank = `<span class="rank-badge">[${aTeam.rank}]</span>`; aForm = `<span class="form-badge">${formatForm(aTeam.form.slice(-5))}</span>`; }
-                    
-                    // UPDATE CARD RANKS
-                    if(hTeam) document.getElementById(`rank-h-${id}`).innerText = `[#${hTeam.rank}]`;
-                    if(aTeam) document.getElementById(`rank-a-${id}`).innerText = `[#${aTeam.rank}]`;
-                }
-
-                const getStat = (arr, type) => { 
-                    const i = arr.find(s => s.type === type || s.type === type.replace(" ", "")); 
-                    if(i && i.value) return parseFloat(i.value);
-                    return 0; 
-                };
-
-                let hSoT = getStat(hStats, "Shots on Goal");
-                let aSoT = getStat(aStats, "Shots on Goal");
-                let hTotal = getStat(hStats, "Total Shots");
-                let aTotal = getStat(aStats, "Total Shots");
-                let hCorn = getStat(hStats, "Corner Kicks");
-                let aCorn = getStat(aStats, "Corner Kicks");
-                
-                // --- NEW IMPROVED METRICS ---
-                // 1. Danger Zone Entries (Deep Completions/Box Entries proxy)
-                const hDanger = getStat(hStats, "Passes %") > 0 ? (hCorn * 2) + (hSoT * 1.5) : 0;
-                const aDanger = getStat(aStats, "Passes %") > 0 ? (aCorn * 2) + (aSoT * 1.5) : 0;
-                
-                // 2. Defensive Fatigue (Clearance to Tackle Ratio)
-                const hClear = getStat(hStats, "Clearances");
-                const hTack = getStat(hStats, "Tackles") || 1;
-                const aClear = getStat(aStats, "Clearances");
-                const aTack = getStat(aStats, "Tackles") || 1;
-                const hFatigue = hClear / hTack > 2.0; // High ratio = pinned in
-                const aFatigue = aClear / aTack > 2.0;
-                
-                // 3. Team Foul Pressure (Ref Breaking Point)
-                const hFouls = getStat(hStats, "Fouls");
-                const aFouls = getStat(aStats, "Fouls");
-                
-                const hxG = isSynthetic ? 0 : getStat(hStats, "expected_goals");
-                const axG = isSynthetic ? 0 : getStat(aStats, "expected_goals");
-
-                const hPressure = isSynthetic 
-                    ? (hSoT * 15) + (hTotal * 3) 
-                    : (hSoT * 5) + (hCorn * 2) + (hTotal * 1);
-                    
-                const aPressure = isSynthetic 
-                    ? (aSoT * 15) + (aTotal * 3) 
-                    : (aSoT * 5) + (aCorn * 2) + (aTotal * 1);
-
-                const totalPress = hPressure + aPressure || 1; 
-                const hPercent = Math.round((hPressure / totalPress) * 100);
-                const aPercent = 100 - hPercent;
-
-                if(totalPress <= 1) {
-                    statBox.innerHTML = "<div class='ignore-msg'>⚠️ MATCH IGNORED: Insufficient Data</div>";
-                    document.getElementById(`card-${id}`).classList.add('ghost');
-                    if(btn) btn.innerText = "⚡ Analyze";
-                    return; 
-                }
-
-                // --- 4. RELATIVE RECENT MOMENTUM ---
-                const prev = momentumHistory[id] || {h: 50, time: 0};
-                const currentTime = Date.now();
-                let trendBadge = "";
-                let isChokehold = false;
-                
-                if (currentTime - prev.time > 60000) { // Check every minute
-                    if(hPercent > prev.h + 8) { trendBadge = " 📈 RISING"; if(hPercent > 80) isChokehold = true; }
-                    else if(hPercent < prev.h - 8) { trendBadge = " 📉 FADING"; if(aPercent > 80) isChokehold = true; }
-                    momentumHistory[id] = {h: hPercent, time: currentTime};
-                }
-
-                const card = document.getElementById(`card-${id}`);
-                card.classList.remove('pulse-home', 'pulse-away');
-                if(hPercent > 70) card.classList.add('pulse-home');
-                if(aPercent > 70) card.classList.add('pulse-away');
-
-                let verdict = "⚖️ BALANCED", vColor = "#d29922", newConf = 75;
-                const diff = Math.abs(hPressure - aPressure);
-
-                if(hxG > 0 || axG > 0) {
-                    if(hxG > (hGoals + 0.6)) { verdict = `📉 ${hName} xG ANOMALY`; vColor = "#a371f7"; newConf = 92; }
-                    else if(axG > (aGoals + 0.6)) { verdict = `📉 ${aName} xG ANOMALY`; vColor = "#a371f7"; newConf = 92; }
-                    else if(totalPress < 20) { verdict = "💤 LOW ENERGY"; vColor = "#8b949e"; newConf = 88; }
-                    else if(diff > 30 || isChokehold) { 
-                        const leader = hPressure > aPressure ? hName : aName;
-                        verdict = isChokehold ? `🚨 CHOKEHOLD: ${leader}` : `🔥 SIEGE: ${leader}`; 
-                        vColor = "#2ea043"; newConf = 95;
-                    } 
-                    else { verdict = "⚔️ END-TO-END"; vColor = "#a371f7"; newConf = 85; }
-                } else {
-                    if(totalPress < 5) { verdict = "⏳ STALEMATE (No Chances)"; vColor = "#8b949e"; newConf = 85; }
-                    else if(diff > (isSynthetic ? 40 : 12) || isChokehold) { 
-                        const leader = hPressure > aPressure ? hName : aName;
-                        verdict = isChokehold ? `🚨 CHOKEHOLD: ${leader}` : `🔥 DOMINATING: ${leader}`; 
-                        vColor = "#2ea043"; newConf = 92;
-                    }
-                    else if(totalPress > 20) { verdict = "⚔️ OPEN GAME"; vColor = "#a371f7"; newConf = 80; }
-                }
-
-                if(pilotMode && newConf >= 90 && !alertedGames.has(id)) {
-                    if (Notification.permission === "granted") { new Notification("Hunter Alert! " + verdict, { body: `${hName} vs ${aName}` }); }
-                    playPing();
-                    alertedGames.add(id);
-                }
-
-                let tips = [];
-                if (hPressure > aPressure + 20 || (hFatigue && aPressure > 10)) tips.push({type: `⚡ ${hName} To Score Next`, conf: hFatigue ? 95 : 92});
-                else if (aPressure > hPressure + 20 || (aFatigue && hPressure > 10)) tips.push({type: `⚡ ${aName} To Score Next`, conf: aFatigue ? 95 : 92});
-                
-                if (hFatigue) tips.push({type: `🩹 ${hName} DEFENSIVE FATIGUE`, conf: 88});
-                if (aFatigue) tips.push({type: `🩹 ${aName} DEFENSIVE FATIGUE`, conf: 88});
-                
-                if (hFouls > 8 && !hRed) tips.push({type: "👮 Home Ref Breaking Point", conf: 85});
-                if (aFouls > 8 && !aRed) tips.push({type: "👮 Away Ref Breaking Point", conf: 85});
-
-                if ((hSoT + aSoT) > 8 && (hGoals + aGoals) === 0) tips.push({type: "⚽ Over 0.5 Goals", conf: 88});
-                if(totalPress < 5 && (hGoals + aGoals) === 0) tips.push({type: "💤 Under 0.5 Goals", conf: 85});
-                
-                let oddsHTML = "<div style='text-align:center; color:#666; font-size:0.8rem; margin-top:5px;'>Odds Locked</div>";
-                if(oddsData.response && oddsData.response.length > 0 && oddsData.response[0].odds.length > 0) {
-                    const vals = oddsData.response[0].odds[0].values;
-                    const homeOdd = vals.find(v => v.value === "Home")?.odd || "-";
-                    const drawOdd = vals.find(v => v.value === "Draw")?.odd || "-";
-                    const awayOdd = vals.find(v => v.value === "Away")?.odd || "-";
-                    const formatOdd = (odd) => {
-                         if(!odd) return "-";
-                         if(odd > 1.8) return `<span class="val-good">${odd} (Value!)</span>`;
-                         return odd;
-                    };
-                    oddsHTML = `<div style="display:flex; justify-content:space-between; margin-top:8px; background:#111; padding:5px; border-radius:4px; font-family:monospace;">
-                        <span style="color:#2ea043">1: ${formatOdd(homeOdd)}</span>
-                        <span style="color:#888">X: ${drawOdd}</span>
-                        <span style="color:#a371f7">2: ${formatOdd(awayOdd)}</span>
-                    </div>`;
-                }
-                
-                let xgHTML = "";
-                if(hxG > 0 || axG > 0) xgHTML = `<div class="stat-bar" style="color:#a371f7"><span>Expected Goals (xG)</span><span class="stat-val">${hxG || 0} - ${axG || 0}</span></div>`;
-
-                let tipsHTML = "";
-                if(tips.length > 0) {
-                    tipsHTML = `<div class="tip-box"><div class="tip-header">🎯 AI Suggestions</div>`;
-                    tips.forEach(t => {
-                        let cClass = t.conf > 85 ? "#2ea043" : "#d29922";
-                        tipsHTML += `<div class="tip-item"><span class="tip-name">${t.type}</span><span style="color:${cClass}; font-weight:bold;">${t.conf}%</span></div>`;
-                    });
-                    tipsHTML += `</div>`;
-                }
-
-                const synthBadge = isSynthetic ? `<span class="synth-badge">[🧬 SYNTH]</span>` : "";
-
-                statBox.innerHTML = `
-                    <div style="text-align:center; margin-bottom:5px; font-weight:bold; color:${vColor}; font-size:1rem;">${verdict}${trendBadge} ${synthBadge}</div>
-                    
-                    <div class="gauge-labels">
-                        <span>${hName} ${hRank} ${hForm} (${hPercent}%)</span>
-                        <span>${aName} ${aRank} ${aForm} (${aPercent}%)</span>
-                    </div>
-                    <div class="gauge-container"><div class="gauge-home" style="width:${hPercent}%"></div><div class="gauge-away" style="width:${aPercent}%"></div></div>
-                    ${xgHTML}
-                    <div class="stat-bar"><span>Shots (Total)</span><span class="stat-val">${hTotal} (${hSoT}) - ${aTotal} (${aSoT})</span></div>
-                    <div class="stat-bar"><span>Corners</span><span class="stat-val">${hCorn} - ${aCorn}</span></div>
-                    ${tipsHTML}
-                    ${oddsHTML}
-                    <button class="copy-btn" onclick="copyTip('${hName}', '${aName}', '${verdict}', ${newConf})">📋 Copy Report</button>
-                `;
-                
-                const predText = document.getElementById(`pred-text-${id}`);
-                if(predText) { predText.innerText = verdict; predText.style.color = vColor; }
-                
-            } catch(e) { statBox.innerHTML = "<div style='color:#da3633;'>Error analyzing.</div>"; }
-            if(btn) btn.innerText = "⚡ Analyze";
-        }
-
-        async function checkPlayers(btn, id) {
-            trackAPI(1);
-            const area = document.getElementById(`p-${id}`);
-            
-            // TOGGLE LOGIC
-            if(area.style.display === 'block') {
-                area.style.display = 'none';
-                btn.innerText = "🕵️ Check Players";
-                return;
-            }
-            
-            area.style.display = 'block';
-            btn.innerText = "❌ Close Players";
-            area.innerHTML = "<div style='color:#888; text-align:center;'>Scanning Players...</div>";
-
-            try {
-                const res = await fetch(`https://v3.football.api-sports.io/fixtures/players?fixture=${id}`, { headers: { "x-rapidapi-key": API_KEY } });
-                const data = await res.json();
-                
-                let players = [];
-                if(data.response && data.response.length > 0) {
-                    data.response.forEach(t => t.players.forEach(p => {
-                        const s = p.statistics[0];
-                        // THREAT RATING (Goals/Assists only)
-                        const hts = (s.shots.on || 0) * 3 + (s.shots.total - (s.shots.on||0) || 0) * 1 + (s.passes.key || 0) * 2 + (s.dribbles.success || 0) * 0.5;
-                        const rating = Math.min(10, hts).toFixed(1);
-
-                        if (hts > 2) {
-                            players.push({
-                                name: p.player.name,
-                                team: t.team.name,
-                                rating: rating,
-                                rawScore: hts,
-                                details: `${s.shots.on||0} SoT, ${s.passes.key||0} KP`
-                            });
-                        }
-                    }));
-                }
-
-                players.sort((a, b) => b.rawScore - a.rawScore);
-                
-                let html = "";
-                if (players.length === 0) {
-                    html = "<div style='text-align:center; color:#888;'>No significant player stats yet.</div>";
-                } else {
-                    players.slice(0, 5).forEach(p => { 
-                        let badgeClass = "rate-med";
-                        let typeText = "Threat";
-                        if (p.rawScore >= 8) { badgeClass = "rate-high"; typeText = "🔥 GOAL THREAT"; }
-                        else if (p.rawScore >= 5) { badgeClass = "rate-med"; typeText = "🅰️ CREATOR"; }
-
-                        html += `
-                            <div class="player-row">
-                                <div>
-                                    <div class="player-name">${p.name} <span style="font-size:0.7rem; color:#666">(${p.team})</span></div>
-                                    <div class="player-detail">${p.details}</div>
-                                </div>
-                                <div style="text-align:right;">
-                                    <div class="player-rating ${badgeClass}">${typeText}</div>
-                                    <div style="font-size:0.7rem; color:#888; margin-top:2px;">RATING: ${p.rating}</div>
-                                </div>
-                            </div>
-                        `;
-                    });
-                }
-                area.innerHTML = html;
-
-            } catch(e) { area.innerHTML = "<div style='color:#da3633; text-align:center;'>Error checking players.</div>"; }
-        }
-
-        // --- NEW CARD SCANNER (ELITE ONLY) ---
-        async function scanGlobalCards(btn) {
-            btn.innerText = "⚠️ Scanning Elite Leagues...";
-            const area = document.getElementById('cardContent');
-            area.innerHTML = "<div style='text-align:center; padding:20px; color:#888'>Scanning player discipline across Elite matches... This may take a moment.</div>";
-            
-            // ELITE FILTER
-            const liveIDs = allMatches
-                .filter(m => ELITE_IDS.includes(m.league.id))
-                .map(m => m.fixture.id);
-
-            if(liveIDs.length === 0) {
-                area.innerHTML = "<div style='text-align:center; padding:20px; color:#da3633'>No live Elite matches to scan.</div>";
-                btn.innerText = "⚠️ SCAN GLOBAL CARD RISKS";
-                return;
-            }
-
-            let riskPlayers = [];
-            
-            // BATCH REQUESTS
-            for (let i = 0; i < liveIDs.length; i += 5) {
-                const batch = liveIDs.slice(i, i + 5);
-                const promises = batch.map(id => 
-                    fetch(`https://v3.football.api-sports.io/fixtures/players?fixture=${id}`, { headers: { "x-rapidapi-key": API_KEY } })
-                    .then(r => r.json())
-                    .catch(e => null)
-                );
-                trackAPI(batch.length);
-                
-                const results = await Promise.all(promises);
-                const pBets = getMarkedPlayers();
-                
-                results.forEach(data => {
-                    if(data && data.response) {
-                        // FIND MATCH & REF INFO
-                        const match = allMatches.find(m => m.fixture.id === data.parameters.fixture);
-                        let refName = match && match.fixture.referee ? match.fixture.referee.split(',')[0] : "Unknown Ref";
-                        let refStrict = "";
-                        
-                        // CALCULATE LIVE REF STRICTNESS
-                        if(match && match.events) {
-                            const fouls = match.events.filter(e => e.type === "Foul").length || 1; // avoid /0
-                            const cards = match.events.filter(e => e.type === "Card").length || 0;
-                            const ratio = cards / fouls;
-                            if (ratio > 0.25) refStrict = `<div class="ref-badge ref-strict">👮 STRICT (${Math.round(ratio*100)}% Card Rate)</div>`;
-                            else if (ratio < 0.1) refStrict = `<div class="ref-badge ref-lenient">💤 LENIENT (${Math.round(ratio*100)}% Card Rate)</div>`;
-                            else refStrict = `<div class="ref-badge">⚖️ NORMAL (${Math.round(ratio*100)}% Card Rate)</div>`;
-                        }
-
-                        data.response.forEach(t => t.players.forEach(p => {
-                            const s = p.statistics[0];
-                            if (s.fouls.committed >= 2 && !s.cards.yellow && !s.cards.red) {
-                                const time = match ? match.fixture.status.elapsed + "'" : "Live";
-                                const uid = `${data.parameters.fixture}-${p.player.id}`;
-                                const isMarked = pBets.includes(uid);
-                                
-                                p.statistics[0].subbed_off = p.player.subbed_off || (s.sub === "out"); // Defensive check
-                                riskPlayers.push({
-                                    uid: uid,
-                                    name: p.player.name,
-                                    team: t.team.name,
-                                    time: time,
-                                    fouls: s.fouls.committed,
-                                    ref: refName,
-                                    refBadge: refStrict,
-                                    isMarked: isMarked,
-                                    isSubbed: s.games.minutes === null || (s.games.sub && s.games.sub === "out") || false,
-                                    pos: match ? (t.team.id === match.teams.home.id ? (match.homePos || "") : (match.awayPos || "")) : ""
-                                });
-                            }
-                        }));
-                    }
-                });
-            }
-
-            riskPlayers.sort((a, b) => b.fouls - a.fouls);
-
-            let html = "";
-            if(riskPlayers.length === 0) {
-                html = "<div style='text-align:center; padding:20px; color:#888'>No high-risk players found in Elite leagues yet.</div>";
-            } else {
-                riskPlayers.forEach(p => {
-                    const activeClass = p.isMarked ? 'active' : '';
-                    const markClass = p.isMarked ? 'marked' : '';
-                    const subbedClass = p.isSubbed ? 'subbed-off' : '';
-                    const tick = p.isMarked ? '✓' : '';
-                    const subLabel = p.isSubbed ? ' <span style="color:var(--red); font-size:0.7rem;">[SUBBED OFF]</span>' : '';
-                    const posLabel = p.pos ? `<span class="pos-badge">${p.pos}</span>` : '';
-                    
-                    html += `
-                        <div class="card-table-row ${markClass} ${subbedClass}">
-                            <div class="card-check-btn ${activeClass}" onclick="togglePlayerBet('${p.uid}', this)">${tick}</div>
-                            <div class="card-player-info">
-                                <div class="card-player-name">${p.name}${subLabel} ${posLabel} <span style="font-weight:normal; color:#666">(${p.team})</span></div>
-                                <div class="card-match-info">${p.time} • Ref: ${p.ref}</div>
-                                ${p.refBadge}
-                            </div>
-                            <div class="card-foul-badge">${p.fouls} Fouls</div>
-                        </div>
-                    `;
-                });
-            }
-            
-            area.innerHTML = html;
-            btn.innerText = "⚠️ SCAN GLOBAL CARD RISKS";
-        }
-
-        function getMarkedPlayers() { return JSON.parse(localStorage.getItem('cardBets') || "[]"); }
-        function togglePlayerBet(uid, el) {
-            let pBets = getMarkedPlayers();
-            if(pBets.includes(uid)) {
-                pBets = pBets.filter(b => b !== uid);
-                el.classList.remove('active');
-                el.innerText = "";
-                el.parentElement.classList.remove('marked');
-            } else {
-                pBets.push(uid);
-                el.classList.add('active');
-                el.innerText = "✓";
-                el.parentElement.classList.add('marked');
-            }
-            localStorage.setItem('cardBets', JSON.stringify(pBets));
-        }
+        });
 
         if ('serviceWorker' in navigator) {
-            const blob = new Blob([`self.addEventListener('fetch', () => {});`], {type: 'application/javascript'});
-            navigator.serviceWorker.register(URL.createObjectURL(blob));
+            navigator.serviceWorker.register('./service-worker.js');
         }
-        let deferredPrompt;
-        const installBtn = document.getElementById('installBtn');
-        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; installBtn.style.display = 'block'; });
-        installBtn.addEventListener('click', async () => { if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt = null; installBtn.style.display = 'none'; } });
+
+        // --- APP LOGIC ---
+
+        async function runAnalysis() {
+            const resultsDiv = document.getElementById('results');
+            const loadingDiv = document.getElementById('loading');
+            
+            resultsDiv.innerHTML = '';
+            loadingDiv.style.display = 'block';
+
+            try {
+                // 1. Fetch Data (Mocking for now so you can test immediately)
+                // In production, replace this with fetch('https://v3.football.api-sports.io/fixtures?date=...', headers...)
+                const matches = await mockFetchData();
+
+                // 2. Analyze & Filter
+                const bestPicks = matches.filter(m => analyzeMatch(m));
+
+                // 3. Generate Combinations (3-folds and 4-folds)
+                const accas = [
+                    ...generateCombinations(bestPicks, 3),
+                    ...generateCombinations(bestPicks, 4)
+                ];
+
+                // 4. Render
+                loadingDiv.style.display = 'none';
+                if(accas.length === 0) {
+                    resultsDiv.innerHTML = '<p style="text-align:center">No accumulators found meeting 4/1 odds criteria today.</p>';
+                    return;
+                }
+
+                // Sort by highest odds
+                accas.sort((a, b) => b.totalOdds - a.totalOdds);
+
+                // Show top 20
+                accas.slice(0, 20).forEach(acca => {
+                    renderAccaCard(acca, resultsDiv);
+                });
+
+            } catch (error) {
+                console.error(error);
+                loadingDiv.innerText = "Error fetching data. Check API Key.";
+            }
+        }
+
+        // --- THE BRAIN: ANALYSIS ENGINE ---
+        
+        function analyzeMatch(match) {
+            // Simple Logic: 
+            // We only want matches where a team has >50% recent win rate 
+            // AND the odds are between 1.5 and 2.2 (Sweet spot for Accas)
+            const homeForm = match.home_form_pct; 
+            const awayForm = match.away_form_pct;
+            const homeOdds = match.odds_home;
+
+            // Strategy: Back Home Favorites with Good Form
+            if (homeForm > 60 && homeOdds >= 1.4 && homeOdds <= 2.3) {
+                match.prediction = "Home Win";
+                match.selectedOdds = homeOdds;
+                return true;
+            }
+            return false;
+        }
+
+        function generateCombinations(arr, k) {
+            const results = [];
+            
+            function combine(start, combo) {
+                if (combo.length === k) {
+                    const totalOdds = combo.reduce((acc, match) => acc * match.selectedOdds, 1);
+                    if (totalOdds >= MIN_ODDS) {
+                        results.push({
+                            matches: combo,
+                            totalOdds: totalOdds.toFixed(2),
+                            returnOn10: (totalOdds * 10).toFixed(2)
+                        });
+                    }
+                    return;
+                }
+                for (let i = start; i < arr.length; i++) {
+                    combine(i + 1, [...combo, arr[i]]);
+                }
+            }
+            combine(0, []);
+            return results;
+        }
+
+        function renderAccaCard(acca, container) {
+            const card = document.createElement('div');
+            card.className = 'acca-card';
+            
+            let legsHtml = acca.matches.map(m => `
+                <div class="leg">
+                    <span class="leg-match">${m.home} v ${m.away}</span>
+                    <span class="leg-bet">${m.prediction} @ ${m.selectedOdds}</span>
+                </div>
+            `).join('');
+
+            card.innerHTML = `
+                <div class="acca-header">
+                    <span class="acca-odds">${acca.matches.length}-Fold @ ${acca.totalOdds}</span>
+                    <span class="acca-return">Returns £${acca.returnOn10}</span>
+                </div>
+                ${legsHtml}
+            `;
+            container.appendChild(card);
+        }
+
+        // --- DATA SIMULATION (Remove this and use real fetch for production) ---
+        function mockFetchData() {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    // Simulating a list of matches with form stats attached
+                    const dummyData = [
+                        { home: "Arsenal", away: "Brighton", home_form_pct: 80, odds_home: 1.7 },
+                        { home: "Liverpool", away: "Chelsea", home_form_pct: 75, odds_home: 1.9 },
+                        { home: "Man City", away: "Spurs", home_form_pct: 90, odds_home: 1.45 },
+                        { home: "Villa", away: "Wolves", home_form_pct: 65, odds_home: 2.1 },
+                        { home: "Newcastle", away: "Fulham", home_form_pct: 70, odds_home: 1.6 },
+                        { home: "Everton", away: "Luton", home_form_pct: 55, odds_home: 2.0 },
+                        { home: "Leeds", away: "Hull", home_form_pct: 60, odds_home: 1.8 }
+                    ];
+                    resolve(dummyData);
+                }, 800);
+            });
+        }
     </script>
 </body>
 </html>
