@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acca Master: Strategist</title>
+    <title>Acca Master: v10 Fixer</title>
     <link rel="manifest" href="manifest.json">
     <style>
         :root { --primary: #00ff88; --safe: #4cc9f0; --risk: #f72585; --bg: #121212; --card: #1e1e1e; --text: #ffffff; }
@@ -11,33 +11,27 @@
         h1 { color: var(--primary); margin-bottom: 5px; font-size: 1.6rem; }
         .badge { background: #333; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; color: #aaa; vertical-align: middle; margin-left: 8px; }
         
-        /* Controls */
         .controls { margin-bottom: 20px; }
         button#scanBtn { background: linear-gradient(135deg, var(--primary), #00cc6a); color: #000; border: none; padding: 16px; border-radius: 12px; font-weight: 800; width: 100%; font-size: 1rem; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(0,255,136,0.3); transition: transform 0.2s; }
         button#scanBtn:active { transform: scale(0.98); }
         button:disabled { opacity: 0.6; background: #444; cursor: wait; box-shadow: none; }
         
-        /* Cards */
         .acca-card { background: var(--card); border-radius: 16px; padding: 16px; margin-bottom: 20px; border-left: 5px solid var(--primary); box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
         .acca-header { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding-bottom: 12px; margin-bottom: 12px; align-items: center; }
         .acca-title { font-weight: 800; color: var(--primary); font-size: 1.1rem; }
         .acca-roi { font-size: 0.9rem; color: #ccc; }
         
-        /* Legs */
         .leg { display: flex; justify-content: space-between; margin-bottom: 12px; align-items: center; background: #252525; padding: 10px; border-radius: 8px; }
         .leg-info { display: flex; flex-direction: column; gap: 3px; }
         .leg-match { font-weight: 600; font-size: 0.95rem; }
-        .leg-meta { font-size: 0.75rem; color: #888; }
         
-        /* Badges */
         .tag { font-size: 0.7rem; padding: 3px 8px; border-radius: 20px; font-weight: bold; width: fit-content; }
-        .tag-safe { background: rgba(76, 201, 240, 0.2); color: var(--safe); } /* Banker */
-        .tag-value { background: rgba(0, 255, 136, 0.2); color: var(--primary); } /* Value */
-        .tag-form { border: 1px solid #444; color: #aaa; margin-left: 5px; } /* Form string */
+        .tag-safe { background: rgba(76, 201, 240, 0.2); color: var(--safe); }
+        .tag-value { background: rgba(0, 255, 136, 0.2); color: var(--primary); }
+        .tag-form { border: 1px solid #444; color: #aaa; margin-left: 5px; }
 
         .odds-box { background: #111; padding: 6px 10px; border-radius: 6px; font-weight: bold; color: var(--primary); min-width: 45px; text-align: center; }
 
-        /* Console & Toast */
         #console { background: #000; color: #00ff88; font-family: monospace; padding: 15px; border-radius: 8px; font-size: 0.8rem; margin-bottom: 20px; height: 140px; overflow-y: scroll; border: 1px solid #333; line-height: 1.5; }
         .log-warn { color: #f72585 !important; }
         .log-info { color: #4cc9f0 !important; }
@@ -45,13 +39,10 @@
         #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 100; left: 50%; bottom: 30px; transform: translateX(-50%); box-shadow: 0 5px 15px rgba(0,0,0,0.5); font-weight: bold; }
         #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
         
-        /* Actions */
         .card-actions { display: flex; gap: 10px; margin-top: 15px; }
         .action-btn { flex: 1; padding: 12px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; font-size: 0.9rem; transition: background 0.2s; }
         .btn-copy { background: #333; color: #fff; }
-        .btn-copy:hover { background: #444; }
         .btn-open { background: #1a5c30; color: #fff; }
-        .btn-open:hover { background: #227a40; }
         
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
@@ -59,13 +50,13 @@
 </head>
 <body>
 
-    <h1>Acca Master <span class="badge">v9 Strategist</span></h1>
-    <p style="color:#888; margin-top:0; margin-bottom:20px; font-size:0.9rem;">Form Analysis • Safety Nets • Smart Markets</p>
+    <h1>Acca Master <span class="badge">v10 Fixer</span></h1>
+    <p style="color:#888; margin-top:0; margin-bottom:20px; font-size:0.9rem;">Min Odds: 1.4 • Direct Odds Fetching</p>
 
-    <div id="console">System Ready.<br>Waiting to initialize Stratagem Engine...</div>
+    <div id="console">System Ready.<br>Waiting to initialize...</div>
 
     <div class="controls">
-        <button onclick="runStrategistScan()" id="scanBtn">RUN ANALYSIS</button>
+        <button onclick="runReliableScan()" id="scanBtn">SEARCH TOP 10 LEAGUES</button>
     </div>
 
     <div id="results"></div>
@@ -73,10 +64,11 @@
 
     <script>
         // --- ⚙️ CONFIGURATION ---
-        const API_KEY = '0f29a2f96e9dd4231cee515cc5ec52b0'; // Your Key
+        const API_KEY = '0f29a2f96e9dd4231cee515cc5ec52b0'; 
         const BASE_URL = 'https://v3.football.api-sports.io';
         
-        const MIN_ACCA_ODDS = 3.5; // Minimum total odds
+        const MIN_ACCA_ODDS = 3.5; 
+        const MIN_IND_ODDS = 1.40; // UPDATED as requested
         const CURRENT_SEASON = 2025; 
         
         // Top 10 Leagues
@@ -90,11 +82,10 @@
             c.scrollTop = c.scrollHeight;
         }
 
-        // --- 🧠 GLOBAL DATA STORE ---
-        let teamStats = {}; // Stores form and goals data
+        let teamStats = {}; 
 
-        // --- 🚀 MAIN ENGINE ---
-        async function runStrategistScan() {
+        // --- 🚀 RELIABLE ENGINE ---
+        async function runReliableScan() {
             const btn = document.getElementById('scanBtn');
             const resDiv = document.getElementById('results');
             
@@ -102,43 +93,68 @@
             resDiv.innerHTML = '';
             document.getElementById('console').innerHTML = ''; 
             
-            log("Initializing Strategist Engine...", 'info');
+            log("Starting Reliable Scan (v10)...", 'info');
 
             try {
-                // STEP 1: Fetch Standings (For Form Analysis)
-                // We do this first to populate our 'Knowledge Base'
-                log(`Analyzing Form for ${LEAGUES.length} Leagues...`);
+                // STEP 1: Fetch Standings (For Form)
+                log(`Loading Form Data...`);
                 await buildKnowledgeBase();
-                
-                // STEP 2: Fetch Odds (Matches)
+
+                // STEP 2: Find Fixtures first (Since we know this endpoint works!)
                 const d1 = new Date().toISOString().split('T')[0];
                 const t = new Date(); t.setDate(t.getDate() + 1);
                 const d2 = t.toISOString().split('T')[0];
                 
-                log(`Scanning Markets: ${d1} & ${d2}`);
-                const matches = await fetchAllMatches(d1, d2);
+                log(`Finding matches for ${d1} & ${d2}...`);
+                const [games1, games2] = await Promise.all([
+                    fetchFixtures(d1),
+                    fetchFixtures(d2)
+                ]);
                 
-                if (matches.length === 0) throw new Error("No matches found.");
+                const allGames = [...games1, ...games2];
+                log(`Found ${allGames.length} total games.`);
+                
+                // STEP 3: Filter for Target Leagues
+                const targetGames = allGames.filter(g => LEAGUES.includes(g.league.id));
+                log(`${targetGames.length} games in Big 10 Leagues.`);
 
-                // STEP 3: The "Smart" Filter
-                log(`Applying 5-Point Strategy to ${matches.length} matches...`);
-                const picks = [];
+                if (targetGames.length === 0) throw new Error("No big league games found today/tomorrow.");
+
+                // STEP 4: FETCH ODDS INDIVIDUALLY (The Fix)
+                log(`Fetching odds for ${targetGames.length} matches individually...`);
+                const matchesWithOdds = [];
                 
-                for (const m of matches) {
+                // We fetch in batches to be safe, though parallel is fine for 30-50 reqs
+                const oddsPromises = targetGames.map(g => fetchGameOdds(g.fixture.id));
+                const oddsResults = await Promise.all(oddsPromises);
+                
+                // Merge Odds into Game Objects
+                for(let i=0; i<targetGames.length; i++) {
+                    if(oddsResults[i]) {
+                        targetGames[i].odds = oddsResults[i]; // Attach odds
+                        matchesWithOdds.push(targetGames[i]);
+                    }
+                }
+                
+                log(`Successfully retrieved odds for ${matchesWithOdds.length} matches.`, 'info');
+
+                // STEP 5: Analyze
+                const picks = [];
+                for (const m of matchesWithOdds) {
                     const pick = analyzeMatch(m);
                     if (pick) picks.push(pick);
                 }
 
-                log(`Identified ${picks.length} High-Value Targets.`, 'info');
+                log(`Identified ${picks.length} Value Picks (Odds >= 1.4).`, 'info');
                 
-                if (picks.length < 3) throw new Error("Not enough matches passed the strict criteria.");
+                if (picks.length < 3) throw new Error("Not enough matches met criteria.");
 
-                // STEP 4: Build Smart Accas
+                // STEP 6: Build Accas
                 const accas = buildSmartAccas(picks);
-                log(`Constructed ${accas.length} Optimized Accumulators.`);
+                log(`Generated ${accas.length} Accumulators.`);
 
                 if (accas.length === 0) {
-                    resDiv.innerHTML = "<p style='text-align:center; color:#888;'>Matches analyzed, but no combinations met the safety/odds profile.</p>";
+                    resDiv.innerHTML = "<p style='text-align:center; color:#888;'>No combinations met the 3.5+ total odds criteria.</p>";
                 } else {
                     accas.slice(0, 30).forEach((acca) => renderAcca(acca, resDiv));
                 }
@@ -150,26 +166,28 @@
             }
         }
 
-        // --- 📚 KNOWLEDGE BASE (Form & Stats) ---
-        async function buildKnowledgeBase() {
-            // We fetch standings for all target leagues
-            const promises = LEAGUES.map(id => fetchLeagueStandings(id));
-            const results = await Promise.all(promises);
-            
-            results.forEach(leagueData => {
-                if (!leagueData) return;
-                leagueData.forEach(standing => { // Iterate through teams
-                    const teamId = standing.team.id;
-                    teamStats[teamId] = {
-                        name: standing.team.name,
-                        form: standing.form, // e.g. "WWLDW"
-                        goalsFor: standing.all.goals.for / standing.all.played, // Avg Goals Scored
-                        goalsAgainst: standing.all.goals.against / standing.all.played, // Avg Goals Conceded
-                        rank: standing.rank
-                    };
+        // --- 📡 API CALLS ---
+        
+        async function fetchFixtures(date) {
+            // Get basic list
+            try {
+                const res = await fetch(`${BASE_URL}/fixtures?date=${date}&timezone=Europe/London`, {
+                    headers: { "x-rapidapi-key": API_KEY }
                 });
-            });
-            log(`Database updated with stats for ${Object.keys(teamStats).length} teams.`);
+                const json = await res.json();
+                return json.response || [];
+            } catch (e) { return []; }
+        }
+
+        async function fetchGameOdds(fixtureId) {
+            // Get odds for specific game ID (Bypasses season/league issues)
+            try {
+                const res = await fetch(`${BASE_URL}/odds?fixture=${fixtureId}`, {
+                    headers: { "x-rapidapi-key": API_KEY }
+                });
+                const json = await res.json();
+                return json.response[0] || null; // Return the first odds object
+            } catch (e) { return null; }
         }
 
         async function fetchLeagueStandings(leagueId) {
@@ -182,41 +200,38 @@
             } catch (e) { return []; }
         }
 
-        async function fetchAllMatches(d1, d2) {
-            let all = [];
-            const promises = [];
-            for (let id of LEAGUES) {
-                promises.push(fetchLeagueOdds(id, d1));
-                promises.push(fetchLeagueOdds(id, d2));
-            }
+        async function buildKnowledgeBase() {
+            const promises = LEAGUES.map(id => fetchLeagueStandings(id));
             const results = await Promise.all(promises);
-            results.forEach(r => all = [...all, ...r]);
-            return all;
-        }
-
-        async function fetchLeagueOdds(id, date) {
-            try {
-                const res = await fetch(`${BASE_URL}/odds?league=${id}&season=${CURRENT_SEASON}&date=${date}&bookmaker=6`, {
-                    headers: { "x-rapidapi-key": API_KEY }
+            results.forEach(leagueData => {
+                if (!leagueData) return;
+                leagueData.forEach(standing => { 
+                    const teamId = standing.team.id;
+                    teamStats[teamId] = {
+                        name: standing.team.name,
+                        form: standing.form, 
+                        goalsFor: standing.all.goals.for / standing.all.played,
+                        goalsAgainst: standing.all.goals.against / standing.all.played
+                    };
                 });
-                const json = await res.json();
-                return json.response || [];
-            } catch (e) { return []; }
+            });
         }
 
-        // --- 🕵️ THE STRATEGIST (Analysis Logic) ---
+        // --- 🕵️ ANALYSIS ---
         function analyzeMatch(m) {
-            if (!m.bookmakers || !m.bookmakers[0]) return null;
+            // Note: Structure for /odds endpoint response attached to m.odds
+            if (!m.odds || !m.odds.bookmakers || !m.odds.bookmakers.length) return null;
             
             const homeId = m.teams.home.id;
             const awayId = m.teams.away.id;
             const homeStats = teamStats[homeId];
             const awayStats = teamStats[awayId];
             
-            // If we don't have stats, we skip (Strict Mode)
-            if (!homeStats || !awayStats) return null;
+            if (!homeStats || !awayStats) return null; // Strict mode
 
-            const bets = m.bookmakers[0].bets;
+            const bookie = m.odds.bookmakers.find(b => b.id === 6) || m.odds.bookmakers[0]; // Prefer Bet365, else take first
+            const bets = bookie.bets;
+            
             const getOdd = (id, val) => {
                 const mk = bets.find(b => b.id === id);
                 if (!mk) return null;
@@ -226,71 +241,51 @@
 
             const candidates = [];
 
-            // --- STRATEGY 1: FORM CHECK (Match Winner) ---
+            // 1. HOME WIN (Form Check)
             const homeWin = getOdd(1, "Home");
-            
-            // Only back Home if: Odds > 1.3 AND Form is decent (No more than 2 losses in last 5)
-            // AND Opponent is not on a hot streak (WWWWW)
-            if (homeWin && homeWin >= 1.3 && homeWin <= 2.1) {
+            if (homeWin && homeWin >= MIN_IND_ODDS && homeWin <= 2.3) {
                 const homeLosses = (homeStats.form.match(/L/g) || []).length;
-                const awayWins = (awayStats.form.match(/W/g) || []).length;
-                
-                if (homeLosses <= 2 && awayWins < 4) {
+                if (homeLosses <= 2) {
                     candidates.push({ 
                         sel: `${homeStats.name} Win`, 
                         odd: homeWin, 
-                        type: 'Banker', // Potential Banker
+                        type: 'Banker',
                         reason: `Form: ${homeStats.form}`
                     });
                 }
             }
-
-            // --- STRATEGY 2: SAFETY NET (Double Chance) ---
-            // If Home Win is a bit risky (odds > 1.8), check Double Chance
-            if (homeWin > 1.8) {
-                const dc = getOdd(12, "Home/Draw");
-                if (dc && dc >= 1.25 && dc <= 1.55) {
-                    candidates.push({
-                        sel: `${homeStats.name} (Double Chance)`,
-                        odd: dc,
-                        type: 'Anchor', // Great for anchoring accas
-                        reason: "Safety Net Applied"
+            
+            // 2. AWAY WIN
+             const awayWin = getOdd(1, "Away");
+             if (awayWin && awayWin >= MIN_IND_ODDS && awayWin <= 2.3) {
+                const awayLosses = (awayStats.form.match(/L/g) || []).length;
+                if (awayLosses <= 2) {
+                    candidates.push({ 
+                        sel: `${awayStats.name} Win`, 
+                        odd: awayWin, 
+                        type: 'Banker',
+                        reason: `Form: ${awayStats.form}`
                     });
                 }
             }
 
-            // --- STRATEGY 3: GOALS GALORE (Stats Based) ---
-            // If combined average goals > 3.0, Look for Over 2.5
+            // 3. OVER 2.5 GOALS
             const combinedAvgGoals = (homeStats.goalsFor + homeStats.goalsAgainst + awayStats.goalsFor + awayStats.goalsAgainst) / 2;
-            
-            if (combinedAvgGoals > 3.0) {
+            if (combinedAvgGoals > 2.8) {
                 const over25 = getOdd(5, "Over 2.5");
-                if (over25 && over25 >= 1.45 && over25 <= 1.9) {
-                    candidates.push({
-                        sel: "Over 2.5 Goals",
-                        odd: over25,
-                        type: 'Value',
-                        reason: `Avg Goals: ${combinedAvgGoals.toFixed(1)}`
-                    });
+                if (over25 && over25 >= 1.45 && over25 <= 2.0) {
+                    candidates.push({ sel: "Over 2.5 Goals", odd: over25, type: 'Value', reason: "High Goals Avg" });
                 }
-                
-                // Also check BTTS
-                const btts = getOdd(8, "Yes");
-                if (btts && btts >= 1.5 && btts <= 1.85) {
-                    candidates.push({
-                        sel: "BTTS: Yes",
-                        odd: btts,
-                        type: 'Value',
-                        reason: "High Scoring Stats"
-                    });
-                }
+            }
+            
+            // 4. DOUBLE CHANCE (Safety)
+            const dcHome = getOdd(12, "Home/Draw");
+            if (dcHome && dcHome >= 1.3 && dcHome <= 1.6) {
+                 candidates.push({ sel: `${homeStats.name} (DC)`, odd: dcHome, type: 'Anchor', reason: "Safety Net" });
             }
 
             if (candidates.length === 0) return null;
-
-            // Pick the "Best" candidate based on type priority: Anchor > Banker > Value
-            // But usually we just take the one with the most balanced odds for an acca
-            candidates.sort((a,b) => a.odd - b.odd); // Lowest odds first (safest)
+            candidates.sort((a,b) => a.odd - b.odd); 
             
             const best = candidates[0];
             return {
@@ -302,16 +297,10 @@
             };
         }
 
-        // --- 🏗️ ACCA BUILDER (Logic & Structure) ---
+        // --- 🏗️ BUILDER ---
         function buildSmartAccas(picks) {
             const results = [];
-            
-            // Separate picks by category
-            const anchors = picks.filter(p => p.type === 'Anchor' || (p.type === 'Banker' && p.odd < 1.5));
-            const value = picks.filter(p => p.odd >= 1.5);
-            
-            // If we don't have enough specific types, just merge and sort by safety
-            const pool = [...anchors, ...value].slice(0, 30);
+            const pool = picks.slice(0, 40); // Larger pool
             
             function combine(start, combo, k) {
                 if (combo.length === k) {
@@ -323,23 +312,14 @@
                 }
                 for(let i=start; i<pool.length; i++) {
                     if (combo.some(c => c.match === pool[i].match)) continue;
-                    
-                    // SMART RULE: Max 2 "Value" bets per acca to keep risk low?
-                    // For now, let's just build pure combos but sorted by pool priority
                     combine(i+1, [...combo, pool[i]], k);
                 }
             }
             
-            // Try to build 4-folds
-            combine(0, [], 4);
-            
-            // Sort by Probability (Approximate: Lower odds = higher prob)
-            // But we want to show HIGHEST odds first for user? 
-            // The user asked for "Winning" accas. So let's sort by LOWEST total odds (safest) that meet the threshold.
+            combine(0, [], 4); // 4-folds
             return results.sort((a,b) => a.odds - b.odds); 
         }
 
-        // --- 🎨 RENDERER ---
         function renderAcca(acca, div) {
             const el = document.createElement('div');
             el.className = 'acca-card';
