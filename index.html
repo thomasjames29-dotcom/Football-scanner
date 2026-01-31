@@ -3,36 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acca Master: v10 Fixer</title>
+    <title>Acca Master: v14 Monitor</title>
     <link rel="manifest" href="manifest.json">
     <style>
-        :root { --primary: #00ff88; --safe: #4cc9f0; --risk: #f72585; --bg: #121212; --card: #1e1e1e; --text: #ffffff; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); padding: 20px; padding-bottom: 80px; }
-        h1 { color: var(--primary); margin-bottom: 5px; font-size: 1.6rem; }
-        .badge { background: #333; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; color: #aaa; vertical-align: middle; margin-left: 8px; }
+        :root { --primary: #00ff88; --safe: #4cc9f0; --risk: #f72585; --player: #ffbe0b; --card: #ff4d4d; --shot: #9d4edd; --bg: #121212; --surface: #1e1e1e; --text: #ffffff; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); padding: 20px; padding-bottom: 80px; margin: 0; }
         
+        /* HEADER & API COUNTER */
+        .header-area { padding: 10px 0; border-bottom: 1px solid #333; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end; }
+        .title-group h1 { color: var(--primary); margin: 0; font-size: 1.4rem; line-height: 1.2; }
+        .badge { background: #333; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; color: #aaa; vertical-align: middle; }
+        
+        .api-monitor { text-align: right; font-family: monospace; font-size: 0.75rem; color: #666; }
+        .api-val { color: var(--primary); font-weight: bold; font-size: 0.9rem; }
+        .api-label { display: block; font-size: 0.65rem; }
+
+        /* TABS */
+        .tabs { display: flex; gap: 8px; margin-bottom: 20px; background: #1a1a1a; padding: 5px; border-radius: 12px; overflow-x: auto; }
+        .tab-btn { flex: 1; min-width: 80px; background: transparent; color: #888; border: none; padding: 12px 5px; font-weight: bold; cursor: pointer; border-radius: 8px; transition: 0.2s; white-space: nowrap; font-size: 0.9rem;}
+        .tab-btn.active { background: #333; color: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Controls */
         .controls { margin-bottom: 20px; }
         button#scanBtn { background: linear-gradient(135deg, var(--primary), #00cc6a); color: #000; border: none; padding: 16px; border-radius: 12px; font-weight: 800; width: 100%; font-size: 1rem; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(0,255,136,0.3); transition: transform 0.2s; }
         button#scanBtn:active { transform: scale(0.98); }
         button:disabled { opacity: 0.6; background: #444; cursor: wait; box-shadow: none; }
         
-        .acca-card { background: var(--card); border-radius: 16px; padding: 16px; margin-bottom: 20px; border-left: 5px solid var(--primary); box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
+        /* Cards */
+        .acca-card { background: var(--surface); border-radius: 16px; padding: 16px; margin-bottom: 20px; border-left: 5px solid var(--primary); box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
         .acca-header { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding-bottom: 12px; margin-bottom: 12px; align-items: center; }
         .acca-title { font-weight: 800; color: var(--primary); font-size: 1.1rem; }
-        .acca-roi { font-size: 0.9rem; color: #ccc; }
         
         .leg { display: flex; justify-content: space-between; margin-bottom: 12px; align-items: center; background: #252525; padding: 10px; border-radius: 8px; }
         .leg-info { display: flex; flex-direction: column; gap: 3px; }
         .leg-match { font-weight: 600; font-size: 0.95rem; }
         
+        .builder-card { border-left-color: var(--shot); }
+        .builder-match { font-size: 1.2rem; margin-bottom: 10px; display: block; color: #fff; font-weight: bold; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .builder-leg { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; color: #ccc; font-size: 0.9rem; }
+        .check-icon { color: var(--safe); }
+
+        /* Tags */
         .tag { font-size: 0.7rem; padding: 3px 8px; border-radius: 20px; font-weight: bold; width: fit-content; }
         .tag-safe { background: rgba(76, 201, 240, 0.2); color: var(--safe); }
         .tag-value { background: rgba(0, 255, 136, 0.2); color: var(--primary); }
-        .tag-form { border: 1px solid #444; color: #aaa; margin-left: 5px; }
+        .tag-player { background: rgba(255, 190, 11, 0.2); color: var(--player); }
+        .tag-card { background: rgba(255, 77, 77, 0.2); color: var(--card); }
+        .tag-shot { background: rgba(157, 78, 221, 0.2); color: var(--shot); }
 
         .odds-box { background: #111; padding: 6px 10px; border-radius: 6px; font-weight: bold; color: var(--primary); min-width: 45px; text-align: center; }
 
-        #console { background: #000; color: #00ff88; font-family: monospace; padding: 15px; border-radius: 8px; font-size: 0.8rem; margin-bottom: 20px; height: 140px; overflow-y: scroll; border: 1px solid #333; line-height: 1.5; }
+        #console { background: #000; color: #00ff88; font-family: monospace; padding: 15px; border-radius: 8px; font-size: 0.8rem; margin-bottom: 20px; height: 100px; overflow-y: scroll; border: 1px solid #333; line-height: 1.5; }
         .log-warn { color: #f72585 !important; }
         .log-info { color: #4cc9f0 !important; }
         
@@ -50,16 +73,42 @@
 </head>
 <body>
 
-    <h1>Acca Master <span class="badge">v10 Fixer</span></h1>
-    <p style="color:#888; margin-top:0; margin-bottom:20px; font-size:0.9rem;">Min Odds: 1.4 • Direct Odds Fetching</p>
-
-    <div id="console">System Ready.<br>Waiting to initialize...</div>
-
-    <div class="controls">
-        <button onclick="runReliableScan()" id="scanBtn">SEARCH TOP 10 LEAGUES</button>
+    <div class="header-area">
+        <div class="title-group">
+            <h1>Acca Master</h1><span class="badge">v14 Monitor</span>
+        </div>
+        <div class="api-monitor">
+            <span class="api-label">REMAINING CALLS</span>
+            <span id="api-remaining" class="api-val">--</span>
+        </div>
     </div>
 
-    <div id="results"></div>
+    <div id="console">System Ready.<br>Waiting for scan...</div>
+
+    <div class="controls">
+        <button onclick="runMultiScan()" id="scanBtn">SEARCH EVERYTHING</button>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('accas')">4-Folds</button>
+        <button class="tab-btn" onclick="switchTab('trebles')">Trebles</button>
+        <button class="tab-btn" onclick="switchTab('builders')">Bet Builders</button>
+        <button class="tab-btn" onclick="switchTab('props')">Player Props</button>
+    </div>
+
+    <div id="accas" class="tab-content active">
+        <div id="results-accas"></div>
+    </div>
+    <div id="trebles" class="tab-content">
+        <div id="results-trebles"></div>
+    </div>
+    <div id="builders" class="tab-content">
+        <div id="results-builders"></div>
+    </div>
+    <div id="props" class="tab-content">
+        <div id="results-props"></div>
+    </div>
+
     <div id="toast">Selections Copied!</div>
 
     <script>
@@ -67,14 +116,12 @@
         const API_KEY = '0f29a2f96e9dd4231cee515cc5ec52b0'; 
         const BASE_URL = 'https://v3.football.api-sports.io';
         
-        const MIN_ACCA_ODDS = 3.5; 
-        const MIN_IND_ODDS = 1.40; // UPDATED as requested
+        const MIN_ACCA_ODDS = 3.0; 
+        const MIN_IND_ODDS = 1.20; 
         const CURRENT_SEASON = 2025; 
-        
-        // Top 10 Leagues
         const LEAGUES = [39, 140, 78, 135, 61, 40, 88, 94, 144, 203]; 
 
-        // --- 📝 LOGGING ---
+        // --- 📝 UTILS ---
         function log(msg, type='normal') {
             const c = document.getElementById('console');
             const color = type === 'error' ? 'log-warn' : (type === 'info' ? 'log-info' : '');
@@ -82,82 +129,131 @@
             c.scrollTop = c.scrollHeight;
         }
 
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function updateApiCounter(headers) {
+            // API-Sports headers are usually x-ratelimit-requests-remaining
+            const remaining = headers.get("x-ratelimit-requests-remaining");
+            if (remaining) {
+                document.getElementById('api-remaining').innerText = remaining;
+                if(parseInt(remaining) < 100) document.getElementById('api-remaining').style.color = 'red';
+            }
+        }
+
+        // --- 📡 CENTRALIZED API ---
+        async function secureFetch(endpoint) {
+            try {
+                const res = await fetch(`${BASE_URL}${endpoint}`, { 
+                    headers: { 
+                        "x-rapidapi-key": API_KEY,
+                        "x-rapidapi-host": "v3.football.api-sports.io"
+                    } 
+                });
+                
+                // Update Counter
+                updateApiCounter(res.headers);
+                
+                const json = await res.json();
+                if (json.errors && Object.keys(json.errors).length > 0) {
+                    // Check for rate limit error specifically
+                    if (JSON.stringify(json.errors).includes("requests")) {
+                        document.getElementById('api-remaining').innerText = "0";
+                    }
+                    return null;
+                }
+                return json.response;
+            } catch (e) {
+                console.error("Fetch Error:", e);
+                return null;
+            }
+        }
+
         let teamStats = {}; 
 
-        // --- 🚀 RELIABLE ENGINE ---
-        async function runReliableScan() {
+        // --- 🚀 MAIN ENGINE ---
+        async function runMultiScan() {
             const btn = document.getElementById('scanBtn');
-            const resDiv = document.getElementById('results');
-            
-            btn.disabled = true;
-            resDiv.innerHTML = '';
+            // Clear outputs
+            ['accas','trebles','builders','props'].forEach(id => document.getElementById(`results-${id}`).innerHTML = '');
             document.getElementById('console').innerHTML = ''; 
             
-            log("Starting Reliable Scan (v10)...", 'info');
+            btn.disabled = true;
+            log("Starting V14 Scan...", 'info');
 
             try {
-                // STEP 1: Fetch Standings (For Form)
-                log(`Loading Form Data...`);
+                // 1. Knowledge
                 await buildKnowledgeBase();
 
-                // STEP 2: Find Fixtures first (Since we know this endpoint works!)
+                // 2. Fixtures
                 const d1 = new Date().toISOString().split('T')[0];
                 const t = new Date(); t.setDate(t.getDate() + 1);
                 const d2 = t.toISOString().split('T')[0];
                 
-                log(`Finding matches for ${d1} & ${d2}...`);
+                log(`Fixtures: ${d1} & ${d2}`);
                 const [games1, games2] = await Promise.all([
-                    fetchFixtures(d1),
-                    fetchFixtures(d2)
+                    secureFetch(`/fixtures?date=${d1}&timezone=Europe/London`), 
+                    secureFetch(`/fixtures?date=${d2}&timezone=Europe/London`)
                 ]);
                 
-                const allGames = [...games1, ...games2];
-                log(`Found ${allGames.length} total games.`);
-                
-                // STEP 3: Filter for Target Leagues
-                const targetGames = allGames.filter(g => LEAGUES.includes(g.league.id));
-                log(`${targetGames.length} games in Big 10 Leagues.`);
+                if (!games1 && !games2) throw new Error("API Connection Failed");
 
-                if (targetGames.length === 0) throw new Error("No big league games found today/tomorrow.");
+                const allGames = [...(games1||[]), ...(games2||[])].filter(g => LEAGUES.includes(g.league.id));
+                log(`Found ${allGames.length} matches.`);
 
-                // STEP 4: FETCH ODDS INDIVIDUALLY (The Fix)
-                log(`Fetching odds for ${targetGames.length} matches individually...`);
+                // 3. Odds Loop
+                log(`Fetching Markets...`);
                 const matchesWithOdds = [];
-                
-                // We fetch in batches to be safe, though parallel is fine for 30-50 reqs
-                const oddsPromises = targetGames.map(g => fetchGameOdds(g.fixture.id));
+                // Chunk requests if needed, but for now we parallelize
+                const oddsPromises = allGames.map(g => secureFetch(`/odds?fixture=${g.fixture.id}`));
                 const oddsResults = await Promise.all(oddsPromises);
                 
-                // Merge Odds into Game Objects
-                for(let i=0; i<targetGames.length; i++) {
-                    if(oddsResults[i]) {
-                        targetGames[i].odds = oddsResults[i]; // Attach odds
-                        matchesWithOdds.push(targetGames[i]);
+                for(let i=0; i<allGames.length; i++) {
+                    if(oddsResults[i] && oddsResults[i][0]) {
+                        allGames[i].odds = oddsResults[i][0];
+                        matchesWithOdds.push(allGames[i]);
                     }
                 }
-                
-                log(`Successfully retrieved odds for ${matchesWithOdds.length} matches.`, 'info');
 
-                // STEP 5: Analyze
+                // 4. Analyze
                 const picks = [];
+                const builders = []; 
+                const props = [];
+                
                 for (const m of matchesWithOdds) {
                     const pick = analyzeMatch(m);
                     if (pick) picks.push(pick);
+                    
+                    const granularProps = analyzeGranularProps(m);
+                    if (granularProps.length > 0) {
+                        props.push(...granularProps);
+                        if(granularProps[0].odd < 2.0) picks.push(granularProps[0]); 
+                    }
+
+                    const builder = analyzeForBuilder(m, granularProps);
+                    if (builder) builders.push(builder);
                 }
 
-                log(`Identified ${picks.length} Value Picks (Odds >= 1.4).`, 'info');
-                
-                if (picks.length < 3) throw new Error("Not enough matches met criteria.");
+                log(`Analysis: ${picks.length} Picks, ${props.length} Props.`, 'info');
 
-                // STEP 6: Build Accas
-                const accas = buildSmartAccas(picks);
-                log(`Generated ${accas.length} Accumulators.`);
+                // 5. Render
+                const accas4 = buildCombinations(picks, 4);
+                renderList(accas4.slice(0, 20), document.getElementById('results-accas'), '4-Fold');
+                if(accas4.length === 0) document.getElementById('results-accas').innerHTML = "<p>No 4-folds.</p>";
 
-                if (accas.length === 0) {
-                    resDiv.innerHTML = "<p style='text-align:center; color:#888;'>No combinations met the 3.5+ total odds criteria.</p>";
-                } else {
-                    accas.slice(0, 30).forEach((acca) => renderAcca(acca, resDiv));
-                }
+                const accas3 = buildCombinations(picks, 3);
+                renderList(accas3.slice(0, 20), document.getElementById('results-trebles'), 'Treble');
+                if(accas3.length === 0) document.getElementById('results-trebles').innerHTML = "<p>No Trebles.</p>";
+
+                renderBuilders(builders.slice(0, 15), document.getElementById('results-builders'));
+                if(builders.length === 0) document.getElementById('results-builders').innerHTML = "<p>No Builders.</p>";
+
+                renderPropsList(props.slice(0, 25), document.getElementById('results-props'));
+                if(props.length === 0) document.getElementById('results-props').innerHTML = "<p>No Props.</p>";
 
             } catch (err) {
                 log(err.message, 'error');
@@ -166,199 +262,175 @@
             }
         }
 
-        // --- 📡 API CALLS ---
-        
-        async function fetchFixtures(date) {
-            // Get basic list
-            try {
-                const res = await fetch(`${BASE_URL}/fixtures?date=${date}&timezone=Europe/London`, {
-                    headers: { "x-rapidapi-key": API_KEY }
-                });
-                const json = await res.json();
-                return json.response || [];
-            } catch (e) { return []; }
-        }
-
-        async function fetchGameOdds(fixtureId) {
-            // Get odds for specific game ID (Bypasses season/league issues)
-            try {
-                const res = await fetch(`${BASE_URL}/odds?fixture=${fixtureId}`, {
-                    headers: { "x-rapidapi-key": API_KEY }
-                });
-                const json = await res.json();
-                return json.response[0] || null; // Return the first odds object
-            } catch (e) { return null; }
-        }
-
-        async function fetchLeagueStandings(leagueId) {
-            try {
-                const res = await fetch(`${BASE_URL}/standings?league=${leagueId}&season=${CURRENT_SEASON}`, {
-                    headers: { "x-rapidapi-key": API_KEY }
-                });
-                const json = await res.json();
-                return json.response[0]?.league?.standings[0] || [];
-            } catch (e) { return []; }
-        }
-
+        // --- 🧠 LOGIC ---
         async function buildKnowledgeBase() {
-            const promises = LEAGUES.map(id => fetchLeagueStandings(id));
+            const promises = LEAGUES.map(id => secureFetch(`/standings?league=${id}&season=${CURRENT_SEASON}`));
             const results = await Promise.all(promises);
-            results.forEach(leagueData => {
-                if (!leagueData) return;
-                leagueData.forEach(standing => { 
-                    const teamId = standing.team.id;
-                    teamStats[teamId] = {
-                        name: standing.team.name,
-                        form: standing.form, 
-                        goalsFor: standing.all.goals.for / standing.all.played,
-                        goalsAgainst: standing.all.goals.against / standing.all.played
-                    };
+            results.forEach(res => {
+                if (!res || !res[0]) return;
+                res[0].league.standings[0].forEach(s => { 
+                    teamStats[s.team.id] = { name: s.team.name, form: s.form, gf: s.all.goals.for/s.all.played, ga: s.all.goals.against/s.all.played };
                 });
             });
         }
 
-        // --- 🕵️ ANALYSIS ---
+        function getOdd(bets, id, val) {
+            const mk = bets.find(b => b.id === id);
+            if (!mk) return null;
+            const v = mk.values.find(v => v.value.toString() === val);
+            return v ? parseFloat(v.odd) : null;
+        }
+
         function analyzeMatch(m) {
-            // Note: Structure for /odds endpoint response attached to m.odds
-            if (!m.odds || !m.odds.bookmakers || !m.odds.bookmakers.length) return null;
-            
+            if (!m.odds?.bookmakers?.[0]) return null;
             const homeId = m.teams.home.id;
             const awayId = m.teams.away.id;
             const homeStats = teamStats[homeId];
             const awayStats = teamStats[awayId];
-            
-            if (!homeStats || !awayStats) return null; // Strict mode
+            if (!homeStats || !awayStats) return null;
 
-            const bookie = m.odds.bookmakers.find(b => b.id === 6) || m.odds.bookmakers[0]; // Prefer Bet365, else take first
-            const bets = bookie.bets;
-            
-            const getOdd = (id, val) => {
-                const mk = bets.find(b => b.id === id);
-                if (!mk) return null;
-                const v = mk.values.find(v => v.value.toString() === val);
-                return v ? parseFloat(v.odd) : null;
-            };
-
+            const bets = m.odds.bookmakers.find(b=>b.id===6)?.bets || m.odds.bookmakers[0].bets;
             const candidates = [];
 
-            // 1. HOME WIN (Form Check)
-            const homeWin = getOdd(1, "Home");
-            if (homeWin && homeWin >= MIN_IND_ODDS && homeWin <= 2.3) {
-                const homeLosses = (homeStats.form.match(/L/g) || []).length;
-                if (homeLosses <= 2) {
-                    candidates.push({ 
-                        sel: `${homeStats.name} Win`, 
-                        odd: homeWin, 
-                        type: 'Banker',
-                        reason: `Form: ${homeStats.form}`
-                    });
-                }
+            // Winner
+            const homeWin = getOdd(bets, 1, "Home");
+            if (homeWin >= MIN_IND_ODDS && homeWin <= 2.2) {
+                if ((homeStats.form.match(/L/g)||[]).length <= 2) candidates.push({sel: `${homeStats.name} Win`, odd: homeWin, type: 'Banker'});
             }
-            
-            // 2. AWAY WIN
-             const awayWin = getOdd(1, "Away");
-             if (awayWin && awayWin >= MIN_IND_ODDS && awayWin <= 2.3) {
-                const awayLosses = (awayStats.form.match(/L/g) || []).length;
-                if (awayLosses <= 2) {
-                    candidates.push({ 
-                        sel: `${awayStats.name} Win`, 
-                        odd: awayWin, 
-                        type: 'Banker',
-                        reason: `Form: ${awayStats.form}`
-                    });
-                }
+            const awayWin = getOdd(bets, 1, "Away");
+            if (awayWin >= MIN_IND_ODDS && awayWin <= 2.2) {
+                if ((awayStats.form.match(/L/g)||[]).length <= 2) candidates.push({sel: `${awayStats.name} Win`, odd: awayWin, type: 'Banker'});
             }
-
-            // 3. OVER 2.5 GOALS
-            const combinedAvgGoals = (homeStats.goalsFor + homeStats.goalsAgainst + awayStats.goalsFor + awayStats.goalsAgainst) / 2;
-            if (combinedAvgGoals > 2.8) {
-                const over25 = getOdd(5, "Over 2.5");
-                if (over25 && over25 >= 1.45 && over25 <= 2.0) {
-                    candidates.push({ sel: "Over 2.5 Goals", odd: over25, type: 'Value', reason: "High Goals Avg" });
-                }
-            }
-            
-            // 4. DOUBLE CHANCE (Safety)
-            const dcHome = getOdd(12, "Home/Draw");
-            if (dcHome && dcHome >= 1.3 && dcHome <= 1.6) {
-                 candidates.push({ sel: `${homeStats.name} (DC)`, odd: dcHome, type: 'Anchor', reason: "Safety Net" });
-            }
+            // Goals
+            const combinedAvg = (homeStats.gf + homeStats.ga + awayStats.gf + awayStats.ga) / 2;
+            const over25 = getOdd(bets, 5, "Over 2.5");
+            if (combinedAvg > 2.8 && over25 >= 1.35 && over25 <= 1.9) candidates.push({sel: "Over 2.5 Goals", odd: over25, type: 'Value'});
 
             if (candidates.length === 0) return null;
-            candidates.sort((a,b) => a.odd - b.odd); 
-            
-            const best = candidates[0];
-            return {
-                match: `${homeStats.name} v ${awayStats.name}`,
-                sel: best.sel,
-                odd: best.odd,
-                type: best.type,
-                form: best.reason
-            };
+            candidates.sort((a,b) => a.odd - b.odd);
+            return { match: `${homeStats.name} v ${awayStats.name}`, ...candidates[0] };
         }
 
-        // --- 🏗️ BUILDER ---
-        function buildSmartAccas(picks) {
+        function analyzeGranularProps(m) {
+            if (!m.odds?.bookmakers?.[0]) return [];
+            const bets = m.odds.bookmakers.find(b=>b.id===6)?.bets || m.odds.bookmakers[0].bets;
+            const props = [];
+
+            // Card
+            const cardMarket = bets.find(b => b.name.includes("Card") || b.name.includes("Booking"));
+            if (cardMarket) {
+                const candidates = cardMarket.values.filter(v => parseFloat(v.odd) >= 2.0 && parseFloat(v.odd) <= 4.0);
+                if (candidates.length > 0) {
+                    candidates.sort((a,b) => parseFloat(a.odd) - parseFloat(b.odd));
+                    props.push({ match: `${m.teams.home.name} v ${m.teams.away.name}`, sel: `${candidates[0].value} Card`, odd: parseFloat(candidates[0].odd), type: 'Card' });
+                }
+            }
+            // Shot
+            const shotMarket = bets.find(b => b.name.includes("Shots on Target"));
+            if (shotMarket) {
+                 const candidates = shotMarket.values.filter(v => parseFloat(v.odd) >= 1.5 && parseFloat(v.odd) <= 2.5 && v.value.includes("Over"));
+                 if (candidates.length > 0) {
+                    candidates.sort((a,b) => parseFloat(a.odd) - parseFloat(b.odd));
+                    props.push({ match: `${m.teams.home.name} v ${m.teams.away.name}`, sel: `${candidates[0].value} SoT`, odd: parseFloat(candidates[0].odd), type: 'Shot' });
+                }
+            }
+            // Scorer
+             const scorerMarket = bets.find(b => b.name === "Anytime Goalscorer");
+             if (scorerMarket) {
+                 // Use home team stats check
+                 const hId = m.teams.home.id; 
+                 if(teamStats[hId] && teamStats[hId].gf > 1.4) {
+                     const candidates = scorerMarket.values.filter(v => parseFloat(v.odd) >= 1.6 && parseFloat(v.odd) <= 2.8);
+                     if(candidates.length > 0) {
+                         candidates.sort((a,b) => parseFloat(a.odd) - parseFloat(b.odd));
+                         props.push({ match: `${m.teams.home.name} v ${m.teams.away.name}`, sel: `${candidates[0].value} Score`, odd: parseFloat(candidates[0].odd), type: 'Player' });
+                     }
+                 }
+             }
+
+            return props;
+        }
+
+        function analyzeForBuilder(m, props) {
+            if (!m.odds?.bookmakers?.[0]) return null;
+            const homeId = m.teams.home.id;
+            const hs = teamStats[homeId];
+            if (!hs) return null;
+
+            const bets = m.odds.bookmakers.find(b=>b.id===6)?.bets || m.odds.bookmakers[0].bets;
+            const homeWin = getOdd(bets, 1, "Home");
+            const legs = [];
+
+            if (homeWin && homeWin < 2.0 && (hs.form.match(/W/g)||[]).length >= 2) legs.push(`Match Result: ${hs.name}`);
+
+            if (props && props.length > 0) {
+                legs.push(props[0].sel);
+            } else {
+                const over25 = getOdd(bets, 5, "Over 2.5");
+                if (over25 && over25 < 1.8) legs.push("Over 2.5 Goals");
+            }
+
+            if (legs.length >= 2) return { match: `${m.teams.home.name} v ${m.teams.away.name}`, legs: legs };
+            return null;
+        }
+
+        function buildCombinations(picks, k) {
             const results = [];
-            const pool = picks.slice(0, 40); // Larger pool
-            
-            function combine(start, combo, k) {
+            const pool = picks.slice(0, 40);
+            function combine(start, combo) {
                 if (combo.length === k) {
                     const total = combo.reduce((a, b) => a * b.odd, 1);
-                    if (total >= MIN_ACCA_ODDS) {
-                        results.push({ matches: combo, odds: total });
-                    }
+                    if (total >= MIN_ACCA_ODDS) results.push({ matches: combo, odds: total });
                     return;
                 }
                 for(let i=start; i<pool.length; i++) {
                     if (combo.some(c => c.match === pool[i].match)) continue;
-                    combine(i+1, [...combo, pool[i]], k);
+                    combine(i+1, [...combo, pool[i]]);
                 }
             }
-            
-            combine(0, [], 4); // 4-folds
+            combine(0, []);
             return results.sort((a,b) => a.odds - b.odds); 
         }
 
-        function renderAcca(acca, div) {
-            const el = document.createElement('div');
-            el.className = 'acca-card';
-            
-            const legs = acca.matches.map(m => {
-                let badgeClass = m.type === 'Anchor' ? 'tag-safe' : 'tag-value';
-                return `
-                <div class="leg">
-                    <div class="leg-info">
-                        <span class="leg-match">${m.match}</span>
-                        <div style="display:flex; align-items:center;">
-                            <span class="tag ${badgeClass}">${m.sel}</span>
-                            <span class="tag tag-form">${m.form}</span>
-                        </div>
-                    </div>
-                    <div class="odds-box">${m.odd.toFixed(2)}</div>
-                </div>
-            `}).join('');
-            
-            const copyText = acca.matches.map(m => `${m.match} - ${m.sel}`).join(', ');
-            const returnVal = (acca.odds * 10).toFixed(2);
-
-            el.innerHTML = `
-                <div class="acca-header">
-                    <div>
-                        <div class="acca-title">4-Fold Strategy</div>
-                        <span class="acca-roi">Est. Return: £${returnVal}</span>
-                    </div>
-                    <div style="font-size:1.4rem; font-weight:800; color:#fff;">${acca.odds.toFixed(2)}</div>
-                </div>
-                ${legs}
-                <div class="card-actions">
-                    <button class="action-btn btn-copy" onclick="copyToClipboard('${copyText}')">📋 Copy</button>
-                    <button class="action-btn btn-open" onclick="window.open('https://www.bet365.com', '_blank')">↗️ Bet365</button>
-                </div>
-            `;
-            div.appendChild(el);
+        // --- RENDER ---
+        function renderList(list, div, label) {
+            list.forEach(acca => {
+                const el = document.createElement('div');
+                el.className = 'acca-card';
+                const legs = acca.matches.map(m => {
+                    let tagClass = 'tag-value';
+                    if(m.type === 'Card') tagClass = 'tag-card';
+                    if(m.type === 'Shot') tagClass = 'tag-shot';
+                    if(m.type === 'Player') tagClass = 'tag-player';
+                    return `<div class="leg"><div class="leg-info"><span class="leg-match">${m.match}</span><div style="display:flex;align-items:center;"><span class="tag ${tagClass}">${m.sel}</span></div></div><div class="odds-box">${m.odd.toFixed(2)}</div></div>`;
+                }).join('');
+                const copyText = acca.matches.map(m => `${m.match} - ${m.sel}`).join(', ');
+                el.innerHTML = `<div class="acca-header"><div class="acca-title">${label}</div><div style="font-size:1.4rem;font-weight:800;color:#fff;">${acca.odds.toFixed(2)}</div></div>${legs}<div class="card-actions"><button class="action-btn btn-copy" onclick="copyToClipboard('${copyText}')">📋 Copy</button><button class="action-btn btn-open" onclick="window.open('https://www.bet365.com', '_blank')">↗️ Bet365</button></div>`;
+                div.appendChild(el);
+            });
         }
-
+        function renderPropsList(list, div) {
+             list.forEach(p => {
+                const el = document.createElement('div');
+                el.className = 'acca-card';
+                let tagClass = 'tag-value';
+                if(p.type === 'Card') tagClass = 'tag-card';
+                if(p.type === 'Shot') tagClass = 'tag-shot';
+                if(p.type === 'Player') tagClass = 'tag-player';
+                el.innerHTML = `<div class="acca-header"><div class="acca-title">${p.match}</div></div><div class="leg"><div class="leg-info"><span class="tag ${tagClass}">${p.sel}</span></div><div class="odds-box">${p.odd.toFixed(2)}</div></div><div class="card-actions"><button class="action-btn btn-copy" onclick="copyToClipboard('${p.sel}')">📋 Copy</button></div>`;
+                div.appendChild(el);
+            });
+        }
+        function renderBuilders(list, div) {
+            list.forEach(b => {
+                const el = document.createElement('div');
+                el.className = 'acca-card builder-card';
+                const legs = b.legs.map(l => `<div class="builder-leg"><span class="check-icon">✔</span> ${l}</div>`).join('');
+                const copyText = `${b.match} Bet Builder: ${b.legs.join(', ')}`;
+                el.innerHTML = `<span class="builder-match">${b.match}</span>${legs}<div class="card-actions"><button class="action-btn btn-copy" onclick="copyToClipboard('${copyText}')">📋 Copy</button><button class="action-btn btn-open" onclick="window.open('https://www.bet365.com', '_blank')">↗️ Bet365</button></div>`;
+                div.appendChild(el);
+            });
+        }
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(() => {
                 const t = document.getElementById("toast");
@@ -366,16 +438,11 @@
                 setTimeout(() => t.className = t.className.replace("show", ""), 3000);
             });
         }
-        
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('./service-worker.js').then(reg => {
                 reg.onupdatefound = () => {
                     const iw = reg.installing;
-                    iw.onstatechange = () => {
-                        if (iw.state === 'installed' && navigator.serviceWorker.controller) {
-                            window.location.reload();
-                        }
-                    };
+                    iw.onstatechange = () => { if (iw.state === 'installed' && navigator.serviceWorker.controller) window.location.reload(); };
                 };
             });
         }
