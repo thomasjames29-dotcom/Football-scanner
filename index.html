@@ -3,49 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acca Master: Live V3</title>
+    <title>Acca Master: Live V5</title>
     <link rel="manifest" href="manifest.json">
     <style>
         :root { --primary: #00ff88; --bg: #121212; --card: #1e1e1e; --text: #ffffff; }
         body { font-family: sans-serif; background: var(--bg); color: var(--text); padding: 20px; padding-bottom: 80px; }
         h1 { color: var(--primary); margin-bottom: 5px; }
-        .controls { margin-bottom: 20px; display: flex; gap: 10px; }
-        button { background: var(--primary); color: #000; border: none; padding: 15px; border-radius: 8px; font-weight: bold; width: 100%; font-size: 1rem; cursor: pointer; }
+        
+        /* Controls */
+        .controls { margin-bottom: 20px; }
+        button#scanBtn { background: var(--primary); color: #000; border: none; padding: 15px; border-radius: 8px; font-weight: bold; width: 100%; font-size: 1rem; cursor: pointer; }
         button:disabled { opacity: 0.5; background: #555; }
         
-        .acca-card { background: var(--card); border-radius: 12px; padding: 15px; margin-bottom: 15px; border-left: 4px solid var(--primary); }
-        .acca-header { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 10px; font-weight: bold; color: var(--primary); }
+        /* Cards */
+        .acca-card { background: var(--card); border-radius: 12px; padding: 15px; margin-bottom: 15px; border-left: 4px solid var(--primary); position: relative; }
+        .acca-header { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 10px; font-weight: bold; color: var(--primary); align-items: center;}
+        
+        /* Action Buttons on Card */
+        .card-actions { display: flex; gap: 8px; margin-top: 15px; border-top: 1px solid #333; padding-top: 10px; }
+        .action-btn { flex: 1; padding: 8px; border-radius: 4px; border: none; cursor: pointer; font-weight: bold; font-size: 0.85rem; }
+        .btn-copy { background: #333; color: #fff; }
+        .btn-open { background: #1a5c30; color: #fff; }
+
         .leg { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem; align-items: center; }
         .leg-meta { font-size: 0.75rem; color: #888; display: block; }
+        .leg-date { font-size: 0.7rem; color: #aaa; background: #333; padding: 2px 4px; border-radius: 3px; margin-left: 5px;}
         
         #console { background: #000; color: #0f0; font-family: monospace; padding: 10px; border-radius: 5px; font-size: 0.8rem; margin-bottom: 20px; height: 100px; overflow-y: scroll; border: 1px solid #333; }
-        .error { color: #ff5555; }
+        
+        /* Toast Notification */
+        #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 4px; padding: 16px; position: fixed; z-index: 1; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 17px; }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
     </style>
 </head>
 <body>
 
     <h1>Acca Master Pro</h1>
-    <p style="color:#888; margin-top:0;">Live Data • 3/1+ Odds</p>
+    <p style="color:#888; margin-top:0;">Live Data • Next 48 Hours</p>
 
-    <div id="console">System Ready. Waiting for user...</div>
+    <div id="console">System Ready.</div>
 
     <div class="controls">
-        <button onclick="startScan()" id="btn">SEARCH LIVE MARKETS</button>
+        <button onclick="startScan()" id="scanBtn">SEARCH 48H MARKET</button>
     </div>
 
     <div id="results"></div>
+    
+    <div id="toast">Selections Copied!</div>
 
     <script>
-        // --- API CONFIG ---
         const API_KEY = '0f29a2f96e9dd4231cee515cc5ec52b0';
         const BASE_URL = 'https://v3.football.api-sports.io';
+        const MIN_ACCUMULATOR_ODDS = 4.0; // 3/1
         
-        // --- SETTINGS ---
-        // CHANGED: Minimum odds now 4.0 (3/1)
-        const MIN_ACCUMULATOR_ODDS = 4.0; 
-        
-        // --- LEAGUE CONFIG (Major Leagues Only) ---
-        // 39=PL, 140=LaLiga, 135=SerieA, 78=Bundesliga, 61=Ligue1
+        // Major Leagues Only
         const TARGET_LEAGUES = [39, 140, 135, 78, 61]; 
 
         function log(msg, type='info') {
@@ -56,38 +69,46 @@
         }
 
         async function startScan() {
-            const btn = document.getElementById('btn');
+            const btn = document.getElementById('scanBtn');
             const resDiv = document.getElementById('results');
             
             btn.disabled = true;
             resDiv.innerHTML = '';
-            document.getElementById('console').innerHTML = ''; // Clear console
+            document.getElementById('console').innerHTML = ''; 
             
-            log("Starting Scan...");
+            log("Starting 48h Scan...");
 
             try {
-                // 1. Get Dates
-                const today = new Date().toISOString().split('T')[0];
-                log(`Fetching fixtures for: ${today}`);
+                // 1. Calculate Dates (Today + Tomorrow)
+                const todayObj = new Date();
+                const tomorrowObj = new Date(todayObj);
+                tomorrowObj.setDate(tomorrowObj.getDate() + 1);
 
-                // 2. Fetch Data
-                const data = await fetchFromApi(today);
-                log(`API returned ${data.length} total matches.`);
+                const date1 = todayObj.toISOString().split('T')[0];
+                const date2 = tomorrowObj.toISOString().split('T')[0];
 
-                // 3. Filter
-                const validMatches = data.filter(m => {
+                log(`Fetching: ${date1} & ${date2}`);
+
+                // 2. Parallel Fetch
+                const [dataToday, dataTomorrow] = await Promise.all([
+                    fetchFromApi(date1),
+                    fetchFromApi(date2)
+                ]);
+
+                // 3. Merge Data
+                const allMatches = [...dataToday, ...dataTomorrow];
+                log(`Total matches found: ${allMatches.length}`);
+                
+                // 4. Filter
+                const validMatches = allMatches.filter(m => {
                     const isTargetLeague = TARGET_LEAGUES.includes(m.league.id);
                     const isFuture = ['NS'].includes(m.fixture.status.short);
                     return isTargetLeague && isFuture;
                 });
 
-                log(`Found ${validMatches.length} matches in Target Leagues (Not Started).`);
+                if (validMatches.length === 0) throw new Error("No matches in Big 5 leagues in next 48h.");
 
-                if (validMatches.length === 0) {
-                    throw new Error("No matches found in big 5 leagues today.");
-                }
-
-                // 4. Analyze Odds
+                // 5. Analyze Odds
                 const picks = [];
                 for (const m of validMatches) {
                     const pick = analyzeMatch(m);
@@ -96,18 +117,16 @@
 
                 log(`Identified ${picks.length} value selections.`);
 
-                if (picks.length < 3) {
-                    throw new Error("Not enough matches met the odds criteria for an acca.");
-                }
+                if (picks.length < 3) throw new Error("Not enough value matches found.");
 
-                // 5. Generate Accas
+                // 6. Generate Accas
                 const accas = generateAccas(picks);
                 log(`Generated ${accas.length} Accumulators.`);
 
                 if (accas.length === 0) {
                     resDiv.innerHTML = "<p>No accas found over 3/1 odds.</p>";
                 } else {
-                    accas.slice(0, 20).forEach(acca => renderAcca(acca, resDiv));
+                    accas.slice(0, 20).forEach((acca, index) => renderAcca(acca, resDiv, index));
                 }
 
             } catch (err) {
@@ -120,21 +139,13 @@
         async function fetchFromApi(date) {
             const response = await fetch(`${BASE_URL}/fixtures?date=${date}&timezone=Europe/London`, {
                 method: "GET",
-                headers: {
-                    "x-rapidapi-host": "v3.football.api-sports.io",
-                    "x-rapidapi-key": API_KEY
-                }
+                headers: { "x-rapidapi-host": "v3.football.api-sports.io", "x-rapidapi-key": API_KEY }
             });
             const json = await response.json();
-            
-            if (json.errors && Object.keys(json.errors).length > 0) {
-                throw new Error("API Limit/Key Error: " + JSON.stringify(json.errors));
-            }
-            return json.response;
+            return json.response || [];
         }
 
         function analyzeMatch(m) {
-            // Safety check for odds structure
             if(!m.odds || !m.odds.bookmakers) return null;
             const b = m.odds.bookmakers[0];
             if(!b) return null;
@@ -146,15 +157,18 @@
             
             const odd = parseFloat(home.odd);
             
-            // Strategy: Back Home Favorites
-            // Range: 1.40 - 2.20
+            // Odds Range: 1.40 - 2.20
             if (odd >= 1.4 && odd <= 2.2) {
+                // Get readable time
+                const d = new Date(m.fixture.date);
+                const dayName = d.toLocaleDateString('en-GB', { weekday: 'short' });
+                
                 return {
                     home: m.teams.home.name,
                     away: m.teams.away.name,
                     odd: odd,
                     league: m.league.name,
-                    time: m.fixture.date
+                    day: dayName
                 };
             }
             return null;
@@ -162,16 +176,13 @@
 
         function generateAccas(picks) {
             const results = [];
-            
             if (picks.length < 3) return [];
-            
             const pool = picks.slice(0, 15);
             
-            // Generate 3-folds and 4-folds
             function combine(start, combo, targetSize) {
                 if (combo.length === targetSize) {
                     const total = combo.reduce((a, b) => a * b.odd, 1);
-                    if (total > MIN_ACCUMULATOR_ODDS) { // Now checking against 4.0 (3/1)
+                    if (total > MIN_ACCUMULATOR_ODDS) {
                         results.push({ matches: combo, odds: total });
                     }
                     return;
@@ -180,53 +191,62 @@
                     combine(i+1, [...combo, pool[i]], targetSize);
                 }
             }
-
-            // Run for 3-folds
             combine(0, [], 3);
-            // Run for 4-folds
             combine(0, [], 4);
-
             return results.sort((a,b) => b.odds - a.odds);
         }
 
-        function renderAcca(acca, div) {
+        function renderAcca(acca, div, index) {
             const el = document.createElement('div');
             el.className = 'acca-card';
+            
             const html = acca.matches.map(m => `
                 <div class="leg">
                     <div>
-                        <span class="leg-meta">${m.league}</span>
+                        <span class="leg-meta">${m.league} <span class="leg-date">${m.day}</span></span>
                         ${m.home} vs ${m.away}
                     </div>
                     <strong>${m.odd}</strong>
                 </div>
             `).join('');
             
+            const copyText = acca.matches.map(m => `${m.home} to win`).join(', ');
+
             el.innerHTML = `
                 <div class="acca-header">
                     <span>${acca.matches.length}-Fold</span>
                     <span>${acca.odds.toFixed(2)} (${Math.floor(acca.odds)-1}/1)</span>
                 </div>
                 ${html}
+                <div class="card-actions">
+                    <button class="action-btn btn-copy" onclick="copyToClipboard('${copyText}')">📋 Copy</button>
+                    <button class="action-btn btn-open" onclick="window.open('https://www.bet365.com', '_blank')">↗️ Bet365</button>
+                </div>
             `;
             div.appendChild(el);
         }
 
-        // SERVICE WORKER REGISTRATION
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                const toast = document.getElementById("toast");
+                toast.className = "show";
+                setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
+            }, function(err) {
+                console.error('Async: Could not copy text: ', err);
+            });
+        }
+
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./service-worker.js')
-                .then(reg => {
-                    reg.onupdatefound = () => {
-                        const installingWorker = reg.installing;
-                        installingWorker.onstatechange = () => {
-                            if (installingWorker.state === 'installed') {
-                                if (navigator.serviceWorker.controller) {
-                                    window.location.reload();
-                                }
-                            }
-                        };
+            navigator.serviceWorker.register('./service-worker.js').then(reg => {
+                reg.onupdatefound = () => {
+                    const installingWorker = reg.installing;
+                    installingWorker.onstatechange = () => {
+                        if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            window.location.reload();
+                        }
                     };
-                });
+                };
+            });
         }
     </script>
 </body>
