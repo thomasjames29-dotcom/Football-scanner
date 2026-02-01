@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acca Master: v17 Precision</title>
+    <title>Acca Master: v18 Upcoming</title>
     <link rel="manifest" href="manifest.json">
     <style>
         :root { --primary: #00ff88; --safe: #4cc9f0; --risk: #f72585; --player: #ffbe0b; --card: #ff4d4d; --shot: #9d4edd; --bg: #121212; --surface: #1e1e1e; --text: #ffffff; }
@@ -16,17 +16,20 @@
         .api-monitor { text-align: right; font-family: monospace; font-size: 0.75rem; color: #666; }
         .api-val { color: var(--primary); font-weight: bold; font-size: 0.9rem; }
         
+        /* TABS */
         .tabs { display: flex; gap: 8px; margin-bottom: 20px; background: #1a1a1a; padding: 5px; border-radius: 12px; overflow-x: auto; }
         .tab-btn { flex: 1; min-width: 80px; background: transparent; color: #888; border: none; padding: 12px 5px; font-weight: bold; cursor: pointer; border-radius: 8px; transition: 0.2s; white-space: nowrap; font-size: 0.9rem;}
         .tab-btn.active { background: #333; color: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
+        /* Controls */
         .controls { margin-bottom: 20px; }
         button#scanBtn { background: linear-gradient(135deg, var(--primary), #00cc6a); color: #000; border: none; padding: 16px; border-radius: 12px; font-weight: 800; width: 100%; font-size: 1rem; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(0,255,136,0.3); transition: transform 0.2s; }
         button#scanBtn:active { transform: scale(0.98); }
         button:disabled { opacity: 0.6; background: #444; cursor: wait; box-shadow: none; }
         
+        /* Cards */
         .acca-card { background: var(--surface); border-radius: 16px; padding: 16px; margin-bottom: 20px; border-left: 5px solid var(--primary); box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
         .acca-header { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding-bottom: 12px; margin-bottom: 12px; align-items: center; }
         .acca-title { font-weight: 800; color: var(--primary); font-size: 1.1rem; }
@@ -36,11 +39,13 @@
         .leg-match { font-weight: 600; font-size: 0.95rem; }
         .leg-time { font-size: 0.7rem; color: #888; display: block; margin-bottom: 2px; }
         
+        /* Builder Specific */
         .builder-card { border-left-color: var(--shot); }
         .builder-match { font-size: 1.2rem; margin-bottom: 10px; display: block; color: #fff; font-weight: bold; border-bottom: 1px solid #333; padding-bottom: 10px; }
         .builder-leg { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; color: #ccc; font-size: 0.9rem; }
         .check-icon { color: var(--safe); }
 
+        /* Tags */
         .tag { font-size: 0.7rem; padding: 3px 8px; border-radius: 20px; font-weight: bold; width: fit-content; }
         .tag-safe { background: rgba(76, 201, 240, 0.2); color: var(--safe); }
         .tag-value { background: rgba(0, 255, 136, 0.2); color: var(--primary); }
@@ -50,6 +55,7 @@
 
         .odds-box { background: #111; padding: 6px 10px; border-radius: 6px; font-weight: bold; color: var(--primary); min-width: 45px; text-align: center; }
 
+        /* Console */
         #console { background: #000; color: #00ff88; font-family: monospace; padding: 15px; border-radius: 8px; font-size: 0.8rem; margin-bottom: 20px; height: 100px; overflow-y: scroll; border: 1px solid #333; line-height: 1.5; }
         .log-warn { color: #f72585 !important; }
         .log-info { color: #4cc9f0 !important; }
@@ -70,7 +76,7 @@
 
     <div class="header-area">
         <div class="title-group">
-            <h1>Acca Master</h1><span class="badge">v17 Precision</span>
+            <h1>Acca Master</h1><span class="badge">v18 Upcoming</span>
         </div>
         <div class="api-monitor">
             <span class="api-label">REMAINING CALLS</span>
@@ -81,18 +87,20 @@
     <div id="console">System Ready.<br>Waiting for scan...</div>
 
     <div class="controls">
-        <button onclick="runMultiScan()" id="scanBtn">SEARCH & OPTIMIZE</button>
+        <button onclick="runMultiScan()" id="scanBtn">SEARCH TODAY'S MARKETS</button>
     </div>
 
     <div class="tabs">
         <button class="tab-btn active" onclick="switchTab('accas')">4-Folds</button>
         <button class="tab-btn" onclick="switchTab('trebles')">Trebles</button>
+        <button class="tab-btn" onclick="switchTab('upcoming')">Upcoming (Today)</button>
         <button class="tab-btn" onclick="switchTab('builders')">Bet Builders</button>
-        <button class="tab-btn" onclick="switchTab('props')">Player Props</button>
+        <button class="tab-btn" onclick="switchTab('props')">Props</button>
     </div>
 
     <div id="accas" class="tab-content active"><div id="results-accas"></div></div>
     <div id="trebles" class="tab-content"><div id="results-trebles"></div></div>
+    <div id="upcoming" class="tab-content"><div id="results-upcoming"></div></div>
     <div id="builders" class="tab-content"><div id="results-builders"></div></div>
     <div id="props" class="tab-content"><div id="results-props"></div></div>
 
@@ -157,21 +165,20 @@
         // --- MAIN ENGINE ---
         async function runMultiScan() {
             const btn = document.getElementById('scanBtn');
-            ['accas','trebles','builders','props'].forEach(id => document.getElementById(`results-${id}`).innerHTML = '');
+            ['accas','trebles','upcoming','builders','props'].forEach(id => document.getElementById(`results-${id}`).innerHTML = '');
             document.getElementById('console').innerHTML = ''; 
             
             btn.disabled = true;
-            log("Starting Precision Scan...", 'info');
+            log("Starting Scan...", 'info');
 
             try {
                 await buildKnowledgeBase();
 
-                // FIX: Get dates correctly
                 const d1 = new Date().toISOString().split('T')[0];
                 const t = new Date(); t.setDate(t.getDate() + 1);
                 const d2 = t.toISOString().split('T')[0];
                 
-                log(`Fixtures: ${d1} & ${d2}`);
+                log(`Dates: ${d1} & ${d2}`);
                 const [games1, games2] = await Promise.all([
                     secureFetch(`/fixtures?date=${d1}&timezone=Europe/London`), 
                     secureFetch(`/fixtures?date=${d2}&timezone=Europe/London`)
@@ -194,8 +201,7 @@
                     }
                 }
 
-                // --- SHUFFLE MATCHES BEFORE ANALYSIS TO REDUCE FIXATION ---
-                // This ensures we don't always pick the same league first
+                // Shuffle for variety
                 matchesWithOdds.sort(() => Math.random() - 0.5);
 
                 const picks = [];
@@ -216,18 +222,26 @@
                     if (builder) builders.push(builder);
                 }
 
-                log(`Pool: ${picks.length} Bets Available.`, 'info');
+                log(`Pool: ${picks.length} Bets.`, 'info');
 
                 // Generate UNIQUE Lists
                 const accas4 = buildDiverseAccas(picks, 4);
                 renderList(accas4.slice(0, 20), document.getElementById('results-accas'), '4-Fold');
                 if(accas4.length === 0) document.getElementById('results-accas').innerHTML = "<p>No 4-folds found.</p>";
 
-                // Re-shuffle for trebles to give different look
                 const picksForTrebles = [...picks].sort(() => Math.random() - 0.5);
                 const accas3 = buildDiverseAccas(picksForTrebles, 3);
                 renderList(accas3.slice(0, 20), document.getElementById('results-trebles'), 'Treble');
                 if(accas3.length === 0) document.getElementById('results-trebles').innerHTML = "<p>No Trebles found.</p>";
+
+                // UPCOMING TAB (Today Only, Not Started)
+                // Filter picks: Date matches d1 AND Status is NS
+                const upcomingPicks = picks.filter(p => p.rawDate.startsWith(d1) && p.status === 'NS');
+                // Sort by time
+                upcomingPicks.sort((a,b) => new Date(a.rawDate) - new Date(b.rawDate));
+                // We render as a list of single cards
+                renderPropsList(upcomingPicks, document.getElementById('results-upcoming'));
+                if(upcomingPicks.length === 0) document.getElementById('results-upcoming').innerHTML = "<p>No upcoming matches for today found.</p>";
 
                 renderBuilders(builders.slice(0, 15), document.getElementById('results-builders'));
                 if(builders.length === 0) document.getElementById('results-builders').innerHTML = "<p>No Builders found.</p>";
@@ -268,37 +282,40 @@
             const bets = m.odds.bookmakers.find(b=>b.id===6)?.bets || m.odds.bookmakers[0].bets;
             const homeId = m.teams.home.id;
             const awayId = m.teams.away.id;
+            // Removed strict dependency on stats
             const hs = teamStats[homeId] || { form: "?????" }; 
             const as = teamStats[awayId] || { form: "?????" }; 
 
             const validBets = [];
             const matchName = `${m.teams.home.name} v ${m.teams.away.name}`;
-            const timeStr = formatTime(m.fixture.date); // UK Time
+            const timeStr = formatTime(m.fixture.date);
+            const rawDate = m.fixture.date;
+            const status = m.fixture.status.short;
 
             // 1. Winner
             const homeWin = getOdd(bets, 1, "Home");
             if (homeWin >= MIN_IND_ODDS && homeWin <= 2.2) {
                 if (hs.form === "?????" || (hs.form.match(/L/g)||[]).length <= 2) {
-                    validBets.push({match: matchName, time: timeStr, leagueId: m.league.id, matchId: m.fixture.id, sel: `${m.teams.home.name} Win`, odd: homeWin, type: 'Banker'});
+                    validBets.push({match: matchName, rawDate, status, time: timeStr, leagueId: m.league.id, matchId: m.fixture.id, sel: `${m.teams.home.name} Win`, odd: homeWin, type: 'Banker'});
                 }
             }
             const awayWin = getOdd(bets, 1, "Away");
             if (awayWin >= MIN_IND_ODDS && awayWin <= 2.2) {
                 if (as.form === "?????" || (as.form.match(/L/g)||[]).length <= 2) {
-                    validBets.push({match: matchName, time: timeStr, leagueId: m.league.id, matchId: m.fixture.id, sel: `${m.teams.away.name} Win`, odd: awayWin, type: 'Banker'});
+                    validBets.push({match: matchName, rawDate, status, time: timeStr, leagueId: m.league.id, matchId: m.fixture.id, sel: `${m.teams.away.name} Win`, odd: awayWin, type: 'Banker'});
                 }
             }
             
             // 2. Goals
             const over25 = getOdd(bets, 5, "Over 2.5");
             if (over25 && over25 >= 1.35 && over25 <= 1.9) {
-                 validBets.push({match: matchName, time: timeStr, leagueId: m.league.id, matchId: m.fixture.id, sel: "Over 2.5 Goals", odd: over25, type: 'Value'});
+                 validBets.push({match: matchName, rawDate, status, time: timeStr, leagueId: m.league.id, matchId: m.fixture.id, sel: "Over 2.5 Goals", odd: over25, type: 'Value'});
             }
 
             // 3. Double Chance
             const dcHome = getOdd(bets, 12, "Home/Draw");
             if(dcHome && dcHome >= 1.25 && dcHome <= 1.5) {
-                 validBets.push({match: matchName, time: timeStr, leagueId: m.league.id, matchId: m.fixture.id, sel: `${m.teams.home.name} (DC)`, odd: dcHome, type: 'Safe'});
+                 validBets.push({match: matchName, rawDate, status, time: timeStr, leagueId: m.league.id, matchId: m.fixture.id, sel: `${m.teams.home.name} (DC)`, odd: dcHome, type: 'Safe'});
             }
 
             return validBets;
@@ -310,6 +327,8 @@
             const props = [];
             const matchName = `${m.teams.home.name} v ${m.teams.away.name}`;
             const timeStr = formatTime(m.fixture.date);
+            const rawDate = m.fixture.date;
+            const status = m.fixture.status.short;
 
             // Card
             const cardMarket = bets.find(b => b.name.includes("Card") || b.name.includes("Booking"));
@@ -317,7 +336,7 @@
                 const candidates = cardMarket.values.filter(v => parseFloat(v.odd) >= 2.0 && parseFloat(v.odd) <= 4.0);
                 if (candidates.length > 0) {
                     candidates.sort((a,b) => parseFloat(a.odd) - parseFloat(b.odd));
-                    props.push({ match: matchName, time: timeStr, leagueId: m.league.id, matchId: m.fixture.id, sel: `${candidates[0].value} Card`, odd: parseFloat(candidates[0].odd), type: 'Card' });
+                    props.push({ match: matchName, rawDate, status, time: timeStr, leagueId: m.league.id, matchId: m.fixture.id, sel: `${candidates[0].value} Card`, odd: parseFloat(candidates[0].odd), type: 'Card' });
                 }
             }
             // Shot
@@ -326,7 +345,7 @@
                  const candidates = shotMarket.values.filter(v => parseFloat(v.odd) >= 1.5 && parseFloat(v.odd) <= 2.5 && v.value.includes("Over"));
                  if (candidates.length > 0) {
                     candidates.sort((a,b) => parseFloat(a.odd) - parseFloat(b.odd));
-                    props.push({ match: matchName, time: timeStr, leagueId: m.league.id, matchId: m.fixture.id, sel: `${candidates[0].value} SoT`, odd: parseFloat(candidates[0].odd), type: 'Shot' });
+                    props.push({ match: matchName, rawDate, status, time: timeStr, leagueId: m.league.id, matchId: m.fixture.id, sel: `${candidates[0].value} SoT`, odd: parseFloat(candidates[0].odd), type: 'Shot' });
                 }
             }
             // Scorer
@@ -335,7 +354,7 @@
                  const candidates = scorerMarket.values.filter(v => parseFloat(v.odd) >= 1.6 && parseFloat(v.odd) <= 2.8);
                  if(candidates.length > 0) {
                      candidates.sort((a,b) => parseFloat(a.odd) - parseFloat(b.odd));
-                     props.push({ match: matchName, time: timeStr, leagueId: m.league.id, matchId: m.fixture.id, sel: `${candidates[0].value} Score`, odd: parseFloat(candidates[0].odd), type: 'Player' });
+                     props.push({ match: matchName, rawDate, status, time: timeStr, leagueId: m.league.id, matchId: m.fixture.id, sel: `${candidates[0].value} Score`, odd: parseFloat(candidates[0].odd), type: 'Player' });
                  }
              }
             return props;
@@ -346,7 +365,6 @@
             const bets = m.odds.bookmakers.find(b=>b.id===6)?.bets || m.odds.bookmakers[0].bets;
             const homeWin = getOdd(bets, 1, "Home");
             const legs = [];
-            
             const timeStr = formatTime(m.fixture.date);
 
             if (homeWin && homeWin < 2.0) legs.push(`Match Result: ${m.teams.home.name}`);
@@ -362,27 +380,19 @@
             return null;
         }
 
-        // --- UNIQUE & DIVERSE BUILDER LOGIC ---
         function buildDiverseAccas(pool, size) {
             const results = [];
             let available = [...pool]; 
-            
-            // WEIGHTED SHUFFLE: Slight bias towards lower odds but random enough
-            // available.sort((a,b) => (a.odd + Math.random()) - (b.odd + Math.random())); 
 
             while(available.length >= size) {
                 const currentAcca = [];
                 const usedMatchIds = new Set();
-                const usedLeagueIds = {}; // Track league counts
+                const usedLeagueIds = {}; 
                 const indicesToRemove = [];
 
                 for(let i=0; i<available.length; i++) {
                     const bet = available[i];
-                    
-                    // Rule 1: Unique Match
                     if (usedMatchIds.has(bet.matchId)) continue;
-                    
-                    // Rule 2: League Diversity (Max 2 per league per acca)
                     const lCount = usedLeagueIds[bet.leagueId] || 0;
                     if (lCount >= 2) continue;
 
@@ -398,14 +408,12 @@
 
                 const total = currentAcca.reduce((a, b) => a * b.odd, 1);
                 
-                // Allow slightly lower odds if we are running out of bets
                 if (total >= MIN_ACCA_ODDS) {
                     results.push({ matches: currentAcca, odds: total });
                     for (let i = indicesToRemove.length - 1; i >= 0; i--) {
                         available.splice(indicesToRemove[i], 1);
                     }
                 } else {
-                    // Just remove the first one to shift the window
                     available.splice(0, 1);
                 }
                 
